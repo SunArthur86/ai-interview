@@ -46,6 +46,7 @@ async function init() {
   applyFilters();
   updateProgress();
   updateStudyDashboard();
+  updateReviewDashboard();
   hideLoader();
 }
 
@@ -109,11 +110,20 @@ function renderCards() {
     const cat = CATEGORIES[q._category];
     const isFav = State.favorites.has(q.id);
     const isViewed = State.viewed.has(q.id);
+    const reviewItem = ReviewEngine.getItem(q.id);
+    const isMastered = reviewItem && (
+      (reviewItem.algo === 'leitner' && reviewItem.box >= 4) ||
+      (reviewItem.algo === 'ebbinghaus' && reviewItem.phase >= 5) ||
+      (reviewItem.algo === 'sm2' && reviewItem.interval >= 21)
+    );
+    const isDue = reviewItem && reviewItem.nextDate <= new Date().toISOString().split('T')[0];
     return `
       <div class="card" style="--card-accent: ${cat.color}; animation-delay: ${i * 0.03}s;" onclick="openModal('${q.id}')">
         <div class="card__header">
           <span class="card__id">${q.id.toUpperCase()}</span>
           <span class="card__difficulty" data-level="${q.difficulty}">${q.difficulty}</span>
+          ${isMastered ? '<span class="card__tag" style="color:var(--success);border-color:var(--success);">✓ 已掌握</span>' : ''}
+          ${isDue && !isMastered ? '<span class="card__tag" style="color:var(--orange);border-color:var(--orange);">🔁 待复习</span>' : ''}
         </div>
         <div class="card__question">${escapeHtml(q.question)}</div>
         <div class="card__tags">
@@ -364,6 +374,14 @@ function handleKeyboard(e) {
     e.preventDefault();
     document.getElementById('searchInput').focus();
   }
+  // 'R' key to start review
+  if (e.key === 'r' || e.key === 'R') {
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      if (!StudyState.active && !ReviewState.active) {
+        startReview();
+      }
+    }
+  }
 }
 
 // ============ Markdown Renderer (Lightweight) ============
@@ -451,6 +469,7 @@ function bindEvents() {
   document.addEventListener('keydown', handleKeyboard);
   // Study keyboard
   document.addEventListener('keydown', handleStudyKeyboard);
+  document.addEventListener('keydown', handleReviewKeyboard);
   // Reset progress
   const resetBtn = document.getElementById('resetProgress');
   if (resetBtn) resetBtn.addEventListener('click', () => {

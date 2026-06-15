@@ -24,6 +24,7 @@
   <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/study.css">
+  <link rel="stylesheet" href="css/forgetting.css">
 
   <!-- SW -->
   <script>
@@ -133,6 +134,9 @@
     <!-- Study Dashboard -->
     <div class="study-dashboard" id="studyDashboard"></div>
 
+    <!-- Review Dashboard -->
+    <div class="review-dashboard" id="reviewDashboard"></div>
+
     <!-- Daily Goal -->
     <div class="daily-goal" id="dailyGoal"></div>
 
@@ -149,6 +153,10 @@
       <button class="start-study-btn" onclick="startStudy('wrong-only')" style="background:var(--danger);border-color:var(--danger);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         只刷错题
+      </button>
+      <button class="start-study-btn" onclick="startReview()" style="background:var(--orange);border-color:var(--orange);position:relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        🔁 遗忘曲线复习<span class="review-due-count" id="reviewDueCount" style="display:none;"></span>
       </button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;" id="subcategoryFilters"></div>
@@ -202,11 +210,66 @@
         <button onclick="adjustDailyGoal(5)" style="width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);cursor:pointer;font-size:1.2rem;">+</button>
       </div>
     </div>
+    <div class="settings-group settings-group__review">
+      <div class="settings-group__label">🔁 遗忘曲线复习</div>
+
+      <!-- Algorithm Selection -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:0.8125rem;color:var(--text-secondary);margin-bottom:8px;">复习算法</div>
+        <div class="algo-selector">
+          <div class="algo-option active" data-algo="sm2" onclick="setReviewAlgorithm('sm2')">
+            <div class="algo-option__radio"></div>
+            <div class="algo-option__content">
+              <div class="algo-option__name">SM-2 智能间隔</div>
+              <div class="algo-option__desc">根据记忆表现动态调整间隔，最科学的算法</div>
+            </div>
+          </div>
+          <div class="algo-option" data-algo="leitner" onclick="setReviewAlgorithm('leitner')">
+            <div class="algo-option__radio"></div>
+            <div class="algo-option__content">
+              <div class="algo-option__name">Leitner 卡盒</div>
+              <div class="algo-option__desc">5个盒子递进，答对升级答错降级</div>
+            </div>
+          </div>
+          <div class="algo-option" data-algo="ebbinghaus" onclick="setReviewAlgorithm('ebbinghaus')">
+            <div class="algo-option__radio"></div>
+            <div class="algo-option__content">
+              <div class="algo-option__name">艾宾浩斯曲线</div>
+              <div class="algo-option__desc">经典 6 点复习：1天/2天/4天/7天/15天/30天</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Review Limit -->
+      <div style="margin-bottom:12px;">
+        <div style="font-size:0.8125rem;color:var(--text-secondary);margin-bottom:8px;">每日复习上限</div>
+        <div class="review-limit-control">
+          <button onclick="setDailyReviewLimit(ReviewConfig.dailyReviewLimit - 5)">−</button>
+          <span id="reviewLimitValue">50</span>
+          <button onclick="setDailyReviewLimit(ReviewConfig.dailyReviewLimit + 5)">+</button>
+        </div>
+      </div>
+
+      <!-- Toggles -->
+      <div class="settings-option" onclick="toggleAutoEnroll(); this.querySelector('.toggle').classList.toggle('active')">
+        <span class="settings-option__label">自动加入复习</span>
+        <div class="toggle active"></div>
+      </div>
+      <div class="settings-option" onclick="toggleReviewNotification(); this.querySelector('.toggle').classList.toggle('active')">
+        <span class="settings-option__label">复习提醒</span>
+        <div class="toggle active"></div>
+      </div>
+
+      <button onclick="resetReviewData()" style="width:100%;padding:10px;border:1px solid var(--danger);border-radius:var(--radius-sm);background:transparent;color:var(--danger);font-size:0.875rem;cursor:pointer;transition:all 0.15s;margin-top:8px;">
+        清空复习数据
+      </button>
+    </div>
     <div class="settings-group">
       <div class="settings-group__label">关于</div>
       <p style="font-size:0.8125rem;color:var(--text-secondary);line-height:1.6;">
-        AI 面试题库 v2.0<br>
-        665 道精选题目<br>
+        AI 面试题库 v3.0<br>
+        665 道精选题目 · 遗忘曲线复习系统<br>
         覆盖 AI 基础 · Agent · Harness · Agent面试全攻略<br>
         <br>
         <span style="color:var(--text-tertiary);">对标阿里 P7 / 字节 2-2 / 腾讯 T9</span>
@@ -241,7 +304,7 @@
       <div class="study-bottombar__hint">
         <span><kbd>←</kbd> 上一题</span>
         <span><kbd>Space</kbd> 翻答案</span>
-        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 评分</span>
+        <span><kbd>1</kbd> 忘了 <kbd>2</kbd> 模糊 <kbd>3</kbd> 记住 <kbd>4</kbd> 轻松</span>
         <span><kbd>→</kbd> 下一题</span>
       </div>
       <div class="study-bottombar__spacer"></div>
@@ -255,6 +318,7 @@
   <!-- ===== Scripts ===== -->
   <script src="js/app.js"></script>
   <script src="js/study.js"></script>
+  <script src="js/forgetting.js"></script>
   <script>
     // Sync dark toggle state
     function syncDarkToggle() {

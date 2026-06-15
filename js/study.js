@@ -484,6 +484,8 @@ function exportProgress() {
     dailyLog: StudyState.dailyLog,
     streak: StudyState.streak,
     dailyGoal: StudyState.dailyGoal,
+    reviewData: ReviewEngine.load(),
+    reviewAlgorithm: ReviewConfig.algorithm,
     exportDate: new Date().toISOString(),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

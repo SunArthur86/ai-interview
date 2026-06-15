@@ -1,10 +1,14 @@
 // AI Interview — Service Worker
-const CACHE_NAME = 'ai-interview-v2';
+const CACHE_NAME = 'ai-interview-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './css/style.css',
+  './css/study.css',
+  './css/forgetting.css',
   './js/app.js',
+  './js/study.js',
+  './js/forgetting.js',
   './manifest.json',
   './data/ai-basics.json',
   './data/ai-agent.json',
