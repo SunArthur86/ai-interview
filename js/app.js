@@ -19,23 +19,14 @@ const State = {
 };
 
 // ============ Category Config ============
+// 5 大分类，每个分类可包含多个数据文件
 const CATEGORIES = {
-  'all':              { label: '全部', icon: '📚', color: '#0071e3', file: null },
-  'ai-basics':        { label: 'AI 基础', icon: '🧠', color: '#34c759', file: 'data/ai-basics.json' },
-  'ai-agent':         { label: 'AI Agent', icon: '🤖', color: '#af52de', file: 'data/ai-agent.json' },
-  'ai-harness':       { label: 'AI Harness', icon: '⚙️', color: '#ff9500', file: 'data/ai-harness.json' },
-  'llm-100':          { label: 'LLM面试100问', icon: '🔥', color: '#ff3b30', file: 'data/llm-100.json' },
-  'agent-concept':    { label: 'Agent基础概念', icon: '💡', color: '#5856d6', file: 'data/agent-concept.json' },
-  'agent-framework':  { label: '核心框架', icon: '⚙️', color: '#007aff', file: 'data/agent-framework.json' },
-  'agent-rag':        { label: 'RAG技术', icon: '🔍', color: '#34c759', file: 'data/agent-rag.json' },
-  'agent-tools':      { label: '工具调用', icon: '🔧', color: '#ff9500', file: 'data/agent-tools.json' },
-  'agent-memory':     { label: '记忆系统', icon: '💾', color: '#af52de', file: 'data/agent-memory.json' },
-  'agent-multi':      { label: '多智能体', icon: '🤝', color: '#ff2d55', file: 'data/agent-multi.json' },
-  'agent-llm':        { label: '大模型基础', icon: '🧪', color: '#5ac8fa', file: 'data/agent-llm.json' },
-  'agent-eng':        { label: '工程化实践', icon: '🏗️', color: '#ff6b35', file: 'data/agent-eng.json' },
-  'agent-prompt':     { label: 'Prompt工程', icon: '✏️', color: '#ffd60a', file: 'data/agent-prompt.json' },
-  'agent-interview-qa': { label: '企业面试问答', icon: '💼', color: '#1d1d1f', file: 'data/agent-interview-qa.json' },
-  'llm-notes':          { label: 'LLM基础与实践', icon: '📖', color: '#008080', file: 'data/llm-notes.json' },
+  'all':              { label: '全部', icon: '📚', color: '#0071e3', files: null },
+  'llm-core':         { label: 'LLM 核心', icon: '🔥', color: '#ff3b30', files: ['data/llm-100.json', 'data/llm-notes.json'] },
+  'agent-arch':       { label: 'Agent 架构', icon: '🤖', color: '#af52de', files: ['data/ai-agent.json', 'data/agent-concept.json', 'data/agent-framework.json', 'data/agent-multi.json'] },
+  'agent-skill':      { label: 'Agent 技能', icon: '🔧', color: '#ff9500', files: ['data/agent-rag.json', 'data/agent-tools.json', 'data/agent-memory.json', 'data/agent-prompt.json', 'data/agent-llm.json'] },
+  'eng-practice':     { label: '工程化实战', icon: '🏗️', color: '#5856d6', files: ['data/ai-harness.json', 'data/agent-eng.json', 'data/agent-interview-qa.json'] },
+  'ai-basics':        { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json'] },
 };
 
 // ============ Init ============
@@ -52,15 +43,20 @@ async function init() {
 
 // ============ Data Loading ============
 async function loadAllData() {
+  const fileCatMap = {}; // fileName → categoryKey
+  Object.entries(CATEGORIES).forEach(([key, cfg]) => {
+    if (cfg.files) {
+      cfg.files.forEach(f => { fileCatMap[f] = key; });
+    }
+  });
+  const uniqueFiles = [...new Set(Object.keys(fileCatMap))];
   const results = await Promise.all(
-    Object.entries(CATEGORIES)
-      .filter(([k, v]) => v.file)
-      .map(async ([key, cfg]) => {
-        const res = await fetch(cfg.file);
-        const data = await res.json();
-        data.forEach(q => { q._category = key; });
-        return data;
-      })
+    uniqueFiles.map(async (file) => {
+      const res = await fetch(file);
+      const data = await res.json();
+      data.forEach(q => { q._category = fileCatMap[file]; });
+      return data;
+    })
   );
   State.allQuestions = results.flat();
   // Render category counts
