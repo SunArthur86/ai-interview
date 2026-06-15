@@ -45,6 +45,7 @@ async function init() {
   bindEvents();
   applyFilters();
   updateProgress();
+  updateStudyDashboard();
   hideLoader();
 }
 
@@ -448,6 +449,8 @@ function bindEvents() {
   if (ring) ring.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   // Keyboard
   document.addEventListener('keydown', handleKeyboard);
+  // Study keyboard
+  document.addEventListener('keydown', handleStudyKeyboard);
   // Reset progress
   const resetBtn = document.getElementById('resetProgress');
   if (resetBtn) resetBtn.addEventListener('click', () => {
