@@ -30,19 +30,24 @@ const CATEGORIES = {
   'ai-basics':        { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json', 'data/new-ai-basics.json'] },
 };
 
-// ============ Subcategory Group Mapping (78 raw → 12 clean modules) ============
+// ============ Subcategory Group Mapping (78 raw → 10 clean modules, aligned with 5 categories) ============
 const SUBCAT_GROUPS = {
+  // LLM 核心
   'Transformer': ['Transformer架构', '注意力机制', '位置编码', '归一化', '激活函数', '模型结构', '模型架构'],
   '训练与微调': ['训练与微调', '训练优化', 'LoRA与微调', '参数高效微调', '微调策略', 'SFT与RLHF', '对齐技术', '对齐训练', '训练理论', '分布式训练'],
-  '推理与部署': ['推理优化', '生产工程化', '生产化部署', '模型服务', '模型部署', '部署架构', '工程化', '工程化实践', '工程实践'],
-  'RAG技术': ['RAG技术', 'RAG进阶', 'RAG工程化', 'RAG与向量检索', '向量检索', '向量数据库'],
-  'Agent架构': ['Agent基础概念', 'Agent核心框架', 'Agent架构', 'Agent框架', 'Agent工程化', 'Agent稳定性'],
-  'Agent技能': ['工具调用', 'Function Calling', '记忆系统', 'Agent记忆', '规划与推理', '工具使用', 'Agent评估'],
-  'Prompt工程': ['Prompt工程', 'Prompt Engineering'],
-  '多智能体': ['多智能体系统', '多Agent系统'],
+  'LLM前沿': ['LLM前沿', 'DeepSeek-R1', '强化学习', 'Tokenizer', '多模态', 'Text2SQL', 'LLM推荐', '实验管理'],
+
+  // AI Agent（合并原 Agent架构 + Agent技能）
+  'AI Agent': ['Agent基础概念', 'Agent核心框架', 'Agent架构', 'Agent稳定性', 'Agent评估', '工具调用', 'Function Calling', '工具使用', '记忆系统', 'Agent记忆', '规划与推理', '多智能体', '多智能体系统', '多Agent系统', 'Prompt工程', 'Prompt Engineering'],
+  'RAG': ['RAG技术', 'RAG进阶', 'RAG与向量检索', '向量检索'],
+
+  // AI Harness（合并原 推理与部署 + 评测与安全）
+  'AI Harness': ['推理优化', '推理与部署', '生产工程化', '生产化部署', '模型服务', '模型部署', '部署架构', '工程化', '工程化实践', '工程实践', 'Agent工程化', 'Agent框架', 'LLM框架', 'RAG工程化', '向量数据库', '可观测性', '评估与安全', '评估', '评估指标', '评测与质量', 'Agent安全', '安全'],
+
+  // AI 基础
   '大模型基础': ['大模型基础', '大模型架构', '大模型原理', '大模型综合', '大模型应用', '基础知识', '预训练模型', '表示学习', '长上下文'],
-  '评测与安全': ['评估与安全', '评估', '评估指标', '评测与质量', 'Agent安全', '安全', '可观测性'],
-  'LLM前沿': ['LLM前沿', 'LLM框架', 'DeepSeek-R1', '强化学习', 'Tokenizer', '多模态', 'Text2SQL', 'LLM推荐', '实验管理'],
+
+  // 工程化实战
   '面试实战': ['企业面试问答', '手撕代码', 'AI编程', '文档处理'],
 };
 
@@ -567,7 +572,7 @@ function toggleShortcuts() {
         <div class="shortcuts-grid">
           <div class="shortcut-item"><kbd>/</kbd><span>聚焦搜索框</span></div>
           <div class="shortcut-item"><kbd>Esc</kbd><span>关闭弹窗</span></div>
-          <div class="shortcut-item"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><span>切换分类</span></div>
+          <div class="shortcut-item"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><kbd>6</kbd><span>切换分类</span></div>
           <div class="shortcut-item"><kbd>F</kbd><span>仅看收藏</span></div>
           <div class="shortcut-item"><kbd>S</kbd><span>开始刷题</span></div>
           <div class="shortcut-item"><kbd>R</kbd><span>开始复习</span></div>
