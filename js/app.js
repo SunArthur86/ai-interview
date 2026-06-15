@@ -328,6 +328,11 @@ function openModal(id) {
     </div>`;
 
   overlay.classList.add('active');
+  // Scroll modal to top — use setTimeout to ensure DOM has painted
+  setTimeout(() => {
+    const modalEl = document.getElementById('modal');
+    if (modalEl) modalEl.scrollTop = 0;
+  }, 50);
   // Update nav position
   const navPos = document.getElementById('modalNavPos');
   if (navPos && _currentModalIndex >= 0) {
@@ -371,19 +376,81 @@ function closeImageFullscreen() {
 
 function searchAndOpen(query) {
   // Extract keywords from follow-up question
-  const keywords = query.replace(/[？?]/g, '').trim();
-  // Try to find a matching question
-  const match = State.allQuestions.find(q =>
-    q.question.includes(keywords) ||
-    keywords.split(/[，,、]/).some(kw => kw.length > 2 && q.question.includes(kw))
-  );
-  if (match) {
-    openModal(match.id);
-  } else {
-    // Search with the keywords
-    document.getElementById('searchInput').value = keywords;
-    State.searchQuery = keywords;
+  const cleaned = query.replace(/[？?！!。.]/g, '').trim();
+  
+  // Strategy 1: Exact match
+  let match = State.allQuestions.find(q => q.question === query || q.question === cleaned);
+  if (match) { openModal(match.id); return; }
+
+  // Strategy 2: Question contains the full follow-up text (or vice versa)
+  match = State.allQuestions.find(q => q.question.includes(cleaned) || cleaned.includes(q.question));
+  if (match) { openModal(match.id); return; }
+
+  // Strategy 3: Extract core meaningful term and find best match
+  const stopWords = new Set(['什么','是','如何','为什么','哪些','哪个','怎么','怎样','的','了','吗','呢','和','与','在','有','不','都','也','请','解释','说明','比较','区别','谈谈','概述','介绍','分析']);
+  
+  // Remove common question prefixes to get core term
+  let core = cleaned;
+  const prefixes = ['什么是','什么叫','如何','为什么','怎么','哪些','哪个','怎样','请问','简述','谈谈','请说明','请'];
+  for (const p of prefixes) {
+    if (core.startsWith(p)) { core = core.substring(p.length); break; }
+  }
+  core = core.replace(/[了吗呢啊呀吧的了吗呢]/g, '').trim();
+  
+  // Build candidate search terms: core + split keywords (sorted by length desc = most specific first)
+  const splitKws = cleaned.split(/[\s，,、，和与的了吗呢和与在]/).filter(kw => kw.length >= 2 && !stopWords.has(kw));
+  const searchTerms = [...new Set([core, ...splitKws])].filter(t => t.length >= 2).sort((a, b) => b.length - a.length);
+
+  if (searchTerms.length > 0) {
+    // Try each search term from most specific to least — open first match
+    for (const term of searchTerms) {
+      const termMatch = State.allQuestions.find(q => 
+        q.question.includes(term) || 
+        q.tags.some(t => t.includes(term)) ||
+        q.subcategory.includes(term)
+      );
+      if (termMatch) { openModal(termMatch.id); return; }
+    }
+    
+    // If no direct match, try pairwise: find question matching the most terms
+    let bestMatch = null;
+    let bestScore = 0;
+    for (const q of State.allQuestions) {
+      let score = 0;
+      const qText = (q.question + ' ' + q.tags.join(' ') + ' ' + q.subcategory);
+      for (const term of searchTerms) {
+        if (qText.includes(term)) score++;
+      }
+      if (score > bestScore) { bestScore = score; bestMatch = q; }
+    }
+    if (bestMatch && bestScore >= 1) {
+      openModal(bestMatch.id);
+      return;
+    }
+  }
+
+  // Strategy 4: Fall back to keyword search in card list
+  const searchKw = searchTerms.length > 0 ? searchTerms[0] : cleaned;
+  if (searchKw && searchKw.length >= 2) {
+    document.getElementById('searchInput').value = searchKw;
+    State.searchQuery = searchKw;
+    State.currentCategory = 'all';
+    State.currentDifficulty = 'all';
+    document.querySelectorAll('.category-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === 'all'));
+    document.querySelectorAll('.filter-chip[data-diff]').forEach(c => c.classList.toggle('active', c.dataset.diff === 'all'));
     applyFilters();
+    if (State.filtered.length > 0) {
+      showToast(`🔍 搜索"${searchKw}"，共 ${State.filtered.length} 题`);
+    } else {
+      // Last resort: broader search with first 2 chars
+      const broad = searchKw.substring(0, 2);
+      document.getElementById('searchInput').value = broad;
+      State.searchQuery = broad;
+      applyFilters();
+      showToast(`🔍 模糊搜索"${broad}"，共 ${State.filtered.length} 题`);
+    }
+  } else {
+    showToast('未找到相关题目');
   }
 }
 
@@ -682,7 +749,14 @@ function navModal(dir) {
   const newIndex = _currentModalIndex + dir;
   if (newIndex >= 0 && newIndex < State.filtered.length) {
     closeModal();
-    setTimeout(() => openModal(State.filtered[newIndex].id), 150);
+    setTimeout(() => {
+      openModal(State.filtered[newIndex].id);
+      // Reset scroll after DOM update
+      setTimeout(() => {
+        const modalEl = document.getElementById('modal');
+        if (modalEl) modalEl.scrollTop = 0;
+      }, 50);
+    }, 150);
   }
 }
 
