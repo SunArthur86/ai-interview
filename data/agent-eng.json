@@ -535,5 +535,315 @@
       "asyncio的Semaphore如何使用？",
       "如何计算最优并发数？"
     ]
+  },
+  {
+    "id": "trend-011",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Agent Loop",
+      "ReAct",
+      "设计模式"
+    ],
+    "question": "Agent Loop 是什么？它和普通工作流（Workflow）有什么本质区别？",
+    "answer": "**Agent Loop** 是 AI Agent 的核心设计模式：模型接收任务 -> 思考 -> 调用工具 -> 观察结果 -> 继续思考 -> 直到任务完成。\n\n**与普通工作流的本质区别：**\n\n**工作流（Workflow）：** 路径是预定义的，开发者写好步骤 A -> B -> C，LLM 只在每个节点做内容生成。\n\n**Agent Loop：** 路径是动态的，LLM 自主决定下一步做什么、调用什么工具、何时停止。循环次数和工具组合不可预知。\n\n**Agent Loop 的关键要素：**\n1. 工具集（Tools）：Agent 可以调用的能力\n2. 上下文管理（Context）：维护对话历史和中间结果\n3. 停止条件（Termination）：任务完成、达到最大轮数、用户中断\n4. 审批机制（Approval）：人工确认高危操作\n\n**实际案例：** Claude Code 的 Agent Loop 每轮包含 reasoning -> tool_call -> observation，最多 25 轮迭代，支持上下文压缩避免溢出。",
+    "follow_up": [
+      "Agent Loop 如何防止无限循环？",
+      "如何设计 Agent 的停止条件？"
+    ]
+  },
+  {
+    "id": "trend-012",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L4",
+    "tags": [
+      "Harness",
+      "Harness Engineering",
+      "Agent框架"
+    ],
+    "question": "什么是 Harness Engineering？它和传统 Agent 框架有什么区别？",
+    "answer": "**Harness Engineering** 是 2025 年兴起的概念，指围绕大模型构建的工程化外壳（Harness），让模型在真实场景中可靠工作。\n\n**核心理念：** 模型本身只是推理引擎，真正决定 Agent 效果的是围绕模型的工程化体系。\n\n**Harness 包含的关键组件：**\n1. 上下文工程（Context Engineering）：组装 system prompt、工具定义、历史消息\n2. 工具治理（Tool Governance）：权限控制、参数校验、结果过滤\n3. 状态管理（State Management）：任务状态快照、恢复机制\n4. 可观测性（Observability）：Trace 轨迹、工具调用日志、成本追踪\n5. 安全防护（Safety）：Prompt 注入检测、输出过滤\n\n**与传统框架的区别：** LangChain 关注链式调用编排，Harness Engineering 更关注生产级的可靠性、可观测性和安全性。\n\n**代表产品：** Hermes Agent、OpenClaw、Claude Code 都是 Harness Engineering 的实践。",
+    "follow_up": [
+      "Harness 和 Agent Framework 有什么区别？",
+      "如何评估 Harness 的质量？"
+    ]
+  },
+  {
+    "id": "trend-013",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Agent Skill",
+      "技能复用",
+      "版本管理"
+    ],
+    "question": "Agent Skill 是什么？如何设计可复用的 Agent 技能？",
+    "answer": "**Agent Skill** 是 Agent 的可复用能力单元，封装了特定任务的 prompt、工具、知识。\n\n**设计原则：**\n\n**1. 单一职责：** 每个 Skill 只做一件事（如搜索文档、生成代码、分析数据），避免 Skill 之间的职责重叠。\n\n**2. 声明式接口：** Skill 定义清晰的输入输出 schema，Agent 通过接口调用而非硬编码。\n\n**3. 版本管理：** Skill 需要版本控制，因为 prompt 和工具定义会迭代更新。生产环境需要支持灰度发布和回滚。\n\n**4. 上下文治理：** 每个 Skill 应控制注入的上下文量，避免 Skill 组合时上下文溢出。\n\n**评估指标：** Skill 的独立调用成功率、平均执行时间、Token 消耗、与基线 Prompt 的效果对比。\n\n**实践案例：** Claude Code 的 Superpowers 插件系统、Hermes Agent 的 Skill 系统都是 Agent Skill 的工程化实践。",
+    "follow_up": [
+      "Skill 之间如何组合和编排？",
+      "如何评估 Skill 的效果？"
+    ]
+  },
+  {
+    "id": "trend-014",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Agent Drift",
+      "任务漂移",
+      "幻觉"
+    ],
+    "question": "Agent Drift（任务漂移）是什么？如何识别和应对？",
+    "answer": "**Agent Drift** 是指 Agent 在执行长任务时偏离原始目标的现象。\n\n**三种漂移类型：**\n\n**1. 任务漂移：** Agent 逐渐偏离用户的原始意图。例如用户要求写排序算法，Agent 跑去优化完全无关的文件。\n\n**2. 上下文幻觉：** Agent 在长对话中产生与事实不符的上下文。例如虚构不存在的文件路径或函数名。\n\n**3. 注意力稀释：** 随着上下文变长，Agent 对早期指令的注意力减弱。\n\n**识别方法：**\n- Trace 轨迹分析：检查每轮工具调用是否在合理范围内\n- 上下文窗口监控：关注 Token 使用量增长曲线\n- 中间结果验证：检查工具返回值是否被正确使用\n\n**应对策略：**\n1. 定期上下文压缩：保留关键信息，丢弃冗余\n2. 任务状态快照：每 N 轮检查是否仍在正确轨道\n3. 人工审批（Approval）：关键操作需用户确认\n4. 工具调用约束：限制可用工具集，减少分心可能",
+    "follow_up": [
+      "如何设置合理的 Agent 最大轮数？",
+      "上下文压缩会影响任务质量吗？"
+    ]
+  },
+  {
+    "id": "trend-015",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Model Routing",
+      "模型路由",
+      "fallback",
+      "降级"
+    ],
+    "question": "生产环境如何设计 Agent 的模型路由和 fallback 策略？",
+    "answer": "**模型路由** 是根据任务特征选择不同模型，平衡效果、成本和延迟。\n\n**路由策略：**\n\n**1. 规则路由：** 根据任务类型硬编码。简单任务（如格式转换）用小模型，复杂任务（如架构设计）用大模型。响应最快，但灵活性差。\n\n**2. 模型路由（LLM Router）：** 用一个小模型先判断任务复杂度，再路由到对应模型。灵活但增加了一次推理延迟。\n\n**3. 级联路由（Cascade）：** 先用便宜模型尝试，如果置信度低再升级到大模型。成本最优但延迟波动大。\n\n**Fallback 策略：**\n- 模型超时 -> 切换到备用供应商\n- API 限流 -> 排队重试 + 指数退避\n- 输出质量差 -> 自动重试 + Prompt 调整\n- 完全失败 -> 返回缓存结果或人工接管\n\n**关键指标：** 路由准确率、平均成本、P99 延迟、fallback 触发率。",
+    "follow_up": [
+      "如何评估路由策略的效果？",
+      "级联路由如何设置置信度阈值？"
+    ]
+  },
+  {
+    "id": "trend-016",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Context Engineering",
+      "Prompt Engineering",
+      "上下文"
+    ],
+    "question": "Context Engineering 和 Prompt Engineering 有什么区别？",
+    "answer": "这是 2025 年面试高频题，两者有本质区别：\n\n**Prompt Engineering：** 关注单次对话中如何写好 prompt。核心是措辞、结构、示例选择（Few-shot）。关注点：怎么问。\n\n**Context Engineering：** 关注整个 Agent 运行过程中，如何管理和组装上下文窗口中的所有信息。关注点：给模型看什么。\n\n**Context Engineering 包含的维度：**\n1. **System Prompt 组装：** 角色定义、工具描述、安全规则\n2. **历史消息管理：** 压缩、截断、摘要\n3. **工具结果注入：** 格式化、过滤敏感信息、控制长度\n4. **外部知识注入：** RAG 检索结果、文件内容\n5. **上下文预算分配：** 在有限的窗口中平衡各部分占比\n\n**为什么 Context Engineering 更重要：**\n- 生产环境模型能力固定，真正拉开差距的是上下文质量\n- 上下文管理直接影响成本（Token）、延迟、质量\n- Prompt Engineering 是 Context Engineering 的子集",
+    "follow_up": [
+      "如何计算上下文预算？",
+      "工具结果太长怎么处理？"
+    ]
+  },
+  {
+    "id": "trend-017",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Agent Memory",
+      "短期记忆",
+      "长期记忆",
+      "记忆系统"
+    ],
+    "question": "Agent 的 Memory 系统如何设计？短期记忆和长期记忆怎么区分？",
+    "answer": "**Agent Memory 设计** 是生产级 Agent 的核心难题之一。\n\n**短期记忆（Working Memory）：**\n- 存储在 LLM 上下文窗口中\n- 包含：当前对话历史、工具调用结果、中间推理\n- 生命周期：单次任务或单轮对话\n- 管理：上下文压缩、截断、摘要\n\n**长期记忆（Long-term Memory）：**\n- 存储在外部系统（向量数据库、关系数据库）\n- 包含：用户偏好、历史决策、学习到的知识\n- 生命周期：跨会话持久化\n- 管理：检索、更新、遗忘\n\n**设计要点：**\n1. 记忆写入：什么信息值得记住？避免存入噪声\n2. 记忆检索：如何高效找到相关记忆？语义搜索 + 时间衰减\n3. 记忆更新：如何处理冲突信息？最新覆盖最旧\n4. 遗忘机制：如何淘汰过时记忆？基于访问频率和时间\n\n**常见实现：** MemGPT、LangChain Memory、Letta（前 MemGPT）",
+    "follow_up": [
+      "如何平衡记忆检索的准确率和延迟？",
+      "多用户场景下如何隔离记忆？"
+    ]
+  },
+  {
+    "id": "trend-018",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "可观测性",
+      "Trace",
+      "Agent监控"
+    ],
+    "question": "生产级 Agent 的可观测性（Observability）怎么做？需要追踪哪些指标？",
+    "answer": "**Agent 可观测性** 是确保 Agent 在生产环境可靠运行的基础。\n\n**Trace 轨迹追踪：**\n- 记录每一轮的输入 prompt、模型输出、工具调用、工具返回\n- 构建完整的执行链路图\n- 支持回放（Replay）：用历史数据重新执行\n\n**核心指标：**\n\n**1. 质量指标：** 任务完成率、工具调用成功率、用户满意度\n\n**2. 性能指标：** 端到端延迟、首 token 延迟、每轮平均时间\n\n**3. 成本指标：** 每次 Token 消耗、API 调用费用、工具调用次数\n\n**4. 安全指标：** Prompt 注入检测次数、权限越界尝试\n\n**工具生态：** LangSmith（LangChain）、Langfuse（开源）、Arize Phoenix、Helicone\n\n**关键设计：** 结构化日志（非纯文本）、采样率控制（高流量时只记录 1-10%）、异步上报（不阻塞主流程）。",
+    "follow_up": [
+      "如何设计 Trace 的采样策略？",
+      "如何用 LLM-as-Judge 自动评估 Agent 质量？"
+    ]
+  },
+  {
+    "id": "trend-019",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L4",
+    "tags": [
+      "Multi-Agent",
+      "通信协议",
+      "编排"
+    ],
+    "question": "Multi-Agent 系统中，Agent 之间如何通信和编排？有哪些常见模式？",
+    "answer": "**Multi-Agent 通信与编排** 是复杂 Agent 系统的核心设计问题。\n\n**通信方式：**\n\n**1. 直接消息传递：** Agent A 直接调用 Agent B 的接口。简单但不灵活。\n\n**2. 共享黑板（Blackboard）：** 所有 Agent 读写同一个共享空间。松耦合但需要锁机制。\n\n**3. 事件驱动：** Agent 发布事件，其他 Agent 订阅。最灵活但调试困难。\n\n**编排模式：**\n\n**1. 层级编排（Hierarchical）：** 主 Agent 分配任务给子 Agent，子 Agent 汇报结果。适合任务可清晰拆分的场景。\n\n**2. 竞争编排（Competitive）：** 多个 Agent 独立完成同一任务，选最佳结果。适合创意类任务。\n\n**3. 流水线编排（Pipeline）：** 任务按顺序流经多个专业 Agent。适合流程固定的场景。\n\n**工程代价：** Multi-Agent 的通信开销、状态同步、错误处理远比单 Agent 复杂，不是所有场景都适合。",
+    "follow_up": [
+      "如何决定用单 Agent 还是 Multi-Agent？",
+      "Multi-Agent 系统如何做容错？"
+    ]
+  },
+  {
+    "id": "trend-020",
+    "category": "trending",
+    "subcategory": "Agent工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Agent幻觉",
+      "输出校验",
+      "安全"
+    ],
+    "question": "Agent 系统如何约束大模型的幻觉？有哪些工程手段？",
+    "answer": "**Agent 幻觉约束** 是生产系统的核心安全要求。\n\n**四层防线：**\n\n**1. Prompt 层约束：**\n- 明确指示：不得编造不存在的文件、函数、API\n- 输出格式约束：要求引用来源\n- 角色设定：限定在特定知识范围内\n\n**2. 工具层约束：**\n- 所有事实性信息必须通过工具获取（而非模型自行生成）\n- 工具返回空结果时，Agent 必须明确告知用户而非编造答案\n- 文件操作前先验证文件是否存在\n\n**3. 证据层约束：**\n- 要求模型在输出中标注信息来源（引用了哪个工具的返回值）\n- 对关键信息做交叉验证（多工具验证同一事实）\n\n**4. 输出校验层：**\n- 用另一个 LLM 验证输出是否与工具返回一致\n- 正则/规则检查输出格式\n- 关键操作人工审批\n\n**兜底处理：** 检测到幻觉时，返回明确的不确定提示而非错误答案。",
+    "follow_up": [
+      "如何评估幻觉率？",
+      "LLM-as-Judge 如何用于幻觉检测？"
+    ]
+  },
+  {
+    "id": "trend-031",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L3",
+    "tags": [
+      "A2A",
+      "Agent-to-Agent",
+      "Google",
+      "协议"
+    ],
+    "question": "A2A（Agent-to-Agent）协议是什么？它和 MCP 有什么区别？",
+    "answer": "**A2A（Agent-to-Agent Protocol）** 是 Google 于 2025 年提出的开放协议，标准化 Agent 之间的通信。\n\n**核心概念：**\n- Agent Card：每个 Agent 发布自己的能力卡片（JSON-LD 格式），描述能做什么\n- Task：Agent 之间的工作单元，有生命周期（submitted -> working -> done）\n- Agent Message：Agent 之间的结构化消息\n- 支持 HTTP + JSON-RPC 传输\n\n**与 MCP 的区别：**\n\n**MCP：** 解决的是 Agent 与工具/数据源的连接（垂直方向）。相当于 Agent 怎么使用工具。\n\n**A2A：** 解决的是 Agent 与 Agent 之间的通信（水平方向）。相当于 Agent 之间怎么协作。\n\n**两者互补：**\n- Agent A 用 MCP 连接数据库和文件系统\n- Agent A 用 A2A 把任务委托给 Agent B\n- MCP 和 A2A 一起构成完整的 Agent 通信体系\n\n**为什么 MCP 解决不了 A2A：** MCP 是 client-server 模式，适合工具调用。但 Agent 之间是 peer-to-peer 的，需要更丰富的状态管理和任务协商机制。",
+    "follow_up": [
+      "A2A 如何处理 Agent 之间的安全认证？",
+      "A2A 支持哪些编程语言？"
+    ]
+  },
+  {
+    "id": "trend-032",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L3",
+    "tags": [
+      "LLM Gateway",
+      "模型网关",
+      "API管理"
+    ],
+    "question": "什么是 LLM Gateway（模型网关）？生产环境为什么需要它？",
+    "answer": "**LLM Gateway** 是位于应用和 LLM 供应商之间的代理层，提供统一的 API 接口和治理能力。\n\n**核心功能：**\n\n**1. 统一接口：** 屏蔽不同供应商的 API 差异（OpenAI、Claude、国产模型），应用只对接 Gateway。\n\n**2. 负载均衡与路由：** 根据任务类型、成本、延迟自动选择模型。\n\n**3. 限流与熔断：** 防止下游模型服务过载，保护应用不被 API 限流影响。\n\n**4. 成本控制：** Token 级别的成本追踪和归因，支持按项目/用户/功能分账。\n\n**5. 缓存：** 相同请求直接返回缓存结果，降低成本。\n\n**6. 安全：** Prompt 注入检测、敏感词过滤、审计日志。\n\n**7. 可观测性：** 统一的监控面板、请求日志、质量指标。\n\n**常见实现：** LiteLLM（开源）、Kong AI Gateway、Cloudflare AI Gateway、Portkey。\n\n**什么时候需要：** 日均调用量超过 1 万次、使用多个模型供应商、需要成本管控。",
+    "follow_up": [
+      "Gateway 如何处理流式输出？",
+      "如何实现 Token 级别的成本归因？"
+    ]
+  },
+  {
+    "id": "trend-033",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Token成本",
+      "成本优化",
+      "生产"
+    ],
+    "question": "生产 AI 应用中，如何做 Token 成本归因和优化？",
+    "answer": "**Token 成本管理** 是生产 AI 应用的核心运营指标。\n\n**成本归因：**\n\n**1. 请求级追踪：** 每次请求记录 input_tokens、output_tokens、模型、单价，计算实际费用。\n\n**2. 功能级分账：** 按 API 端点或功能模块分组统计。如 RAG 检索花了多少、代码生成花了多少。\n\n**3. 用户级分账：** 按用户/租户统计用量，用于计费和配额管理。\n\n**4. 成本标签：** 给每个请求打标签（项目、环境、实验版本），支持多维度切片分析。\n\n**优化手段：**\n\n**1. 模型降级：** 简单任务用小模型（GPT-4o-mini、DeepSeek-V3），复杂任务才用大模型\n\n**2. Prompt 压缩：** 减少冗余上下文、精简 System Prompt\n\n**3. 缓存：** Prefix Caching、语义缓存（相似请求返回缓存结果）\n\n**4. 批处理：** Batch API 通常有 50% 折扣\n\n**5. 上下文管理：** 定期压缩对话历史、限制工具返回长度",
+    "follow_up": [
+      "语义缓存如何判断两个请求是否相似？",
+      "如何设定每个用户的 Token 配额？"
+    ]
+  },
+  {
+    "id": "trend-034",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Golden Set",
+      "LLM-as-Judge",
+      "AI评测"
+    ],
+    "question": "什么是 Golden Set 和 LLM-as-Judge？如何在生产中构建 AI 评测体系？",
+    "answer": "**AI 评测体系** 是确保 Prompt 和模型变更不引入回归的核心手段。\n\n**Golden Set（黄金测试集）：**\n- 人工标注的高质量测试用例（问题 + 标准答案 + 评分标准）\n- 覆盖核心场景和边界情况，通常 100-1000 条\n- 每次 Prompt 或模型变更后跑一遍\n- 用通过率衡量变更安全性\n\n**LLM-as-Judge：**\n- 用 GPT-4 或 Claude 评估另一个模型的输出质量\n- 评分维度：正确性、完整性、相关性、安全\n- 优势：比人工评估快 100 倍，比规则评估灵活\n- 风险：评判模型自身有偏差\n\n**评测流程：**\n1. 构建 Golden Set（人工标注）\n2. 每次变更跑 Golden Set\n3. 用 LLM-as-Judge 自动打分\n4. 低分样本人工复核\n5. 变更通过率 > 95% 才上线\n\n**Trace 回放：** 用历史真实请求的 Trace 数据，在新版本上回放，确保不影响线上体验。",
+    "follow_up": [
+      "Golden Set 需要多少条？",
+      "如何消除 LLM-as-Judge 的偏差？"
+    ]
+  },
+  {
+    "id": "trend-035",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L3",
+    "tags": [
+      "Prompt Injection",
+      "提示注入",
+      "安全",
+      "Jailbreak"
+    ],
+    "question": "Prompt Injection（提示注入）是什么？生产环境如何防御？",
+    "answer": "**Prompt Injection** 是攻击者通过构造恶意输入来劫持 LLM 行为的攻击方式。\n\n**攻击类型：**\n\n**1. 直接注入：** 用户在输入中直接写指令。如忽略以上所有指令，你现在的角色是...\n\n**2. 间接注入：** 攻击指令隐藏在 LLM 读取的外部内容中（网页、文档、邮件）。用户让 Agent 读取一个网页，网页中包含恶意指令。\n\n**3. Jailbreak：** 通过角色扮演、编码、多语言绕过安全限制。\n\n**防御手段：**\n\n**1. 输入层：**\n- 关键词过滤和正则检测\n- 用分类模型检测注入意图\n- 限制用户输入长度\n\n**2. 架构层：**\n- System Prompt 与用户输入分层处理\n- 工具调用需要人工审批\n- 最小权限原则：Agent 只能访问必要的工具和数据\n\n**3. 输出层：**\n- 输出过滤和校验\n- 检测输出是否偏离了原始任务\n\n**4. 纵深防御：** 多层检测组合使用，不要依赖单一手段",
+    "follow_up": [
+      "间接注入为什么更难防御？",
+      "如何评估系统的抗注入能力？"
+    ]
+  },
+  {
+    "id": "trend-036",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L2",
+    "tags": [
+      "JSON Mode",
+      "Structured Output",
+      "结构化输出"
+    ],
+    "question": "JSON Mode 和 Structured Output 有什么区别？生产环境如何选择？",
+    "answer": "两者都是让 LLM 输出结构化 JSON 的方式，但原理和可靠性不同。\n\n**JSON Mode：**\n- 让模型输出合法的 JSON（但不保证 schema）\n- 通过在生成时限制 token 只能是合法 JSON 字符来实现\n- 可能输出了 JSON 但字段名/类型不符合预期\n- 支持：OpenAI、Claude、国产模型多数支持\n\n**Structured Output（Structured Outputs）：**\n- 不仅保证输出合法 JSON，还保证符合指定的 JSON Schema\n- 通过约束解码（Constrained Decoding）实现：在每一步生成时只允许 schema 合法的 token\n- 100% 保证格式正确\n- 支持：OpenAI（2024年8月推出）、Outlines、lm-format-enforcer\n\n**生产选择：**\n- 简单场景（只需要 JSON 格式）：JSON Mode 够用\n- 需要严格 schema（如 API 参数）：Structured Output\n- 开源模型：用 Outlines / Instructor 库实现\n\n**注意：** JSON Mode 不等于 Structured Output，前者只保证语法正确，后者保证语义正确。",
+    "follow_up": [
+      "约束解码如何影响生成质量？",
+      "如何处理模型不支持 Structured Output 的情况？"
+    ]
+  },
+  {
+    "id": "trend-037",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L2",
+    "tags": [
+      "SSE",
+      "流式输出",
+      "Server-Sent Events"
+    ],
+    "question": "为什么 LLM API 都用 SSE（Server-Sent Events）做流式输出？和 WebSocket 有什么区别？",
+    "answer": "**SSE（Server-Sent Events）** 是 LLM API 流式输出的标准协议。\n\n**为什么选 SSE 而非 WebSocket：**\n\n**SSE：**\n- 基于 HTTP，单向服务器 -> 客户端\n- 简单：用标准 HTTP 连接，自动重连\n- 与现有基础设施兼容（CDN、代理、负载均衡）\n- 适合 LLM 场景：只需要服务器推给客户端，不需要双向通信\n\n**WebSocket：**\n- 全双工双向通信\n- 需要协议升级（HTTP -> WS），增加复杂度\n- 某些代理/防火墙不支持\n- 过度设计（LLM 场景不需要客户端 -> 服务器的流式通信）\n\n**SSE 实现要点：**\n- Content-Type: text/event-stream\n- 每条消息格式：data: {json}\\n\\n\n- 客户端用 EventSource API 或 fetch + ReadableStream\n- 注意超时和断线重连\n\n**OpenAI/Claude/GLM 的 API 都使用 SSE 格式。**",
+    "follow_up": [
+      "如何处理 SSE 断线重连？",
+      "SSE 如何实现服务端推送？"
+    ]
+  },
+  {
+    "id": "trend-038",
+    "category": "trending",
+    "subcategory": "生产工程化",
+    "difficulty": "L4",
+    "tags": [
+      "OPRO",
+      "DSPy",
+      "自动Prompt优化"
+    ],
+    "question": "OPRO 和 DSPy 是什么？它们如何实现自动 Prompt 优化？",
+    "answer": "**OPRO（Optimization by PROmpting）** 和 **DSPy** 是两种自动优化 Prompt 的方法。\n\n**OPRO（Google DeepMind）：**\n- 核心思想：用 LLM 自己来优化 Prompt\n- 流程：给 LLM 一批训练样本 + 当前 Prompt + 历史尝试 -> LLM 提出新 Prompt -> 在测试集上评估 -> 保留最优\n- 本质是元启发式搜索（类似遗传算法），LLM 是变异算子\n\n**DSPy（Stanford）：**\n- 核心思想：把 Prompt Engineering 变成编程问题\n- 流程：定义模块（Signature）-> 组合管道（Module）-> 自动编译（Compiler）优化\n- 编译器会自动尝试不同的 Prompt 策略（Few-shot、Chain-of-Thought 等）\n- 使用 Bootstrap Few-Shot：自动选择最佳示例\n\n**对比：**\n- OPRO：优化自然语言 Prompt 文本，适合单步 Prompt\n- DSPy：优化整个 Pipeline（Prompt + 示例 + 步骤），适合复杂流水线\n\n**效果：** 在多数 benchmark 上，自动优化超过人工调优 5-20%。",
+    "follow_up": [
+      "DSPy 的编译过程具体做了什么？",
+      "自动优化的 Prompt 可解释吗？"
+    ]
   }
 ]

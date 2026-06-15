@@ -484,5 +484,178 @@
       "向量检索为什么不需要分词？",
       "jieba如何添加自定义词典？"
     ]
+  },
+  {
+    "id": "trend-021",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L4",
+    "tags": [
+      "GraphRAG",
+      "知识图谱",
+      "RAG"
+    ],
+    "question": "GraphRAG 的原理是什么？它与传统向量 RAG 有什么区别？",
+    "answer": "**GraphRAG** 是微软提出的知识图谱增强 RAG 方案，通过构建结构化知识图谱来增强检索。\n\n**核心原理：**\n1. 文档预处理阶段：用 LLM 从文档中抽取实体和关系\n2. 构建知识图谱：实体为节点，关系为边\n3. 社区发现（Community Detection）：将相关实体聚类\n4. 生成社区摘要：为每个社区生成高层摘要\n5. 查询时：先匹配社区，再在社区内精确检索\n\n**与传统向量 RAG 的区别：**\n\n**传统向量 RAG：** 文档切块 -> 向量化 -> 相似度检索。擅长局部事实查询，但无法回答全局性问题（如整个文档的主题是什么）。\n\n**GraphRAG：** 通过知识图谱捕获实体间关系，支持多跳推理（multi-hop reasoning）。能回答全局性问题。\n\n**适用场景：**\n- 需要多跳推理的复杂问答\n- 实体关系密集的领域（金融、法律、医学）\n- 全局摘要类查询\n\n**代价：** 构图成本高（需要大量 LLM 调用），更新维护复杂。",
+    "follow_up": [
+      "GraphRAG 的构图成本如何控制？",
+      "LightRAG 如何简化 GraphRAG？"
+    ]
+  },
+  {
+    "id": "trend-022",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L3",
+    "tags": [
+      "LightRAG",
+      "轻量RAG",
+      "知识图谱"
+    ],
+    "question": "LightRAG 是什么？它如何简化 GraphRAG 的复杂度？",
+    "answer": "**LightRAG** 是 2024 年提出的轻量级 GraphRAG 替代方案，保留图谱增强优势的同时大幅降低成本。\n\n**核心改进：**\n\n**1. 双层检索模式：**\n- Low-level：精确实体匹配（类似传统 RAG）\n- High-level：社区级别的主题检索（类似 GraphRAG）\n- 查询时自动选择合适的层级\n\n**2. 增量更新友好：** 新文档加入时只需更新局部图谱，不需要重建整个图。\n\n**3. 成本优化：**\n- 实体抽取用小模型或规则\n- 减少社区摘要的 LLM 调用次数\n- 图谱存储用轻量级图数据库\n\n**vs GraphRAG：** 构图成本降低 5-10 倍，但效果在多数场景下接近。适合中小规模知识库。\n\n**适用场景：** 文档量 1000-10000 篇级别的企业知识库，预算有限的团队。",
+    "follow_up": [
+      "LightRAG 的双层检索如何自动切换？",
+      "LightRAG 适合多大规模的知识库？"
+    ]
+  },
+  {
+    "id": "trend-023",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L3",
+    "tags": [
+      "HyDE",
+      "假设文档",
+      "检索优化"
+    ],
+    "question": "HyDE（Hypothetical Document Embeddings）的原理是什么？为什么它能提升检索效果？",
+    "answer": "**HyDE** 是一种查询增强技术，通过生成假设性答案来改善检索效果。\n\n**核心原理：**\n\n传统 RAG 的问题：用户查询通常很短（如 Transformer 的原理），而文档内容很长很详细。查询和文档的语义空间不对齐，导致向量相似度不准。\n\n**HyDE 的方案：**\n1. 先让 LLM 针对查询生成一个假设性答案（可能不准确但有相关术语）\n2. 用假设答案的向量去检索文档\n3. 假设答案比短查询更接近真实文档的语义空间\n\n**效果：** 在问答类场景中召回率提升 5-15%。\n\n**适用场景：**\n- 用户查询很短但需要检索长文档\n- 专业领域（假设答案包含领域术语）\n- 多语言查询（先翻译成目标语言的假设文档）\n\n**代价：** 每次查询多一次 LLM 调用，增加延迟和成本。",
+    "follow_up": [
+      "HyDE 和 Query Rewrite 有什么区别？",
+      "假设答案不准确会影响检索吗？"
+    ]
+  },
+  {
+    "id": "trend-024",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L2",
+    "tags": [
+      "Semantic Chunking",
+      "语义切分",
+      "文档处理"
+    ],
+    "question": "Semantic Chunking（语义切分）是什么？它比固定长度切分好在哪里？",
+    "answer": "**Semantic Chunking** 是根据内容语义边界进行文档切分的技术。\n\n**三种 Chunk 策略对比：**\n\n**1. 固定长度切分（Fixed Size）：** 每 N 个 token 切一刀。简单但可能截断句子，破坏语义完整性。\n\n**2. 递归切分（Recursive）：** 按段落 -> 句子 -> 词的层级递归切分。比固定长度好，但仍然基于规则。\n\n**3. 语义切分（Semantic）：** 计算相邻句子的语义相似度，在相似度骤降的位置切分。确保每个 Chunk 内语义连贯。\n\n**语义切分的实现：**\n1. 将文档按句子分割\n2. 计算相邻句子的 Embedding 相似度\n3. 设置阈值，相似度低于阈值的位置即为切分点\n4. 合并过短的 Chunk，拆分过长的 Chunk\n\n**效果：** 检索准确率提升 10-20%，因为每个 Chunk 语义完整，不会出现半个概念被截断的情况。\n\n**代价：** 需要额外的 Embedding 计算，预处理时间更长。",
+    "follow_up": [
+      "语义切分的阈值如何设定？",
+      "如何处理代码块和表格等非文本内容？"
+    ]
+  },
+  {
+    "id": "trend-025",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L3",
+    "tags": [
+      "RAG",
+      "召回率",
+      "排查"
+    ],
+    "question": "RAG 系统召回率低，如何系统性排查和优化？",
+    "answer": "RAG 召回率优化是面试超高频题，需要分环节排查：\n\n**排查链路：文档处理 -> 检索 -> 排序 -> 上下文 -> 生成**\n\n**1. 文档处理层：**\n- Chunk 太大？尝试减小 Chunk Size 或用语义切分\n- Chunk 太小？尝试增加 Overlap 或合并相关 Chunk\n- 文档解析错误？检查 PDF/表格提取质量\n\n**2. 检索层：**\n- Embedding 模型不够好？换更好的 Embedding（如 BGE-M3、text-embedding-3-large）\n- 只用了向量检索？加入 BM25 稀疏检索做 Hybrid Search\n- 查询太短？用 HyDE 或 Query Rewrite 增强\n\n**3. 排序层：**\n- 没有重排序？加 Rerank 模型（如 Cohere Rerank、bge-reranker）\n- 候选池太小？扩大 top-k\n\n**4. 上下文层：**\n- 正确证据被排到后面？检查上下文组装顺序\n- 太多无关内容？限制注入的 Chunk 数量\n\n**5. 生成层：**\n- 证据进了上下文但答案仍然错？检查 Prompt 是否要求引用来源",
+    "follow_up": [
+      "如何量化评估 RAG 的召回率？",
+      "Hybrid Search 的权重如何调？"
+    ]
+  },
+  {
+    "id": "trend-026",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L2",
+    "tags": [
+      "Rerank",
+      "重排序",
+      "Cohere"
+    ],
+    "question": "Rerank（重排序）在 RAG 中解决什么问题？如何选择重排序模型？",
+    "answer": "**Rerank** 是在初步检索后对候选结果进行精细排序的步骤。\n\n**解决的问题：**\n- 向量检索（ANN）速度快但精度有限，top-k 中可能混入不相关结果\n- 向量相似度高不等于与查询真正相关\n\n**Rerank 工作原理：**\n1. 向量检索召回 top-50 或 top-100 候选\n2. Rerank 模型对每个候选与查询做 cross-encoder 计算（而非 bi-encoder）\n3. Cross-encoder 能捕获查询和文档的深层交互关系\n4. 输出精确的相关性分数，重排后取 top-5\n\n**为什么 Cross-encoder 更准：**\n- Bi-encoder（向量检索）：查询和文档独立编码，最后算余弦相似度。快但浅。\n- Cross-encoder：查询和文档拼在一起送入模型，能捕获细粒度交互。慢但准。\n\n**选型：**\n- Cohere Rerank v3：商用效果最好\n- bge-reranker-large：开源首选\n- jina-reranker：轻量级方案",
+    "follow_up": [
+      "Rerank 增加多少延迟？值得吗？",
+      "如何评估 Rerank 的效果？"
+    ]
+  },
+  {
+    "id": "trend-027",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L2",
+    "tags": [
+      "Query Rewrite",
+      "查询重写",
+      "检索优化"
+    ],
+    "question": "Query Rewrite（查询重写）有哪些策略？什么场景需要用？",
+    "answer": "**Query Rewrite** 是在检索前对用户查询进行改写增强的技术。\n\n**常见策略：**\n\n**1. 查询扩展（Query Expansion）：** 将一个查询扩展为多个相关查询。如 Transformer 原理 -> Transformer 自注意力机制 + Transformer 位置编码 + Transformer 训练方法。\n\n**2. 查询分解（Query Decomposition）：** 将复杂问题拆分为子问题。如比较 A 和 B 的优劣 -> A 的优势是什么 + B 的优势是什么 + 两者对比。\n\n**3. 回指消解（Coreference Resolution）：** 多轮对话中的代词消解。如它 -> 指代上一轮提到的具体名词。\n\n**4. HyDE：** 生成假设文档作为查询。\n\n**适用场景：**\n- 用户查询模糊或过短\n- 多轮对话场景\n- 复杂推理类问题\n\n**代价：** 每次检索多一次 LLM 调用，增加延迟。需要在效果和延迟间权衡。",
+    "follow_up": [
+      "多查询扩展的结果如何合并？",
+      "Query Rewrite 会引入噪声吗？"
+    ]
+  },
+  {
+    "id": "trend-028",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L2",
+    "tags": [
+      "向量数据库",
+      "Milvus",
+      "Pinecone",
+      "Weaviate",
+      "选型"
+    ],
+    "question": "向量数据库选型：Milvus、Pinecone、Weaviate 各有什么优劣？",
+    "answer": "主流向量数据库对比：\n\n**Milvus：**\n- 开源，支持私有化部署\n- 支持十亿级向量\n- 索引算法丰富（IVF、HNSW、DiskANN）\n- 支持 Hybrid Search（向量+标量过滤）\n- 运维复杂度高\n\n**Pinecone：**\n- 全托管 SaaS，零运维\n- 效果好，延迟稳定\n- 支持 Serverless 模式\n- 闭源，数据在云端\n- 成本较高（按用量计费）\n\n**Weaviate：**\n- 开源，支持私有化\n- 内置模块化（可直接接 OpenAI/Cohere Embedding）\n- 支持 GraphQL 查询\n- 社区活跃度中等\n\n**其他选择：**\n- Qdrant：Rust 编写，高性能，开源\n- Chroma：轻量级，适合原型\n- pgvector：PostgreSQL 扩展，适合已有 PG 的团队\n\n**选型建议：**\n- 原型验证：Chroma 或 pgvector\n- 生产部署（私有化）：Milvus 或 Qdrant\n- 生产部署（SaaS）：Pinecone",
+    "follow_up": [
+      "HNSW 和 IVF 索引有什么区别？",
+      "向量数据库需要支持事务吗？"
+    ]
+  },
+  {
+    "id": "trend-029",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L3",
+    "tags": [
+      "RAG评测",
+      "Faithfulness",
+      "Ragas"
+    ],
+    "question": "如何系统性地评估 RAG 系统的效果？有哪些关键指标？",
+    "answer": "**RAG 评估** 需要从检索和生成两个维度分别度量。\n\n**Ragas 框架核心指标：**\n\n**1. Faithfulness（忠实度）：** 生成的答案中有多少比例可以从检索到的上下文中推导出来。越高说明幻觉越少。\n\n**2. Answer Relevancy（答案相关性）：** 生成的答案与用户查询的相关程度。越高越好。\n\n**3. Context Precision（上下文精确率）：** 检索到的上下文中有多少是真正相关的。衡量检索质量。\n\n**4. Context Recall（上下文召回率）：** 所有相关文档中被检索到的比例。衡量检索完整性。\n\n**评估方法：**\n- 人工标注 Golden Set：最准但成本高\n- LLM-as-Judge：用 GPT-4 评估答案质量，成本低但有偏差\n- Ragas / TruLens：自动化评估框架\n\n**常见问题诊断：**\n- Faithfulness 低 -> 检查 Prompt 是否要求引用来源\n- Context Recall 低 -> 检查 Chunk 策略和 Embedding 质量\n- Answer Relevancy 低 -> 检查生成 Prompt",
+    "follow_up": [
+      "如何构建高质量的 Golden Set？",
+      "LLM-as-Judge 的偏差如何消除？"
+    ]
+  },
+  {
+    "id": "trend-030",
+    "category": "trending",
+    "subcategory": "RAG进阶",
+    "difficulty": "L3",
+    "tags": [
+      "MCP",
+      "Model Context Protocol",
+      "Anthropic",
+      "协议"
+    ],
+    "question": "MCP（Model Context Protocol）是什么？它和 Function Calling 有什么区别？",
+    "answer": "**MCP（Model Context Protocol）** 是 Anthropic 于 2024 年提出的开放协议，标准化 LLM 与外部工具/数据的连接方式。\n\n**核心架构：**\n- MCP Server：暴露工具和数据源（如文件系统、数据库、API）\n- MCP Client：集成在 LLM 应用中，连接 Server\n- 通信协议：JSON-RPC over stdio 或 SSE\n\n**与 Function Calling 的区别：**\n\n**Function Calling：** 每个 LLM 应用自己定义工具，工具定义与模型紧耦合，换模型需要改工具定义。没有标准化。\n\n**MCP：** 工具定义和实现独立于 LLM 应用。一个 MCP Server 可以被任何支持 MCP 的客户端使用（Claude、Cursor、Hermes 等）。是工具调用的 USB-C。\n\n**MCP 的优势：**\n1. 标准化：写一次 MCP Server，到处可用\n2. 生态：社区共享 MCP Server（GitHub、Slack、数据库等）\n3. 安全：Server 控制权限，Client 不直接访问资源\n4. 动态发现：Client 运行时自动发现 Server 提供的工具\n\n**现状：** Claude Desktop、Cursor、Zed、Hermes Agent 已支持 MCP。",
+    "follow_up": [
+      "MCP 的安全模型是怎样的？",
+      "如何开发一个 MCP Server？"
+    ]
   }
 ]

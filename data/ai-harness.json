@@ -850,5 +850,126 @@
       "如何估算LLM应用的运营成本？",
       "团队需要什么样的人才？"
     ]
+  },
+  {
+    "id": "trend-039",
+    "category": "trending",
+    "subcategory": "AI编程",
+    "difficulty": "L2",
+    "tags": [
+      "Vibe Coding",
+      "AI编程",
+      "Cursor"
+    ],
+    "question": "Vibe Coding 是什么？它与传统编程范式有什么本质区别？",
+    "answer": "**Vibe Coding** 是 Andrej Karpathy 于 2025 年提出的概念，指用自然语言描述意图、由 AI 生成代码的编程范式。\n\n**核心理念：**\n- 开发者不再逐行写代码，而是描述想要的效果（vibe）\n- AI 工具（Cursor、Claude Code、Windsurf）负责代码实现\n- 开发者角色从代码编写者变为代码审查者和架构师\n\n**与传统编程的区别：**\n\n**传统编程：** 思考算法 -> 手写代码 -> 调试 -> 测试\n\n**Vibe Coding：** 描述意图 -> AI 生成代码 -> 审查/调整 -> AI 修复 -> 测试\n\n**关键能力要求：**\n1. Prompt 工程：如何精确描述需求\n2. 代码审查：快速判断 AI 生成的代码是否正确\n3. 架构思维：知道系统应该怎么组织\n4. 调试能力：定位 AI 生成代码中的 bug\n\n**挑战：**\n- AI 生成的代码可能有隐藏 bug\n- 开发者对代码的理解可能不够深入\n- 大项目的上下文管理困难（Token 限制）",
+    "follow_up": [
+      "Vibe Coding 适合什么类型的项目？",
+      "如何保证 AI 生成代码的质量？"
+    ]
+  },
+  {
+    "id": "trend-040",
+    "category": "trending",
+    "subcategory": "AI编程",
+    "difficulty": "L3",
+    "tags": [
+      "Claude Code",
+      "Agent Loop",
+      "系统提示词",
+      "AI编程"
+    ],
+    "question": "Claude Code 的架构是怎样的？它的 Agent Loop 是如何设计的？",
+    "answer": "**Claude Code** 是 Anthropic 推出的 CLI AI 编程助手，其架构是现代 Agent 设计的参考标杆。\n\n**核心架构：**\n\n**1. Agent Loop 设计：**\n- 接收用户指令 -> LLM 推理（thinking）-> 工具调用 -> 观察结果 -> 继续推理\n- 最大 25 轮迭代\n- 支持上下文压缩（超长时自动摘要）\n- 每轮都带完整上下文（无状态请求）\n\n**2. 工具集：**\n- 文件操作：Read、Write、Edit、Glob\n- 执行：Bash 命令执行\n- 搜索：Grep 代码搜索\n- MCP：通过 MCP 协议连接外部工具\n\n**3. 系统提示词关键设计：**\n- 角色定义：你是 Claude Code，Anthropic 的 AI 助手\n- 工具使用规则：优先搜索再修改、改动后验证\n- 安全约束：不执行危险命令、需用户确认\n\n**4. 上下文管理：**\n- 每轮带完整对话历史\n- Prompt Caching 减少重复计算\n- 超过阈值时自动压缩（保留摘要）\n\n**设计哲学：** 无状态请求 + 前缀缓存 + 上下文压缩，而非复杂的有状态 Agent。",
+    "follow_up": [
+      "Claude Code 为什么不用 RAG 检索代码？",
+      "Agent Loop 如何防止无限循环？"
+    ]
+  },
+  {
+    "id": "trend-041",
+    "category": "trending",
+    "subcategory": "AI编程",
+    "difficulty": "L3",
+    "tags": [
+      "Cursor",
+      "AI编程",
+      "代码补全"
+    ],
+    "question": "Cursor 的核心技术是什么？它和 GitHub Copilot 有什么区别？",
+    "answer": "**Cursor** 是基于 VS Code fork 的 AI 原生 IDE，核心技术包括：\n\n**1. 全仓库上下文理解：**\n- Codebase Indexing：将整个代码仓库索引为向量\n- 检索时用 RAG 找到相关代码片段\n- 支持 @file、@function、@web 精确引用\n\n**2. Agent 模式：**\n- 类似 Claude Code 的 Agent Loop\n- 可以读写文件、执行命令、运行测试\n- 支持多文件编辑\n\n**3. Inline 补全 + Chat：**\n- Tab 补全（类似 Copilot）\n- Cmd+K 行内编辑\n- 侧边栏 Chat 带全仓库上下文\n\n**vs GitHub Copilot：**\n\n| 维度 | Cursor | Copilot |\n|------|--------|---------|\n| 上下文 | 全仓库 RAG | 当前文件 + 少量上下文 |\n| 编辑能力 | 多文件 Agent | 单行/片段补全 |\n| 模型选择 | 多模型（Claude/GPT/自定义） | OpenAI 限定 |\n| IDE | 独立 IDE | 插件 |\n| Agent 能力 | 强（Composer/Agent）| 弱 |\n\nCursor 的核心优势是 Agent 级别的全仓库编辑能力。",
+    "follow_up": [
+      "Cursor 的 Codebase Indexing 怎么做的？",
+      "Tab 补全用什么模型？"
+    ]
+  },
+  {
+    "id": "trend-042",
+    "category": "trending",
+    "subcategory": "AI编程",
+    "difficulty": "L4",
+    "tags": [
+      "Code World Model",
+      "CWM",
+      "Meta",
+      "代码理解"
+    ],
+    "question": "什么是 Code World Model（CWM）？它为什么是代码智能的突破？",
+    "answer": "**Code World Model（CWM）** 是 Meta 于 2025 年 11 月提出的代码世界模型，是首个能理解代码执行过程的模型。\n\n**核心突破：**\n\n传统代码模型（如 Codex、StarCoder）只理解代码的文本语法，不理解代码执行后的行为。CWM 理解代码的执行轨迹（Execution Trace）。\n\n**工作原理：**\n1. 训练时加入代码执行轨迹数据\n2. 模型不仅学习代码文本，还学习代码运行后的状态变化\n3. 能预测代码执行结果，而不只是生成代码\n\n**关键能力：**\n1. 执行结果预测：给定代码和输入，预测输出\n2. Bug 检测：通过对比预期执行轨迹和实际执行轨迹发现 bug\n3. 代码修复：基于执行理解生成修复方案\n4. 测试生成：自动生成覆盖关键执行路径的测试\n\n**Benchmark 表现：** SWE-bench 通过率 65.8%，大幅超越之前的方法。\n\n**意义：** 从理解代码文本 -> 理解代码行为，是代码智能从语言模型走向世界模型的关键一步。",
+    "follow_up": [
+      "CWM 如何获取执行轨迹数据？",
+      "CWM 能否用于运行时 bug 诊断？"
+    ]
+  },
+  {
+    "id": "trend-043",
+    "category": "trending",
+    "subcategory": "AI编程",
+    "difficulty": "L3",
+    "tags": [
+      "FIM",
+      "Fill-in-the-Middle",
+      "代码补全"
+    ],
+    "question": "FIM（Fill-in-the-Middle）是什么？为什么它对代码补全很重要？",
+    "answer": "**FIM（Fill-in-the-Middle）** 是一种训练策略，让模型学会在代码的中间位置生成内容。\n\n**问题背景：**\n\n标准语言模型是从左到右生成（自回归）。但在代码编辑场景中，光标通常在文件中间位置，上方和下方都有已有代码。模型需要根据上下文（前后代码）生成中间部分。\n\n**FIM 训练方法：**\n1. 取一段完整代码，随机切分为前缀（prefix）和后缀（suffix）\n2. 将训练样本重组为：prefix + suffix + middle\n3. 让模型学习根据 prefix 和 suffix 生成 middle\n4. 实际实现用特殊 token 标记：<fim_prefix>...<fim_suffix>...<fim_middle>\n\n**效果：**\n- 未用 FIM 训练的模型在中间补全时效果差（因为只见过从左到右生成）\n- 用 FIM 训练后，中间补全准确率提升 20-30%\n- Codex、StarCoder、DeepSeek-Coder 等所有主流代码模型都使用 FIM\n\n**实际应用：** GitHub Copilot 的 Tab 补全就是 FIM 模式。",
+    "follow_up": [
+      "FIM 训练需要多少数据？",
+      "FIM 和 Infilling 是同一个概念吗？"
+    ]
+  },
+  {
+    "id": "trend-044",
+    "category": "trending",
+    "subcategory": "AI编程",
+    "difficulty": "L2",
+    "tags": [
+      "Pass@k",
+      "代码评估",
+      "HumanEval"
+    ],
+    "question": "Pass@k 是什么指标？它如何衡量代码生成模型的质量？",
+    "answer": "**Pass@k** 是评估代码生成模型的标准指标，衡量生成代码的通过率。\n\n**定义：** 给定一个编程题，模型生成 k 个候选答案，只要其中至少有一个通过了所有测试用例，就算通过。\n\n**计算公式：** Pass@k = 1 - C(n-c, k) / C(n, k)\n- n：总采样次数\n- c：通过的次数\n- k：评估的候选数\n\n**常见取值：**\n- Pass@1：只生成一次，通过率（最严格，反映实际体验）\n- Pass@10：生成 10 个，至少一个通过的概率\n- Pass@100：更宽松的评估\n\n**评估基准：**\n- HumanEval（OpenAI）：164 道 Python 编程题\n- MBPP（Google）：974 道 Python 编程题\n- HumanEval+：增强版，更多测试用例\n- SWE-bench：真实 GitHub PR 修复\n\n**面试要点：** Pass@1 最重要（用户只生成一次），Pass@10 反映模型的上限潜力。两者差距大说明模型不稳定（有时好有时差）。",
+    "follow_up": [
+      "Pass@1 和 Pass@10 差距大说明什么？",
+      "HumanEval 的局限性是什么？"
+    ]
+  },
+  {
+    "id": "trend-045",
+    "category": "trending",
+    "subcategory": "AI编程",
+    "difficulty": "L3",
+    "tags": [
+      "AI编程",
+      "Token成本",
+      "成本控制"
+    ],
+    "question": "AI 编程工具中如何控制 Token 成本？有哪些优化策略？",
+    "answer": "**Token 成本控制** 是 AI 编程工具的核心工程问题。\n\n**成本来源分析：**\n- 每次请求都携带大量上下文（system prompt + 文件内容 + 对话历史）\n- Agent 模式下多轮迭代，每轮都重复发送上下文\n- 代码仓库索引和检索也有 Embedding 成本\n\n**优化策略：**\n\n**1. Prompt Caching：**\n- System Prompt 和工具定义是重复前缀\n- 利用供应商的前缀缓存功能（如 Anthropic 的 Prompt Caching）\n- 可节省 50-90% 的重复计算成本\n\n**2. 上下文压缩：**\n- 对话历史定期摘要（保留关键信息，丢弃冗余）\n- 文件内容只发送相关部分（而非整个文件）\n- 工具返回结果截断和过滤\n\n**3. 模型分级：**\n- 简单操作（如格式化、重命名）用小模型\n- 复杂推理（架构设计、bug 分析）用大模型\n- 用 LLM Router 自动选择\n\n**4. 代码检索优化：**\n- 只检索相关文件而非全仓库\n- 用 Glob/Grep 替代 RAG（Claude Code 的做法）\n- 缓存检索结果",
+    "follow_up": [
+      "如何量化每次编程任务的 Token 成本？",
+      "模型分级的路由准确率如何？"
+    ]
   }
 ]
