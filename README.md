@@ -1,11 +1,11 @@
-# 🧠 AI 面试题库 · 150 题精讲
+# 🧠 AI 面试题库 · 257 题精讲
 
-> AI / AI Agent / AI Harness 三大方向，150 道精选面试题
+> AI 基础 / AI Agent / AI Harness / LLM面试100问 四大方向，257 道精选面试题
 > 对标 **阿里 P7 / 字节 2-2 / 腾讯 T9**
 
 ## ✨ 特性
 
-- 📚 **150 道精选题目** — AI 基础 50 + AI Agent 50 + AI Harness 50
+- 📚 **257 道精选题目** — AI 基础 50 + AI Agent 50 + AI Harness 50 + LLM面试100问 107
 - 🔍 **智能搜索** — 题目、标签、答案全文搜索
 - 🏷️ **多维筛选** — 分类 / 难度(L1-L5) / 子分类
 - 💝 **收藏功能** — 一键收藏，只看收藏
@@ -13,7 +13,7 @@
 - 📱 **PWA 支持** — 离线访问，可安装到桌面
 - 🌙 **深色模式** — 自动跟随系统，手动切换
 - 📖 **详细答案** — Markdown 渲染，支持表格/代码/列表
-- ❓ **延伸追问** — 每题附带 2-3 个深入追问
+- ❓ **延伸追问** — 部分题目附带深入追问
 - ⚡ **纯前端** — 零依赖，数据展示分离架构
 
 ## 📂 项目结构
@@ -28,7 +28,8 @@ ai-interview/
 ├── data/                   # 数据层（JSON）
 │   ├── ai-basics.json      # 50 题：大模型原理/训练微调/推理优化/RAG/Prompt/多模态/评估安全
 │   ├── ai-agent.json       # 50 题：Agent架构/工具使用/记忆系统/规划推理/多Agent/评估/生产化
-│   └── ai-harness.json     # 50 题：LLM框架/RAG工程化/向量数据库/模型服务/Agent框架/可观测/工程实践
+│   ├── ai-harness.json     # 50 题：LLM框架/RAG工程化/向量数据库/模型服务/Agent框架/可观测/工程实践
+│   └── llm-100.json        # 107 题：Transformer/LoRA/RLHF/DPO/PPO/手撕代码/DeepSeek-R1等（来源：小黄搞AI）
 ├── manifest.json           # PWA manifest
 ├── sw.js                   # Service Worker
 └── README.md
@@ -69,6 +70,28 @@ ai-interview/
 | 可观测性 | LangSmith, Phoenix, Prompt 版本管理 |
 | 工程实践 | 成本优化, CI/CD, A/B 测试, 高可用, 多租户 |
 
+### LLM 面试100问 (107 题) 🔥
+> 来源：小黄搞AI《大模型面试100问》PDF，涵盖大模型面试高频考点
+
+| 子分类 | 题数 | 覆盖知识点 |
+|--------|------|-----------|
+| Transformer架构 | 15 | FFN激活函数, Self-Attention, 多头注意力, QKV, Scaled Dot-Product, LayerNorm, 权重共享 |
+| 手撕代码 | 11 | Self-Attention(PyTorch/NumPy), Multi-Head, MQA, RoPE, FFN, LayerNorm, RMSNorm, Flash-Attention |
+| 训练优化 | 10 | 混合精度, float16/bfloat16, 梯度消失/爆炸, 交叉熵, warmup, 数据长度 |
+| 推理优化 | 9 | KV Cache, vLLM, FlashAttention, Prefill-Decode, 显存带宽, 重复问题 |
+| 对齐技术 | 9 | DPO, PPO, RLHF, 正负样本, Loss函数, 微调流程, PRM |
+| 参数高效微调 | 8 | LoRA, AdaLoRA, QLoRA, Adapter, Prefix-Tuning, P-Tuning, Prompt-Tuning |
+| 模型结构 | 8 | BERT, LLaMA, Qwen, MoE, Dense vs MoE, DeepSeek-V3, LLaMA3.1 |
+| 注意力机制 | 7 | GQA, MLA, Linear/Cross/Sparse Attention, Attention对比 |
+| DeepSeek-R1 | 6 | Zero含义, RL原理, 弊端, 冷启动, PRM/MCTS, 蒸馏 |
+| 位置编码 | 5 | RoPE, 绝对vs相对, 长度外推, ALiBi, NTK |
+| 训练与微调 | 4 | 迁移学习, 预训练vs微调, SFT问题, 增量预训练 |
+| Tokenizer | 3 | Tokenizer训练, WordPiece, BPE/BBPE |
+| 归一化 | 3 | RMSNorm, Group/Instance Norm, Normalization对比 |
+| 强化学习 | 3 | RL基础, 策略/值函数, 算法分类 |
+| 评估指标 | 2 | PPL困惑度, 大海捞针测试 |
+| 其他 | 4 | 分布式训练ZeRO, 模型部署, 端到端, 激活函数SwiGLU |
+
 ## 🚀 使用
 
 ```bash
@@ -82,7 +105,7 @@ open http://localhost:8090
 ## 🧪 测试
 
 30 项 Playwright 自动化测试全部通过：
-- ✅ 页面加载 & 数据加载（150 题）
+- ✅ 页面加载 & 数据加载（257 题）
 - ✅ 分类/难度/子分类筛选
 - ✅ 全文搜索
 - ✅ 模态详情（答案/追问/Markdown）

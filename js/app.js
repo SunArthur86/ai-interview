@@ -24,6 +24,7 @@ const CATEGORIES = {
   'ai-basics':   { label: 'AI 基础', icon: '🧠', color: '#34c759', file: 'data/ai-basics.json' },
   'ai-agent':    { label: 'AI Agent', icon: '🤖', color: '#af52de', file: 'data/ai-agent.json' },
   'ai-harness':  { label: 'AI Harness', icon: '⚙️', color: '#ff9500', file: 'data/ai-harness.json' },
+  'llm-100':     { label: 'LLM面试100问', icon: '🔥', color: '#ff3b30', file: 'data/llm-100.json' },
 };
 
 // ============ Init ============
