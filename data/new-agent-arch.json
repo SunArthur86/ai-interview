@@ -1,0 +1,75 @@
+[
+  {
+    "id": "bili-003",
+    "category": "agent-arch",
+    "subcategory": "Agent稳定性",
+    "difficulty": "L4",
+    "tags": [
+      "工具调用",
+      "降级",
+      "容错",
+      "Agent",
+      "B站高频"
+    ],
+    "question": "Agent 工具调用失败后如何降级处理？设计一个容错策略。",
+    "answer": "**Agent 工具调用失败常见原因**\n1. API 超时/网络错误\n2. 参数格式不匹配\n3. 工具返回异常结果\n4. 权限不足\n5. 工具被限流\n\n**多级降级策略**\n\n**Level 1 - 重试**：\n- 指数退避重试（3次，间隔 1s/2s/4s）\n- 仅对幂等操作重试\n\n**Level 2 - 参数修正**：\n- 解析失败信息 → LLM 重新生成参数\n- Schema 校验 → 自动补全缺失字段\n\n**Level 3 - 替代工具**：\n- 注册 fallback 工具链（如搜索引擎A → 搜索引擎B → 内置知识库）\n- 工具优先级排序\n\n**Level 4 - 优雅降级**：\n- 跳过失败步骤，用已有信息继续\n- 向用户透明地报告失败并请求手动输入\n\n**Level 5 - 人工兜底**：\n- 关键操作失败 → 转人工审核\n- 积累失败模式 → 离线优化\n\n**实现模式**\n```python\nclass ToolExecutor:\n    async def execute(self, tool, params):\n        try: return await tool.run(params)\n        except TimeoutError:\n            for attempt in range(3):\n                await asyncio.sleep(2**attempt)\n                try: return await tool.run(params)\n                except: pass\n            return await self.fallback(tool, params)\n```",
+    "follow_up": [
+      "如何设计工具调用的 schema 校验？",
+      "多 Agent 协作中一个 Agent 失败如何处理？"
+    ]
+  },
+  {
+    "id": "bili-004",
+    "category": "agent-arch",
+    "subcategory": "Agent安全",
+    "difficulty": "L4",
+    "tags": [
+      "幻觉工具调用",
+      "Agent安全",
+      "hallucinated",
+      "B站高频"
+    ],
+    "question": "Agent 产生幻觉式工具调用（hallucinated tool calls）的原因是什么？如何减少？",
+    "answer": "**幻觉式工具调用**指 LLM 调用不存在的工具、传递错误参数、或在不该调用工具时调用。\n\n**常见原因**\n1. **工具描述模糊**：LLM 不理解何时使用、参数含义不清\n2. **过度调用倾向**：模型训练时见过大量工具调用，倾向'用工具'而非'直接回答'\n3. **上下文混淆**：对话历史中提到工具名，被误认为调用指令\n4. **幻觉函数名**：编造不存在的 API 名称\n5. **参数类型错误**：传字符串给期望数字的参数\n\n**减少策略**\n\n1. **工具描述工程**：\n   - 用 JSON Schema 严格定义参数类型和约束\n   - 添加 'when to use' 和 'when NOT to use' 说明\n   - 提供调用示例\n\n2. **调用前校验**：\n   - 函数名白名单检查\n   - 参数 schema 校验（类型、范围、必填）\n   - 调用频率限制\n\n3. **Few-shot 引导**：\n   - 在 system prompt 中展示正确和错误的调用模式\n   - 包含'不需要工具'的示例\n\n4. **置信度过滤**：\n   - 检查 tool_call 的 logprob\n   - 低置信度时不执行，要求重新推理\n\n5. **微调对齐**：\n   - 用真实工具调用数据做 SFT\n   - 负样本训练：错误调用 + 惩罚",
+    "follow_up": [
+      "如何评估 Agent 工具调用的准确率？",
+      "Function Calling 和 ReAct 哪个幻觉率更低？"
+    ]
+  },
+  {
+    "id": "bili-012",
+    "category": "agent-arch",
+    "subcategory": "Agent安全",
+    "difficulty": "L4",
+    "tags": [
+      "Agent权限",
+      "安全控制",
+      "沙箱",
+      "Agent部署"
+    ],
+    "question": "如果让 Agent 连接数据库或内部系统，如何做权限控制和安全隔离？",
+    "answer": "**Agent 权限控制多层方案**\n\n1. **最小权限原则 (Least Privilege)**\n- 只授予完成任务所需的最小权限\n- 读/写/执行/删除分级授权\n- 示例：只读 DB 用户、限定的 API scope\n\n2. **工具沙箱化**\n- 每个工具运行在隔离容器/进程中\n- 限制文件系统访问范围\n- 禁止网络访问非白名单地址\n- 资源限制（CPU/Memory/Time）\n\n3. **操作分级审批**\n- Level 0 (只读查询)：自动执行\n- Level 1 (修改操作)：需日志审计\n- Level 2 (删除/发送)：需人工确认（Human-in-the-loop）\n- Level 3 (系统级操作)：禁止 Agent 直接执行\n\n4. **Query 白名单与参数化**\n- 数据库：只允许预定义的 SQL 模板，参数化注入\n- API：schema 校验 + 速率限制\n- 文件：路径白名单 + 只允许指定扩展名\n\n5. **审计与追踪**\n- 所有工具调用记录：输入、输出、时间、用户\n- 异常检测：调用频率异常、参数异常\n- 可回放：支持事后审查\n\n6. **Prompt 注入防护**\n- 输入过滤：检测恶意指令注入\n- 输出过滤：防止数据泄露\n- 分层 prompt：系统指令 > 用户指令 > 工具返回",
+    "follow_up": [
+      "如何检测 Agent 是否被 prompt 注入攻击？",
+      "Human-in-the-loop 怎么设计不阻塞？"
+    ]
+  },
+  {
+    "id": "bili-013",
+    "category": "agent-arch",
+    "subcategory": "Agent记忆",
+    "difficulty": "L4",
+    "tags": [
+      "Agent记忆",
+      "上下文膨胀",
+      "记忆管理",
+      "Agent"
+    ],
+    "question": "Agent 如何设计记忆机制，避免上下文不断膨胀？",
+    "answer": "**上下文膨胀问题**：随着对话轮次增加，历史消息累积导致 token 超限、延迟增加、成本上升。\n\n**分层记忆架构**\n\n1. **工作记忆 (Working Memory)**\n- 当前对话的最近 N 轮\n- 原始格式保留，精确度高\n- 容量有限（<8K tokens）\n\n2. **短期记忆 (Short-term Memory)**\n- 最近几小时/几天的对话摘要\n- 用 LLM 压缩为关键信息点\n- 检索时展开细节\n\n3. **长期记忆 (Long-term Memory)**\n- 向量数据库存储历史交互\n- 语义检索召回相关片段\n- 可无限扩展\n\n**压缩与遗忘策略**\n\n1. **滑动窗口**：保留最近 N 轮，旧的丢弃/压缩\n2. **摘要压缩**：每隔 K 轮，LLM 生成摘要替换原始消息\n3. **重要性评分**：用 LLM 给消息打分，低分丢弃\n4. **实体提取**：维护实体知识图谱（'用户叫张三'、'项目是面试题库'）\n5. **时间衰减**：旧记忆权重降低，模拟人类遗忘\n\n**实践方案**\n```python\nclass AgentMemory:\n    def update(self, message):\n        self.working.append(message)\n        if len(self.working) > 20:\n            old = self.working.pop(0)\n            summary = llm.summarize(old)\n            self.short_term.append(summary)\n            if random() < 0.3:\n                embed = llm.embed(summary)\n                self.vector_db.insert(embed, summary)\n```",
+    "follow_up": [
+      "摘要压缩会丢失哪些关键信息？",
+      "向量记忆的检索如何避免噪音？"
+    ]
+  }
+]

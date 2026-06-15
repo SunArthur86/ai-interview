@@ -22,11 +22,11 @@ const State = {
 // 5 大分类，每个分类可包含多个数据文件
 const CATEGORIES = {
   'all':              { label: '全部', icon: '📚', color: '#0071e3', files: null },
-  'llm-core':         { label: 'LLM 核心', icon: '🔥', color: '#ff3b30', files: ['data/llm-100.json', 'data/llm-notes.json'] },
-  'agent-arch':       { label: 'Agent 架构', icon: '🤖', color: '#af52de', files: ['data/ai-agent.json', 'data/agent-concept.json', 'data/agent-framework.json', 'data/agent-multi.json'] },
-  'agent-skill':      { label: 'Agent 技能', icon: '🔧', color: '#ff9500', files: ['data/agent-rag.json', 'data/agent-tools.json', 'data/agent-memory.json', 'data/agent-prompt.json', 'data/agent-llm.json'] },
-  'eng-practice':     { label: '工程化实战', icon: '🏗️', color: '#5856d6', files: ['data/ai-harness.json', 'data/agent-eng.json', 'data/agent-interview-qa.json'] },
-  'ai-basics':        { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json'] },
+  'llm-core':         { label: 'LLM 核心', icon: '🔥', color: '#ff3b30', files: ['data/llm-100.json', 'data/llm-notes.json', 'data/new-llm-core.json'] },
+  'agent-arch':       { label: 'Agent 架构', icon: '🤖', color: '#af52de', files: ['data/ai-agent.json', 'data/agent-concept.json', 'data/agent-framework.json', 'data/agent-multi.json', 'data/new-agent-arch.json'] },
+  'agent-skill':      { label: 'Agent 技能', icon: '🔧', color: '#ff9500', files: ['data/agent-rag.json', 'data/agent-tools.json', 'data/agent-memory.json', 'data/agent-prompt.json', 'data/agent-llm.json', 'data/new-agent-skill.json'] },
+  'eng-practice':     { label: '工程化实战', icon: '🏗️', color: '#5856d6', files: ['data/ai-harness.json', 'data/agent-eng.json', 'data/agent-interview-qa.json', 'data/new-eng-practice.json'] },
+  'ai-basics':        { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json', 'data/new-ai-basics.json'] },
 };
 
 // ============ Init ============
@@ -89,6 +89,20 @@ function applyFilters() {
   updateStats();
 }
 
+function highlightSearch(text) {
+  if (!State.searchQuery) return escapeHtml(text);
+  const escaped = escapeHtml(text);
+  const pattern = State.searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return escaped.replace(new RegExp(`(${pattern})`, 'gi'), '<mark class="search-hit">$1</mark>');
+}
+
+function tagClick(tag) {
+  const input = document.getElementById('searchInput');
+  input.value = tag;
+  State.searchQuery = tag;
+  applyFilters();
+}
+
 function renderCards() {
   const grid = document.getElementById('cardsGrid');
   if (State.filtered.length === 0) {
@@ -121,9 +135,9 @@ function renderCards() {
           ${isMastered ? '<span class="card__tag" style="color:var(--success);border-color:var(--success);">✓ 已掌握</span>' : ''}
           ${isDue && !isMastered ? '<span class="card__tag" style="color:var(--orange);border-color:var(--orange);">🔁 待复习</span>' : ''}
         </div>
-        <div class="card__question">${escapeHtml(q.question)}</div>
+        <div class="card__question">${highlightSearch(q.question)}</div>
         <div class="card__tags">
-          ${q.tags.slice(0, 4).map(t => `<span class="card__tag">${escapeHtml(t)}</span>`).join('')}
+          ${q.tags.slice(0, 4).map(t => `<span class="card__tag" onclick="event.stopPropagation(); tagClick('${escapeHtml(t)}')" style="cursor:pointer;" title="点击筛选">${escapeHtml(t)}</span>`).join('')}
           ${q.images && q.images.length > 0 ? `<span class="card__tag" style="color:var(--info);">🖼️ ${q.images.length}</span>` : ''}
           ${isViewed ? '<span class="card__tag" style="color:var(--success);">✓ 已看</span>' : ''}
         </div>
@@ -164,12 +178,25 @@ function updateStats() {
   if (elViewed) elViewed.textContent = viewed;
   if (elFav) elFav.textContent = favCount;
   if (elShown) elShown.textContent = filteredCount;
+
+  // Difficulty distribution bars
+  const diffCounts = { L1: 0, L2: 0, L3: 0, L4: 0, L5: 0 };
+  State.filtered.forEach(q => { if (diffCounts[q.difficulty] !== undefined) diffCounts[q.difficulty]++; });
+  const diffEl = document.getElementById('diffBars');
+  if (diffEl) {
+    const max = Math.max(...Object.values(diffCounts), 1);
+    diffEl.innerHTML = ['L1','L2','L3','L4','L5'].map(l => {
+      const pct = (diffCounts[l] / max * 100).toFixed(0);
+      return `<div class="diff-bar" data-l="${l}" style="width:${pct}%" title="${l}: ${diffCounts[l]}题"></div>`;
+    }).join('');
+  }
 }
 
 // ============ Modal ============
 function openModal(id) {
   const q = State.allQuestions.find(x => x.id === id);
   if (!q) return;
+  _currentModalIndex = State.filtered.findIndex(x => x.id === id);
   State.viewed.add(id);
   localStorage.setItem('ai-interview.viewed', JSON.stringify([...State.viewed]));
   updateProgress();
@@ -218,14 +245,34 @@ function openModal(id) {
         </div>
       </div>` : ''}
       <div class="modal__section">
-        <button class="followup-item" style="justify-content:center;" onclick="toggleFavorite('${q.id}', null); closeModal(); renderCards();">
-          <svg viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          ${isFav ? '取消收藏' : '添加收藏'}
-        </button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="followup-item" style="flex:1;justify-content:center;" onclick="toggleFavorite('${q.id}', null); closeModal(); renderCards();">
+            <svg viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            ${isFav ? '取消收藏' : '添加收藏'}
+          </button>
+          <button class="followup-item" style="flex:1;justify-content:center;" onclick="copyAnswer('${q.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            复制答案
+          </button>
+          <button class="followup-item" style="flex:1;justify-content:center;" onclick="shareQuestion('${q.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            分享
+          </button>
+        </div>
+      </div>
+      <div class="modal__nav">
+        <button class="modal__nav-btn" onclick="navModal(-1)" title="上一题 (←)">‹ 上一题</button>
+        <span class="modal__nav-pos" id="modalNavPos"></span>
+        <button class="modal__nav-btn" onclick="navModal(1)" title="下一题 (→)">下一题 ›</button>
       </div>
     </div>`;
 
   overlay.classList.add('active');
+  // Update nav position
+  const navPos = document.getElementById('modalNavPos');
+  if (navPos && _currentModalIndex >= 0) {
+    navPos.textContent = `${_currentModalIndex + 1} / ${State.filtered.length}`;
+  }
   document.body.style.overflow = 'hidden';
 }
 
@@ -370,6 +417,26 @@ function handleKeyboard(e) {
     e.preventDefault();
     document.getElementById('searchInput').focus();
   }
+  // '/' to focus search
+  if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+  // '?' to show shortcuts
+  if (e.key === '?' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+    toggleShortcuts();
+  }
+  // Arrow keys for modal navigation
+  if (e.key === 'ArrowLeft' && document.getElementById('modalOverlay').classList.contains('active')) {
+    navModal(-1);
+  }
+  if (e.key === 'ArrowRight' && document.getElementById('modalOverlay').classList.contains('active')) {
+    navModal(1);
+  }
+  // 'L' for random question
+  if ((e.key === 'l' || e.key === 'L') && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+    if (!StudyState.active && !ReviewState.active) randomQuestion();
+  }
   // 'R' key to start review
   if (e.key === 'r' || e.key === 'R') {
     if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
@@ -429,6 +496,134 @@ function escapeAttr(s) {
 function hideLoader() {
   const loader = document.getElementById('loader');
   if (loader) loader.style.display = 'none';
+}
+
+// ============ Keyboard Shortcuts Panel ============
+function toggleShortcuts() {
+  let panel = document.getElementById('shortcutsPanel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'shortcutsPanel';
+    panel.className = 'shortcuts-panel';
+    panel.innerHTML = `
+      <div class="shortcuts-overlay" onclick="toggleShortcuts()"></div>
+      <div class="shortcuts-modal">
+        <h2>⌨️ 键盘快捷键</h2>
+        <div class="shortcuts-grid">
+          <div class="shortcut-item"><kbd>/</kbd><span>聚焦搜索框</span></div>
+          <div class="shortcut-item"><kbd>Esc</kbd><span>关闭弹窗</span></div>
+          <div class="shortcut-item"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd><span>切换分类</span></div>
+          <div class="shortcut-item"><kbd>F</kbd><span>仅看收藏</span></div>
+          <div class="shortcut-item"><kbd>S</kbd><span>开始刷题</span></div>
+          <div class="shortcut-item"><kbd>R</kbd><span>开始复习</span></div>
+          <div class="shortcut-item"><kbd>D</kbd><span>切换深色模式</span></div>
+          <div class="shortcut-item"><kbd>?</kbd><span>显示快捷键面板</span></div>
+          <div class="shortcut-item"><kbd>L</kbd><span>随机一题</span></div>
+        </div>
+        <button class="shortcuts-close" onclick="toggleShortcuts()">知道了</button>
+      </div>`;
+    document.body.appendChild(panel);
+    requestAnimationFrame(() => panel.classList.add('show'));
+  } else {
+    panel.classList.toggle('show');
+    if (!panel.classList.contains('show')) {
+      setTimeout(() => { if (panel.parentNode) panel.remove(); }, 300);
+    }
+  }
+}
+
+// ============ Random Question ============
+function randomQuestion() {
+  const pool = State.filtered.length > 0 ? State.filtered : State.allQuestions;
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  openModal(q.id);
+}
+
+// ============ Progress Export ============
+function exportProgress() {
+  const total = State.allQuestions.length;
+  const viewed = State.viewed.size;
+  const fav = State.favorites.size;
+  const pct = (viewed / total * 100).toFixed(1);
+  const ratings = JSON.parse(localStorage.getItem('ai-interview.ratings') || '{}');
+  const rated = Object.keys(ratings).length;
+  const avgRating = rated > 0 ? (Object.values(ratings).reduce((a,b) => a+b, 0) / rated).toFixed(1) : 'N/A';
+  
+  const reviewData = JSON.parse(localStorage.getItem('ai-interview.reviewItems') || '{}');
+  const mastered = Object.values(reviewData).filter(r => 
+    (r.algo === 'leitner' && r.box >= 4) ||
+    (r.algo === 'ebbinghaus' && r.phase >= 5) ||
+    (r.algo === 'sm2' && r.interval >= 21)
+  ).length;
+  
+  const text = `📖 AI面试题库学习进度报告
+
+📊 总览:
+- 题库总量: ${total} 题
+- 已学习: ${viewed} 题 (${pct}%)
+- 已收藏: ${fav} 题
+- 已评分: ${rated} 题 (平均 ${avgRating}⭐)
+- 已掌握: ${mastered} 题
+
+📅 生成时间: ${new Date().toLocaleString('zh-CN')}
+🔗 题库地址: https://sunarthur86.github.io/ai-interview/`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('进度报告已复制到剪贴板！');
+  }).catch(() => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'study-progress.txt';
+    a.click();
+  });
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('dynamicToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'dynamicToast';
+    toast.className = 'dynamic-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ============ Modal Navigation & Actions ============
+function copyAnswer(id) {
+  const q = State.allQuestions.find(x => x.id === id);
+  if (!q) return;
+  const text = `Q: ${q.question}\n\nA: ${q.answer}\n\n来源: AI面试题库 (https://sunarthur86.github.io/ai-interview/)`;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('答案已复制到剪贴板！');
+  }).catch(() => {
+    showToast('复制失败，请手动选择');
+  });
+}
+
+function shareQuestion(id) {
+  const q = State.allQuestions.find(x => x.id === id);
+  if (!q) return;
+  const text = `AI面试题: ${q.question}\n\n来源: https://sunarthur86.github.io/ai-interview/`;
+  if (navigator.share) {
+    navigator.share({ title: 'AI面试题', text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('分享内容已复制！'));
+  }
+}
+
+let _currentModalIndex = -1;
+function navModal(dir) {
+  if (_currentModalIndex < 0) return;
+  const newIndex = _currentModalIndex + dir;
+  if (newIndex >= 0 && newIndex < State.filtered.length) {
+    closeModal();
+    setTimeout(() => openModal(State.filtered[newIndex].id), 150);
+  }
 }
 
 // ============ Event Binding ============

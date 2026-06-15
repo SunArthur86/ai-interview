@@ -1,0 +1,37 @@
+[
+  {
+    "id": "xhs-006",
+    "category": "ai-basics",
+    "subcategory": "预训练模型",
+    "difficulty": "L4",
+    "tags": [
+      "BERT",
+      "MLM",
+      "独立性假设"
+    ],
+    "question": "BERT 的 MASK 机制是否满足独立性假设？有什么改进方案？",
+    "answer": "**BERT 的 MLM 不满足独立性假设**。\n\n问题：BERT 同时 mask 15% 的 token，这些被 mask 的 token 的预测是**并行独立**的，即模型不利用被 mask token 之间的关系。\n\n举例：句子 'The capital of France is [MASK] [MASK]'，BERT 同时预测两个 [MASK]，但两个位置的预测互不影响，无法保证输出是 'Paris' 而非 'New York'。\n\n**与 AR 模型对比**：GPT 等自回归模型逐 token 生成，天然利用前面已生成的内容。\n\n**改进方案**\n1. **SpanBERT**：mask 连续 span 而非随机 token，强化跨度级建模\n2. **XLNet**：排列语言模型，允许看到部分已预测的 token\n3. **BART/T5**：改为 seq2seq 架构，解码器自回归生成\n4. **MASS / UniLM**：结合 MLM 和 AR 优势\n5. **PaLM/GLaM**：直接用 AR 架构替代",
+    "follow_up": [
+      "SpanBERT 的 span 长度怎么确定？",
+      "XLNet 的排列语言模型原理是什么？"
+    ]
+  },
+  {
+    "id": "bili-011",
+    "category": "ai-basics",
+    "subcategory": "多模态",
+    "difficulty": "L4",
+    "tags": [
+      "VLM",
+      "ViT",
+      "多模态",
+      "视觉语言模型"
+    ],
+    "question": "VLM（视觉语言模型）是如何工作的？ViT 的核心架构是什么？",
+    "answer": "**ViT (Vision Transformer)**\n核心思想：将 Transformer 从 NLP 迁移到视觉\n1. 将图像切成 16x16 的 patch\n2. 每个 patch 展平后线性投影为 token embedding\n3. 加入位置编码（可学习或正弦）\n4. 送入标准 Transformer Encoder\n5. [CLS] token 的输出用于分类\n\n```python\n# Pseudo code\npatches = image.reshape(B, N, P*P*C)  # N=num_patches\ntokens = Linear(patches) + pos_embed\nfeatures = TransformerEncoder(tokens)\nlogits = Classifier(features[:, 0])  # [CLS]\n```\n\n**VLM (Vision-Language Model)**\n主流架构：LLM + Vision Encoder + 对齐模块\n\n1. **Encoder-only 对齐**：ViT 提取特征 → MLP 投影到 LLM 的 embedding 空间\n2. **Cross-Attention 融合**：LLM 每层增加 cross-attention 与视觉特征交互\n3. **Q-Former 架构 (BLIP-2)**：少量 learnable query 与 ViT 特征交互 → 压缩后送入 LLM\n\n**代表模型**：\n- LLaVA: ViT + MLP + LLaMA（最简洁）\n- GPT-4V: 原生多模态预训练\n- Qwen-VL: 中文优化\n- Claude 3.5 Sonnet: 强 OCR 和图表理解\n\n**为什么 VLM 能加速推理**：多模态输入避免了'图片→文字描述→推理'的两步管线，一步到位。",
+    "follow_up": [
+      "ViT 和 CNN (ResNet) 各有什么优劣？",
+      "Q-Former 为什么能减少视觉 token 数量？"
+    ]
+  }
+]

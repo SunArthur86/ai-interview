@@ -341,6 +341,22 @@ body {
   border-radius: 4px;
   background: var(--bg-active);
   color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+.card__tag[onclick]:hover {
+  background: var(--blue);
+  color: #fff;
+  transform: translateY(-1px);
+}
+mark.search-hit {
+  background: rgba(255, 235, 59, 0.4);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+[data-theme="dark"] mark.search-hit {
+  background: rgba(255, 193, 7, 0.3);
+  color: #ffd54f;
 }
 .card__fav {
   position: absolute;
@@ -750,3 +766,51 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ============ Round 2: Keyboard Shortcuts Panel ============ */
+.shortcuts-panel { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+.shortcuts-panel.show { opacity: 1; }
+.shortcuts-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); }
+.shortcuts-modal { position: relative; background: var(--bg-card); border-radius: 16px; padding: 32px; max-width: 480px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); transform: scale(0.95); transition: transform 0.3s; }
+.shortcuts-panel.show .shortcuts-modal { transform: scale(1); }
+.shortcuts-modal h2 { font-family: var(--font-serif); margin-bottom: 20px; font-size: 1.25rem; }
+.shortcuts-grid { display: grid; gap: 12px; margin-bottom: 24px; }
+.shortcut-item { display: flex; align-items: center; gap: 8px; }
+.shortcut-item span { font-size: 0.875rem; color: var(--text-secondary); }
+kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 8px; font-family: -apple-system, monospace; font-size: 0.75rem; font-weight: 600; background: var(--bg-active); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 1px 0 var(--border); color: var(--text); }
+.shortcuts-close { width: 100%; padding: 10px; background: var(--blue); color: #fff; border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.shortcuts-close:hover { opacity: 0.85; }
+
+/* ============ Round 3: Difficulty Distribution Bars ============ */
+.diff-bars { display: flex; gap: 3px; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.diff-bar { transition: width 0.5s ease; }
+.diff-bar[data-l="L1"] { background: #34c759; }
+.diff-bar[data-l="L2"] { background: #5ac8fa; }
+.diff-bar[data-l="L3"] { background: #0071e3; }
+.diff-bar[data-l="L4"] { background: #af52de; }
+.diff-bar[data-l="L5"] { background: #ff3b30; }
+.diff-legend { display: flex; gap: 8px; font-size: 0.625rem; margin-top: 4px; }
+.diff-legend span { color: var(--text-tertiary); }
+.diff-legend span::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 3px; vertical-align: middle; }
+.diff-legend .leg-l1::before { background: #34c759; }
+.diff-legend .leg-l2::before { background: #5ac8fa; }
+.diff-legend .leg-l3::before { background: #0071e3; }
+.diff-legend .leg-l4::before { background: #af52de; }
+.diff-legend .leg-l5::before { background: #ff3b30; }
+
+/* ============ Dynamic Toast ============ */
+.dynamic-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 12px 24px; border-radius: 12px; font-size: 0.875rem; font-weight: 500; z-index: 10000; opacity: 0; transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.15); pointer-events: none; }
+.dynamic-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ============ Round 4: Stat Action Cards ============ */
+.stat-card--wide { flex: 2 1 200px; }
+.stat-card--actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stat-action-btn { padding: 6px 14px; border-radius: 8px; background: var(--bg-active); border: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.stat-action-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); transform: translateY(-1px); }
+
+/* ============ Round 5: Modal Navigation ============ */
+.modal__nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border); margin: 0 -24px -16px; }
+.modal__nav-btn { padding: 8px 20px; border-radius: 8px; background: var(--bg-active); border: 1px solid var(--border); font-size: 0.8125rem; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.2s; }
+.modal__nav-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+.modal__nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.modal__nav-pos { font-size: 0.75rem; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }

@@ -1,5 +1,5 @@
 // AI Interview — Service Worker
-const CACHE_NAME = 'ai-interview-v3';
+const CACHE_NAME = 'ai-interview-v4';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,11 @@ const STATIC_ASSETS = [
   './data/ai-basics.json',
   './data/ai-agent.json',
   './data/ai-harness.json',
+  './data/new-llm-core.json',
+  './data/new-agent-arch.json',
+  './data/new-agent-skill.json',
+  './data/new-eng-practice.json',
+  './data/new-ai-basics.json',
 ];
 
 // Install — cache static assets
