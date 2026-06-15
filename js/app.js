@@ -16,6 +16,7 @@ const State = {
   favorites: new Set(JSON.parse(localStorage.getItem('ai-interview.favorites') || '[]')),
   viewed: new Set(JSON.parse(localStorage.getItem('ai-interview.viewed') || '[]')),
   theme: localStorage.getItem('ai-interview.theme') || 'light',
+  sortOrder: localStorage.getItem('ai-interview.sortOrder') || 'easy-first', // 'easy-first' | 'hard-first' | 'default'
 };
 
 // ============ Category Config ============
@@ -58,6 +59,10 @@ function getSubcatGroup(subcategory) {
 // ============ Init ============
 async function init() {
   applyTheme();
+  // Restore sort button label
+  const sortLabels = {'easy-first': '↑ 由浅入深', 'hard-first': '↓ 由深入浅', 'default': '↕ 默认排序'};
+  const sortBtn = document.getElementById('sortToggle');
+  if (sortBtn) { sortBtn.textContent = sortLabels[State.sortOrder]; sortBtn.classList.toggle('active', State.sortOrder !== 'default'); }
   await loadAllData();
   bindEvents();
   applyFilters();
@@ -110,9 +115,28 @@ function applyFilters() {
     }
     return true;
   });
+  // Difficulty sort
+  const diffOrder = {'L1':1,'L2':2,'L3':3,'L4':4,'L5':5};
+  if (State.sortOrder === 'easy-first') {
+    State.filtered.sort((a, b) => (diffOrder[a.difficulty]||99) - (diffOrder[b.difficulty]||99));
+  } else if (State.sortOrder === 'hard-first') {
+    State.filtered.sort((a, b) => (diffOrder[b.difficulty]||0) - (diffOrder[a.difficulty]||0));
+  }
   renderCards();
   renderSubcategoryFilter();
   updateStats();
+}
+
+function toggleSort() {
+  const order = ['easy-first', 'hard-first', 'default'];
+  const idx = order.indexOf(State.sortOrder);
+  State.sortOrder = order[(idx + 1) % order.length];
+  localStorage.setItem('ai-interview.sortOrder', State.sortOrder);
+  const btn = document.getElementById('sortToggle');
+  const labels = {'easy-first': '↑ 由浅入深', 'hard-first': '↓ 由深入浅', 'default': '↕ 默认排序'};
+  btn.textContent = labels[State.sortOrder];
+  btn.classList.toggle('active', State.sortOrder !== 'default');
+  applyFilters();
 }
 
 function highlightSearch(text) {

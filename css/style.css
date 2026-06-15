@@ -230,6 +230,19 @@ body {
   color: var(--accent);
 }
 .filter-chip .chip-label { font-weight: 600; color: var(--text); }
+.sort-toggle {
+  background: var(--success-bg, rgba(52,199,89,0.12)) !important;
+  border-color: var(--success, #34c759) !important;
+  color: var(--success, #34c759) !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sort-toggle:not(.active) {
+  background: transparent !important;
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 400;
+}
 .filter-bar__spacer { flex: 1; }
 .filter-bar__info { font-size: 0.75rem; color: var(--text-tertiary); }
 

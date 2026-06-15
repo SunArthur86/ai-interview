@@ -181,5 +181,59 @@
       "如何降低 Agent 回归测试的运行成本？",
       "如何设计 LLM-as-Judge 的评估？"
     ]
+  },
+  {
+    "id": "opt-e-l5-001",
+    "category": "eng-practice",
+    "subcategory": "企业面试问答",
+    "difficulty": "L5",
+    "tags": [
+      "系统设计",
+      "Agent平台",
+      "架构",
+      "面试真题"
+    ],
+    "question": "请设计一个企业级智能客服 Agent 平台的完整架构，支持多租户和水平扩展。",
+    "answer": "**架构设计**\n\n**接入层**\n- API Gateway：认证、限流、路由\n- WebSocket：支持流式输出\n\n**核心层**\n- **意图识别**：BERT 分类器（8类意图）→ 路由到对应处理链\n- **Agent 编排器**（状态机 + DAG 混合）\n  - ReAct Agent：通用问答\n  - RAG Agent：知识库检索\n  - SQL Agent：数据查询\n  - 反思 Agent：质量校验\n\n**服务层**\n- **多路检索引擎**：向量 + BM25 + 混合 RRF\n- **记忆系统**：Redis（短期）+ Milvus（长期）\n- **工具系统**：搜索/计算器/DB 查询 + MCP\n- **模型路由**：多模型候选 + 三态熔断器\n\n**支撑层**\n- **文档 ETL**：PDF/Word → 分块 → 向量化 → 入库\n- **全链路追踪**：OpenTelemetry\n- **配置中心**：Prompt/工具/模型版本管理\n\n**多租户方案**\n- 数据隔离：每租户独立 Collection（Milvus）\n- Prompt 隔离：每租户可自定义 system prompt\n- 权限隔离：RBAC + API Key\n- 资源配额：每租户 QPS/Token 限制\n\n**水平扩展**\n- 无状态 API（状态存 Redis）\n- Milvus 集群分片\n- 模型推理用 vLLM + Tensor Parallel\n\n**关键指标**\n- P95 延迟 < 3s\n- 幻觉率 < 5%\n- 可用性 99.9%\n- 支持 1000+ 并发",
+    "follow_up": [
+      "如何做模型 A/B 测试？",
+      "多租户数据如何迁移？"
+    ]
+  },
+  {
+    "id": "opt-e-l5-002",
+    "category": "eng-practice",
+    "subcategory": "企业面试问答",
+    "difficulty": "L5",
+    "tags": [
+      "系统设计",
+      "RAG",
+      "多路检索",
+      "面试真题"
+    ],
+    "question": "如果让你从零搭建一个支持百万文档的 RAG 系统，你会怎么设计？",
+    "answer": "**百万级文档 RAG 系统设计**\n\n**数据层**\n- **文档解析**：Unstructured/DeepDoc（PDF表格/图片/OCR）\n- **分块策略**：RecursiveCharacterTextSplitter（chunk=512, overlap=64）\n- **父子块**：子块用于检索，父块用于生成上下文\n- **Embedding**：BGE-M3（多语言/多功能）\n- **向量库**：Milvus 集群（分片 + HNSW 索引）\n\n**检索层（多路混合检索）**\n- **向量检索**：语义相似（Milvus, top-k=20）\n- **BM25 检索**：关键词匹配（Elasticsearch, top-k=20）\n- **RRF 融合**：reciprocal_rank_fusion 合并两路结果\n- **Rerank**：Cross-Encoder 精排（top-k=5）\n\n**生成层**\n- **Query 改写**：HyDE / 子问题分解\n- **上下文组装**：父子块 + 上下文窗口管理\n- **生成**：LLM + System Prompt + 检索结果\n- **引用标注**：标注每个事实的来源\n\n**优化层**\n- **Query 路由**：简单问题→直接向量检索，复杂问题→子问题分解\n- **Adaptive RAG**：如果检索置信度低→触发 Web 搜索\n- **Self-RAG**：生成后自检是否需要重新检索\n\n**评估**\n- **RAGAS**：faithfulness(忠实度) + answer_relevancy(相关性)\n- **召回率**：检索结果是否包含正确答案\n- **人工评测**：每月 200 条 bad case 分析\n\n**扩展性**\n- 增量更新：文档变更→重新 Embed→upsert\n- 冷热分离：热数据 HNSW，冷数据 IVF",
+    "follow_up": [
+      "HNSW 和 IVF 如何取舍？",
+      "如何处理多语言文档？"
+    ]
+  },
+  {
+    "id": "opt-e-l5-003",
+    "category": "eng-practice",
+    "subcategory": "企业面试问答",
+    "difficulty": "L5",
+    "tags": [
+      "幻觉排查",
+      "线上问题",
+      "Agent",
+      "面试真题"
+    ],
+    "question": "线上 RAG 系统突然幻觉率升高，从 3% 升到 15%，你会怎么排查？",
+    "answer": "**幻觉率飙升排查 SOP**\n\n**Step 1: 确认范围**\n- 是全量用户还是特定用户群？\n- 是所有问题类型还是特定类型？\n- 什么时候开始的？（关联部署时间）\n\n**Step 2: 检查最近变更**\n- Prompt 是否修改？（最常见原因）\n- 模型是否升级？（不同模型幻觉率不同）\n- 知识库是否更新？（新文档可能引入冲突信息）\n- 分块策略是否调整？\n\n**Step 3: 检索质量分析**\n- 抽取 50 条幻觉样本\n- 检查检索结果是否包含正确答案\n  - 检索到但生成错误 → 生成层问题\n  - 根本没检索到 → 检索层问题\n- 检查 rerank 模型是否正常\n\n**Step 4: 常见根因**\n\n| 根因 | 占比 | 解决方案 |\n|------|------|---------|\n| Prompt 修改不当 | 30% | 回滚 Prompt 版本 |\n| 检索结果质量差 | 25% | 调整分块/Embedding |\n| 知识库冲突 | 20% | 清理旧版本数据 |\n| 模型升级 | 15% | 对比评测后决定 |\n| 用户 query 漂移 | 10% | 增加 query 改写 |\n\n**Step 5: 快速止血**\n1. 回滚到上一版本（Prompt/模型/配置）\n2. 增加回答约束：'如果上下文中没有相关信息，请回答我不知道'\n3. 临时增加 rerank 步骤\n\n**预防措施**\n- 幻觉率告警（阈值 5%）\n- 每日自动抽样检测\n- Prompt 变更必须 A/B 测试",
+    "follow_up": [
+      "如何自动化检测幻觉？",
+      "RAG 和微调哪个更能降幻觉？"
+    ]
   }
 ]

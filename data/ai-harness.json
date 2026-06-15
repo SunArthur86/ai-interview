@@ -971,5 +971,204 @@
       "如何量化每次编程任务的 Token 成本？",
       "模型分级的路由准确率如何？"
     ]
+  },
+  {
+    "id": "opt-h-l1-001",
+    "category": "ai-harness",
+    "subcategory": "工程化实践",
+    "difficulty": "L1",
+    "tags": [
+      "LLM应用",
+      "基础概念",
+      "入门"
+    ],
+    "question": "什么是 AI Harness（AI 工程化框架）？它解决什么问题？",
+    "answer": "**AI Harness** 指围绕大模型构建应用所需的工程化框架和工具链。\n\n**解决的问题**\n1. 直接调 API 不够：缺乏记忆、工具、安全等能力\n2. 生产化困难：监控、限流、降级、版本管理\n3. 成本控制：token 消耗、缓存策略\n\n**核心组件**\n- 模型路由：多模型选择 + 熔断降级\n- RAG 引擎：检索 + 生成\n- Agent 编排：工具调用 + 任务规划\n- 记忆系统：短期/长期记忆\n- 可观测性：日志/Trace/Metrics\n- 安全护栏：Prompt 注入防护\n\n**代表框架**：LangChain、LlamaIndex、Dify、LangSmith",
+    "follow_up": [
+      "LangChain 和 LlamaIndex 的区别？",
+      "什么时候需要用 AI Harness？"
+    ]
+  },
+  {
+    "id": "opt-h-l1-002",
+    "category": "ai-harness",
+    "subcategory": "推理与部署",
+    "difficulty": "L1",
+    "tags": [
+      "模型部署",
+      "vLLM",
+      "推理框架",
+      "入门"
+    ],
+    "question": "大模型部署有哪些主流框架？各自适合什么场景？",
+    "answer": "**主流推理框架对比**\n\n| 框架 | 特点 | 适合场景 |\n|------|------|--------|\n| **vLLM** | PagedAttention, 高吞吐 | 生产服务, 高 QPS |\n| **Ollama** | 一键部署, 简单易用 | 本地/个人使用 |\n| **TGI** (HuggingFace) | 功能全面 | HuggingFace 生态 |\n| **TensorRT-LLM** | NVIDIA 最优, 极致性能 | NVIDIA GPU 生产 |\n| **SGLang** | 结构化生成, 快 | 复杂输出格式 |\n\n**选择建议**\n- 个人/开发：Ollama\n- 生产服务：vLLM（最佳综合性价比）\n- NVIDIA 环境 + 极致性能：TensorRT-LLM\n- 需要 GPU 调度：Ray Serve + vLLM",
+    "follow_up": [
+      "vLLM 为什么比 Transformers 快？",
+      "如何做模型量化部署？"
+    ]
+  },
+  {
+    "id": "opt-h-l1-003",
+    "category": "ai-harness",
+    "subcategory": "工程化实践",
+    "difficulty": "L1",
+    "tags": [
+      "LLM监控",
+      "可观测性",
+      "入门"
+    ],
+    "question": "LLM 应用的监控和传统 Web 应用的监控有什么不同？",
+    "answer": "**LLM 监控的独特维度**\n\n传统 Web：CPU/内存/QPS/延迟\nLLM 应用还需要：\n\n1. **Token 消耗**：每次请求消耗的 token 数（直接关联成本）\n2. **质量指标**：幻觉率、回答相关性、用户满意度\n3. **LLM 延迟**：首 token 延迟 (TTFT) + 每秒生成速度\n4. **工具调用成功率**：Agent 场景中工具调用的成功/失败率\n5. **Prompt 变更追踪**：不同 prompt 版本的效果对比\n\n**常用工具**：LangSmith, Phoenix (Arize), Langfuse, W&B\n\n**一句话理解**：传统监控关注'系统是否正常'，LLM 监控还要关注'AI 回答是否靠谱'。",
+    "follow_up": [
+      "如何定义和测量幻觉率？",
+      "LangSmith 的 Trace 包含哪些信息？"
+    ]
+  },
+  {
+    "id": "opt-h-l1-004",
+    "category": "ai-harness",
+    "subcategory": "工程化实践",
+    "difficulty": "L1",
+    "tags": [
+      "限流",
+      "API",
+      "成本控制",
+      "入门"
+    ],
+    "question": "如何控制 LLM 应用的 Token 成本？有哪些实用策略？",
+    "answer": "**Token 成本控制策略**\n\n1. **模型路由**：简单问题用小模型（GPT-3.5），复杂问题用大模型（GPT-4）\n2. **语义缓存**：相同/相似的问题直接返回缓存结果\n3. **上下文压缩**：长对话定期摘要，避免上下文膨胀\n4. **Prompt 精简**：移除冗余指令，用更短的 system prompt\n5. **批量处理**：Batch API（OpenAI 有 50% 折扣）\n6. **流式输出**：提前终止不完整的回答\n7. **Fine-tune 小模型**：微调 7B 替代 GPT-4 API\n\n**一句话理解**：80% 的请求可以用 20% 的成本覆盖——关键是做好模型路由和缓存。",
+    "follow_up": [
+      "语义缓存如何判断'相似'？",
+      "如何评估该用 API 还是自部署？"
+    ]
+  },
+  {
+    "id": "opt-h-l1-005",
+    "category": "ai-harness",
+    "subcategory": "推理与部署",
+    "difficulty": "L1",
+    "tags": [
+      "量化",
+      "INT8",
+      "INT4",
+      "入门"
+    ],
+    "question": "什么是模型量化（Quantization）？INT8 和 INT4 有什么区别？",
+    "answer": "**量化** 将模型权重从 FP16（16位浮点）压缩到更低位（INT8/INT4），减少显存和加速推理。\n\n| 精度 | 每参数 | 7B 模型大小 | 质量 |\n|------|--------|------------|------|\n| FP16 | 2 bytes | 14 GB | 100% |\n| INT8 | 1 byte | 7 GB | ~99% |\n| INT4 | 0.5 bytes | 3.5 GB | ~95% |\n\n**INT8 vs INT4**\n- INT8：质量损失极小，显存减半\n- INT4：显存极低，但质量有一定下降（复杂推理/代码可能受影响）\n\n**常用方法**：GPTQ（训练后量化）、AWQ（激活感知量化）、GGUF（llama.cpp 格式）\n\n**选择建议**：生产优先 INT8，资源极度受限用 INT4。",
+    "follow_up": [
+      "GPTQ 和 AWQ 有什么区别？",
+      "量化后如何恢复质量？"
+    ]
+  },
+  {
+    "id": "opt-h-l5-001",
+    "category": "ai-harness",
+    "subcategory": "推理与部署",
+    "difficulty": "L5",
+    "tags": [
+      "PD分离",
+      "Prefill-Decode",
+      "分布式推理",
+      "高级"
+    ],
+    "question": "Prefill-Decode 分离（PD Separation）是什么？为什么大规模推理服务必须做？",
+    "answer": "**PD 分离** 将推理的 Prefill（首 token 计算）和 Decode（逐 token 生成）分配到不同的 GPU 集群。\n\n**为什么需要分离？**\n\nPrefill 和 Decode 的计算特征完全不同：\n\n| 维度 | Prefill | Decode |\n|------|---------|--------|\n| 计算特征 | Compute-bound | Memory-bound |\n| Batch 友好 | ✅ 可并行 | ❌ 难以批量 |\n| GPU 利用率 | 高（大量矩阵乘） | 低（逐 token） |\n| 延迟来源 | 模型计算 | KV Cache 读取 |\n\n**分离架构**\n\n```\n用户请求 → Prefill 集群（高算力 GPU）\n           ↓ 计算 KV Cache\n           ↓ 传给 Decode 集群\n         Decode 集群（大显存 GPU）\n           ↓ 逐 token 生成\n           ↓ 流式返回\n```\n\n**优势**\n1. Prefill 集群用 H100（高 FLOPS）→ 快速算完 prompt\n2. Decode 集群用 A100 80GB（大显存）→ 支撑更多并发\n3. 两个集群独立扩缩容\n4. KV Cache 通过高速网络（RDMA）传输\n\n**挑战**\n1. KV Cache 传输延迟（需要 RDMA/InfiniBand）\n2. 负载均衡更复杂\n3. 故障恢复需要处理跨集群状态\n\n**实际案例**\n- DeepSeek：PD 分离 + 每日处理千亿 token\n- Google：GBoard 的 LLM 服务\n- 大厂趋势：PD 分离是大规模推理的必选项",
+    "follow_up": [
+      "KV Cache 跨节点传输如何优化？",
+      "中小企业需要 PD 分离吗？"
+    ]
+  },
+  {
+    "id": "opt-h-l5-002",
+    "category": "ai-harness",
+    "subcategory": "推理与部署",
+    "difficulty": "L5",
+    "tags": [
+      "vLLM",
+      "PagedAttention",
+      "连续批处理",
+      "高级"
+    ],
+    "question": "vLLM 的 PagedAttention 和连续批处理是如何协同工作的？它解决了什么核心问题？",
+    "answer": "**vLLM 的两大核心创新**\n\n**问题背景**\n传统推理（HuggingFace Transformers）的问题：\n1. 每个 KV Cache 预分配连续内存 → 显存碎片严重（浪费 60-80%）\n2. 请求必须等同一个 batch 全部完成才能接受新请求 → 吞吐低\n\n**创新 1: PagedAttention（分页注意力）**\n\n类比操作系统的虚拟内存：\n- KV Cache 不存储在连续物理内存，而是分成固定大小的 Block（如 16 个 token/block）\n- Block Table 映射逻辑块到物理块\n- 显存碎片 → 接近 0\n- 显存利用率从 ~40% 提升到 ~96%\n\n**创新 2: Continuous Batching（连续批处理）**\n\n- 传统 Static Batching：等整个 batch 完成\n- Continuous Batching：\n  - 某个请求完成 → 立即从 batch 移除\n  - 新请求到来 → 立即加入当前 batch\n  - 每一步动态重组 batch\n- 吞吐量提升 2-4x\n\n**协同工作**\n```\n1. 新请求到来 → PagedAttention 分配 KV Block\n2. 加入当前 batch → Continuous Batching 统一调度\n3. 某请求完成 → 回收 KV Block → 等待新请求复用\n4. 全局显存管理 → 零碎片 + 零等待\n```\n\n**效果**：vLLM 吞吐量比 HuggingFace 高 14-24x（论文数据）",
+    "follow_up": [
+      "PagedAttention 的 Block 大小怎么选？",
+      "连续批处理如何处理不同长度的请求？"
+    ]
+  },
+  {
+    "id": "opt-h-l5-003",
+    "category": "ai-harness",
+    "subcategory": "推理与部署",
+    "difficulty": "L5",
+    "tags": [
+      "模型路由",
+      "多模型",
+      "熔断器",
+      "降级",
+      "高级"
+    ],
+    "question": "设计一个生产级多模型网关：如何实现模型路由、熔断和自动降级？",
+    "answer": "**多模型网关架构**\n\n```\n用户请求\n  → 路由决策（基于 query 复杂度/成本/延迟）\n  → 模型调用（GPT-4 / Claude / GLM / 本地 7B）\n  → 熔断检查（如果模型连续失败 → 降级）\n  → 降级链（大模型 → 小模型 → 缓存 → 兜底回复）\n  → 响应\n```\n\n**1. 模型路由策略**\n- **规则路由**：代码问题 → Code模型，简单FAQ → 小模型\n- **LLM 路由**：用轻量模型（如 BERT）分类 query 难度\n- **成本路由**：Token 预算 < 500 → 小模型，> 2000 → 大模型\n- **延迟路由**：SLA 要求 < 1s → 本地模型\n\n**2. 熔断器设计（三态）**\n- **Closed（正常）**：请求正常通过\n- **Open（熔断）**：连续失败超阈值 → 直接拒绝（快速失败）\n- **Half-Open（探测）**：放少量请求试探是否恢复\n\n```python\nclass CircuitBreaker:\n    def __init__(self, threshold=5, timeout=60):\n        self.failures = 0\n        self.state = 'closed'\n    \n    async def call(self, model, prompt):\n        if self.state == 'open':\n            return await self.fallback(prompt)\n        try:\n            result = await model.generate(prompt)\n            self.failures = 0  # 重置\n            return result\n        except Exception:\n            self.failures += 1\n            if self.failures >= self.threshold:\n                self.state = 'open'\n                schedule_reset()  # 60s 后转 half-open\n            return await self.fallback(prompt)\n```\n\n**3. 降级链**\n- Level 1: GPT-4 → Claude（不同厂商 fallback）\n- Level 2: Claude → 本地 7B 模型（云 → 本地）\n- Level 3: 本地模型 → 语义缓存（历史相似回答）\n- Level 4: 缓存 → 固定兜底回复（'服务繁忙，请稍后重试'）\n\n**4. 监控**\n- 每个模型的 QPS / 延迟 / 成功率 / 成本\n- 路由分布（多少去了大模型 vs 小模型）\n- 熔断触发频率",
+    "follow_up": [
+      "Half-Open 放多少探测流量？",
+      "如何避免降级雪崩？"
+    ]
+  },
+  {
+    "id": "opt-h-l5-004",
+    "category": "ai-harness",
+    "subcategory": "工程化实践",
+    "difficulty": "L5",
+    "tags": [
+      "语义缓存",
+      "Semantic Cache",
+      "缓存策略",
+      "成本优化",
+      "高级"
+    ],
+    "question": "语义缓存（Semantic Cache）如何实现？它和普通缓存有什么本质区别？",
+    "answer": "**语义缓存** 不做精确匹配，而是基于**语义相似度**判断是否命中缓存。\n\n**普通缓存 vs 语义缓存**\n\n| 维度 | 普通缓存 | 语义缓存 |\n|------|---------|---------|\n| 匹配方式 | key 精确匹配 | 向量相似度 |\n| 命中条件 | 完全相同 | 语义相同（'年假几天' = '有多少天年假'） |\n| 存储 | KV Store (Redis) | 向量数据库 (Redis/Chroma) |\n| 命中率 | 低（~5%） | 高（~20-40%） |\n\n**实现流程**\n\n```\n1. 用户 Query → Embedding Model → Query Vector\n2. Query Vector → 向量数据库 → Top-K 相似搜索\n3. 相似度 > 阈值（如 0.92）？ → 缓存命中 → 返回\n4. 相似度 < 阈值？ → 缓存未命中 → 调 LLM → 存入缓存\n```\n\n**关键设计决策**\n\n1. **相似度阈值**\n- 太高（0.98）→ 命中率低，省不了钱\n- 太低（0.85）→ 可能返回错误答案\n- 推荐：0.90~0.95，配合人工抽检调优\n\n2. **缓存有效期 (TTL)**\n- 事实型问题：长 TTL（7天）\n- 时效型问题：短 TTL（1小时）或不缓存\n- 用 LLM 分类 query 类型自动设置 TTL\n\n3. **防止'串味'**\n- 多租户隔离：不同用户的缓存分开\n- 角色/Prompt 隔离：不同 system prompt 的缓存分开\n- 方法：将 system_prompt_hash + user_query_vector 作为复合 key\n\n4. **成本收益**\n- Embedding 成本（~$0.0001/query）远低于 LLM 调用（~$0.02/query）\n- 缓存命中率 30% → 节省 ~30% API 成本\n- 典型 ROI：语义缓存的基建成本在 1-2 个月内回本",
+    "follow_up": [
+      "如何处理'差一个字但意思完全不同'的情况？",
+      "语义缓存如何做 A/B 测试？"
+    ]
+  },
+  {
+    "id": "opt-h-l5-005",
+    "category": "ai-harness",
+    "subcategory": "工程化实践",
+    "difficulty": "L5",
+    "tags": [
+      "Agent可观测性",
+      "OpenTelemetry",
+      "Trace",
+      "高级"
+    ],
+    "question": "Agent 系统的全链路追踪（Distributed Tracing）如何实现？OpenTelemetry 在 Agent 中怎么用？",
+    "answer": "**Agent 为什么比传统服务更需要 Trace？**\n\n传统服务：Request → DB → Response（2-3 个 span）\nAgent 系统：Request → Router → Planner → Tool1 → Tool2 → LLM → Validator → Response（10-20 个 span）\n\n**Trace 架构**\n\n```\nTrace (一次完整用户交互)\n├─ Span: Router（意图分类, 50ms）\n├─ Span: Planner（LLM 规划, 1.2s, 500 tokens）\n├─ Span: Tool:Search（向量检索, 80ms）\n│   └─ Span: Embed（Query 向量化, 20ms）\n├─ Span: Tool:Database（SQL 查询, 150ms）\n├─ Span: LLM Generate（最终回答, 2.5s, 800 tokens）\n└─ Span: Validator（安全检查, 100ms）\n\n总延迟: 4.1s | 总 Token: 1300 | 总成本: $0.026\n```\n\n**OpenTelemetry 在 Agent 中的实践**\n\n**关键 Span 属性**\n```python\nspan.set_attribute('llm.model', 'gpt-4')\nspan.set_attribute('llm.prompt_tokens', 500)\nspan.set_attribute('llm.completion_tokens', 800)\nspan.set_attribute('llm.cost_usd', 0.026)\nspan.set_attribute('tool.name', 'search')\nspan.set_attribute('tool.success', True)\nspan.set_attribute('agent.step', 3)\nspan.set_attribute('agent.max_steps', 10)\n```\n\n**Span 类型标准化**\n1. **LLM Span**：模型调用（prompt, completion, tokens, model）\n2. **Tool Span**：工具调用（tool_name, params, result, latency）\n3. **Retrieval Span**：RAG 检索（query, chunks, scores）\n4. **Agent Span**：Agent 步骤（step_num, thought, action）\n\n**日志 vs Trace vs Metrics**\n- **日志**：详细文本记录（含完整 prompt/response）\n- **Trace**：结构化的调用链（含 span 关系和属性）\n- **Metrics**：聚合统计（QPS, p99延迟, 错误率, token/req）\n\n**工具选择**\n- 开源：Jaeger + OpenTelemetry + Langfuse\n- 商业：LangSmith, Phoenix (Arize), Datadog LLM\n- 最小方案：OpenTelemetry + stdout JSON logs + grep",
+    "follow_up": [
+      "如何采样以减少 Trace 存储？",
+      "Langfuse 和 LangSmith 如何选择？"
+    ]
+  },
+  {
+    "id": "opt-h-l5-006",
+    "category": "ai-harness",
+    "subcategory": "推理与部署",
+    "difficulty": "L5",
+    "tags": [
+      "蓝绿部署",
+      "金丝雀",
+      "Agent部署",
+      "灰度",
+      "高级"
+    ],
+    "question": "Agent 服务的蓝绿部署和金丝雀部署如何选择？Agent 长任务怎么做部署不中断？",
+    "answer": "**部署策略对比**\n\n**蓝绿部署**\n- 两套环境（蓝/绿），切换流量\n- 优势：秒级回滚\n- 劣势：双倍资源\n- 适合：短期请求（<30s）\n\n**金丝雀部署**\n- 新版本只放 5% 流量 → 观察 → 逐步扩大\n- 优势：低风险，渐进\n- 劣势：需要精细的监控指标\n- 适合：迭代频繁\n\n**Agent 的特殊挑战：长任务**\n\nAgent 任务可能运行几分钟到几小时（如多步研究、代码生成）\n\n**长任务部署不中断方案**\n\n1. **Drain 模式**\n- 旧版本标记为 'draining'\n- 不接受新请求，但继续处理进行中的\n- 新请求路由到新版本\n- 等所有旧请求完成 → 关闭旧版本\n\n2. **Checkpoint 迁移**\n- 每步保存 Agent 状态（checkpoint）\n- 旧版本 drain 时，进行中的任务保存 checkpoint\n- 新版本从 checkpoint 恢复继续\n- 需要 Agent 架构支持状态序列化\n\n3. **版本亲和**\n- 新请求绑定到新版本\n- 旧请求继续用旧版本直到完成\n- 通过 sticky session 实现\n\n**金丝雀关注指标**\n- 任务完成率（不能下降）\n- 平均步数（不能增加太多）\n- Token 消耗（不能暴增）\n- 幻觉率（人工抽检）\n- 用户满意度（点赞率）\n\n**推荐**\n- 短任务 Agent：金丝雀（5%→20%→100%）\n- 长任务 Agent：Drain + Checkpoint 迁移\n- 紧急回滚：蓝绿\n\n**Agent 版本管理**\n- Prompt 版本化：每次修改记录 diff\n- 模型版本绑定：prompt_v3 + GPT-4-turbo-2024-04\n- 工具版本绑定：tool_v2 + 新版本 schema\n- 组合签名：`agent:prompt_v3+model_gpt4+tools_v2`",
+    "follow_up": [
+      "Drain 模式的超时怎么设？",
+      "Checkpoint 如何序列化 Agent 状态？"
+    ]
   }
 ]
