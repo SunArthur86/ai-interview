@@ -26,7 +26,11 @@
     ],
     "question": "手撕交叉熵",
     "answer": "•\n首先是交叉熵的公式\n◦\n二分类交叉熵： \n\nL\n =\nBCE\n−\n\n[y\nlog(\n) +\nN\ni=1\n∑\nN\ni\ny\ni^\n(1 −y\n)log(1 −\ni\n)]\ny\ni^\n◦\n多分类交叉熵： \n\nL\n =\nCCE\n−\n\ny\nlog(\n\n)\nN\ni=1\n∑\nN\nc=1\n∑\nC\ni,c\ny^i,c\n•\n写一个二分类交叉熵流程代码\n# 二分类交叉熵loss\ndef binary_cross_entropy_loss(y_pred, y_true):\n    # 应用 Sigmoid 将模型输出转换为概率\n    y_pred = 1 / (1 + torch.exp(-y_pred))\n    \n    # 防止 log(0) 导致的数值不稳定，使用 epsilon 做平滑处理\n    epsilon = 1e-7\n    # 限制预测值在 (epsilon, 1-epsilon) 范围内\n    y_pred = torch.clamp(y_pred, min=epsilon, max=1.0 - epsilon) \n    # 计算交叉熵损失\n    loss = - (y_true * torch.log(y_pred) + (1 - y_true) * torch.log(1 - y_pred))\n    return loss.mean()\n# 分类器\nmodel = SimpleNN()\n# 特征数据和标签\nfeatures = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6], [0.7, 0.8], [0.9, 1.0]]) \nlabels = np.array([0, 1, 0, 1, 0]) \n# model输出\noutputs = model(features)\nloss = binary_cross_entropy_loss(outputs, labels)\n•\n交叉熵loss反向链式求导过程\n\n◦\n\n对 \n求导： \n\nL\ny^\n =\n∂\ny^\n∂L\n−[\n −\ny^\ny\n]\n1 −\ny^\n1 −y\n◦\n\n对 \n 求导：令 \n， \n，这里用到了 \n 激活函数的导数性质\ny^\nsigmoid\n =\ny^\nσ(z)\n =\n∂z\n∂\ny^\n(1 −\ny^\n)\ny^\nsigmoid(z) =\n\n1 + e−z\n•\n使用numpy手撕二分类交叉熵，包括train和predict的函数\nimport numpy as np\n# 定义sigmoid和其导数\ndef sigmoid(z):\n    return 1 / (1 + np.exp(-z))\ndef sigmoid_derivative(z):\n    return sigmoid(z) * (1 - sigmoid(z))\n# 定义model以及训练推理代码\nclass SimpleNN:\n    def __init__(self, input_size, hidden_size, output_size):\n        # 初始化权重和偏置\n        self.weights1 = np.random.randn(input_size, hidden_size)\n        self.bias1 = np.zeros((1, hidden_size))\n        self.weights2 = np.random.randn(hidden_size, output_size)\n        self.bias2 = np.zeros((1, output_size))\n    def forward(self, X):\n        self.Z1 = np.dot(X, self.weights1) + self.bias1\n        self.A1 = sigmoid(self.Z1)\n        self.Z2 = np.dot(self.A1, self.weights2) + self.bias2\n        self.A2 = sigmoid(self.Z2)\n        return self.A2\n    def backward(self, X, y, learning_rate):\n        # 样本数量 \n        m = X.shape[0]\n        # 计算输出层的误差\n        dA2 = -y / self.A2 + (1 - y) / (1 - self.A2)\n        dZ2 = dA2 * sigmoid_derivative(self.Z2)  # dZ2其实可以直接等于 self.A2-y\n        dW2 = np.dot(self.A1.T, dZ2) / m\n        db2 = np.sum(dZ2, axis=0, keepdims=True) / m\n        # 计算隐藏层的误差\n        dA1 = np.dot(dZ2, self.weights2.T)\n        dZ1 = dA1 * sigmoid_derivative(self.Z1)\n        dW1 = np.dot(X.T, dZ1) / m\n        db1 = np.sum(dZ1, axis=0, keepdims=True) / m\n        # 更新权重和偏置\n        self.weights1 -= learning_rate * dW1\n        self.bias1 -= learning_rate * db1\n        self.weights2 -= learning_rate * dW2\n        self.bias2 -= learning_rate * db2\n    def compute_loss(self, X, y):\n        # 计算交叉熵损失\n        A2 = self.forward(X)\n        m = X.shape[0]\n        loss = - np.mean(y * np.log(A2) + (1 - y) * np.log(1 - A2))\n        return loss\n    def train(self, X_train, y_train, epochs, learning_rate):\n        # 训练模型\n        for epoch in range(epochs):\n            self.forward(X_train)  # 前向传播\n            self.backward(X_train, y_train, learning_rate)  # 反向传播            \n            # 每100次迭代打印一次损失\n            if epoch % 100 == 0:\n                loss = self.compute_loss(X_train, y_train)\n                print(f\"Epoch {epoch}/{epochs}, Loss: {loss:.4f}\")\n    def predict(self, X):\n\n        # 推理，返回类别标签\n        A2 = self.forward(X)\n        return (A2 > 0.5).astype(int)",
-    "follow_up": []
+    "follow_up": [],
+    "images": [
+      "llmnotes_p568_img1.jpg",
+      "llmnotes_p568_img2.jpg"
+    ]
   },
   {
     "id": "llm-notes-003",
@@ -86,6 +90,9 @@
     "follow_up": [
       "奖励模型训练中如何处理标注者分歧？",
       "如何评估奖励模型的质量？"
+    ],
+    "images": [
+      "llmnotes_p572_img1.jpg"
     ]
   },
   {
@@ -99,7 +106,10 @@
     ],
     "question": "RoPE旋转位置编码手撕",
     "answer": "•\n复数实现形式\n二维情况下，对于向量 \n用复数表示的RoPE如下所示：\nq\n\nf(q\n, m) =\nm\nR\n(f(q\n, m))e\n=\nm\nm\niθ(q\n,m)\nm\n∥q\n∥e\n=\nm\ni(θ(q\n)+mθ)\nm\nqeimθ\n\nLlama3的RoPE实现代码\n# 用于预计算旋转位置嵌入（Rotary Position \nEmbedding）的频率\ndef precompute_freqs_cis(dim: int, end: \nint, theta: float = 10000.0):\n    \"\"\"\n    返回预计算的频率tensor,形状为 (end, dim // \n2),数据类型为complex64(复数)\n    \"\"\"\n    # 计算频率，使用 theta 的倒数作为基数，以 2 \n为步长从 0 到 dim 生成一个等差数列，然后取前 dim \n// 2 个元素\n    freqs = 1.0 / (theta ** \n(torch.arange(0, dim, 2)[: (dim // \n2)].float() / dim))\n    # 创建一个从 0 到 end-1 的等差数列，作为时间\n步\n    t = torch.arange(end, \ndevice=freqs.device, dtype=torch.float32)\n    # 计算时间步和频率的外积，得到每个时间步的频率\n    freqs = torch.outer(t, freqs)\n    # 将频率转换为复数形式，实部为 1，虚部为频率\n    freqs_cis = \ntorch.polar(torch.ones_like(freqs), freqs)  \n# complex64\n    return freqs_cis\ndef reshape_for_broadcast(freqs_cis, x):\n    ndim = x.ndim\n    assert 0 <= 1 < ndim\n    assert freqs_cis.shape == (x.shape[1], \nx.shape[-1])\n    shape = [d if i == 1 or i == ndim - 1 \nelse 1 for i, d in enumerate(x.shape)]\n    return freqs_cis.view(*shape)\ndef apply_rotary_emb(xq, xk, freqs_cis):\n    # 将QK转换为复数形式，并重塑为 (batch_size, \nseq_len, num_heads, head_dim // 2, 2)\n    xq_ = \ntorch.view_as_complex(xq.float().reshape(*xq\n.shape[:-1], -1, 2))\n    xk_ = \ntorch.view_as_complex(xk.float().reshape(*xk\n.shape[:-1], -1, 2))\n    freqs_cis = \nreshape_for_broadcast(freqs_cis, xq_)\n    # 将QK与旋转位置嵌入频率相乘，并将结果转换回实\n数形式\n    xq_out = torch.view_as_real(xq_ * \nfreqs_cis).flatten(3)\n    xk_out = torch.view_as_real(xk_ * \nfreqs_cis).flatten(3)\n    return xq_out.type_as(xq), \nxk_out.type_as(xk)\n代码中用到的torch函数理解\ntorch.outer:\n>>> v1 = torch.arange(1., 5.)\n>>> v2 = torch.arange(1., 4.)\n>>> torch.outer(v1, v2)\ntensor([[  1.,   2.,   3.],\n        [  2.,   4.,   6.],\n        [  3.,   6.,   9.],\n        [  4.,   8.,  12.]])      \ntorch.polar:\n>>> abs = torch.tensor([1, 2], \ndtype=torch.float64)\n>>> angle = torch.tensor([np.pi / 2, 5 * \nnp.pi / 4], dtype=torch.float64)\n>>> z = torch.polar(abs, angle)\n>>> z\ntensor([(0.0000+1.0000j), (-1.4142-\n1.4142j)], dtype=torch.complex128)\ntorch.view_as_complex:\n>>> x\ntensor([[ 1.6116, -0.5772],\n        [-1.4606, -0.9120],\n        [ 0.0786, -1.7497],\n        [-0.6561, -1.6623]])\n>>> torch.view_as_complex(x)\ntensor([(1.6116-0.5772j), (-1.4606-\n0.9120j), (0.0786-1.7497j), (-0.6561-\n1.6623j)])\ntorch.view_as_real:\n>>> x\ntensor([(0.4737-0.3839j), (-0.2098-\n0.6699j), (0.3470-0.9451j), (-0.5174-\n1.3136j)])\n>>> torch.view_as_real(x)\ntensor([[ 0.4737, -0.3839],\n        [-0.2098, -0.6699],\n        [ 0.3470, -0.9451],\n        [-0.5174, -1.3136]])",
-    "follow_up": []
+    "follow_up": [],
+    "images": [
+      "llmnotes_p580_img1.jpg"
+    ]
   },
   {
     "id": "llm-notes-008",
@@ -170,6 +180,9 @@
     "follow_up": [
       "如何区分真正的涌现能力与评价指标的不平滑性？",
       "In-context learning的上下文长度对涌现的影响？"
+    ],
+    "images": [
+      "llmnotes_p587_img1.jpg"
     ]
   },
   {
@@ -186,6 +199,9 @@
     "follow_up": [
       "如何从数据预处理角度解决复读机问题？",
       "repetition penalty的具体实现原理？"
+    ],
+    "images": [
+      "llmnotes_p590_img1.jpg"
     ]
   },
   {
@@ -200,7 +216,11 @@
     ],
     "question": "什么是Self-consistency和Best-of-N？",
     "answer": "两种方法都是 Aggregation-based test-time compute method，即在大模型在推理阶段通过输出多个回答进行聚集的出最终输\n出答案\n•\nSelf-consistency：最早出现在论文 SELF-CONSISTENCY IMPROVES CHAIN OF THOUGHT REASONING IN LANGUAGE \nMODELS 中，通过让大模型输出多个CoT推理路径，得到多个答案，然后通过多数投票的方式选出最终答案\n\n•\nBest-of-N：通过让大模型输出N个回答，然后通过不论是Verifier、ORM还是PRM（PRM可以给出步骤奖励加权和作为整个回\n答的分数）给出每个回答的分数，然后选择其中最高的（Best）作为最后的回答\n加载失败",
-    "follow_up": []
+    "follow_up": [],
+    "images": [
+      "llmnotes_p591_img1.jpg",
+      "llmnotes_p591_img2.jpg"
+    ]
   },
   {
     "id": "llm-notes-015",
@@ -217,6 +237,9 @@
     "follow_up": [
       "对齐税和灾难性遗忘的关系？",
       "PPO-ptx中的预训练loss权重如何设置？"
+    ],
+    "images": [
+      "llmnotes_p592_img1.jpg"
     ]
   },
   {
@@ -230,7 +253,12 @@
     ],
     "question": "如何提升合成数据的多样性",
     "answer": "AttrPrompt [1]\n一句话总结：明确告诉LLM，你想要生成的文本在哪些维度（Attribute）上、有怎样的 具体要求（Value）。\n做法\n1. 向ChatGPT提问，询问在生成此类数据时，需要考虑哪些Attribute；\n2. 人工筛选，保留必要的Attribute；\n3. 再向ChatGPT提问，让它给出每个Attribute的Value集合；\n4. 再次人工筛选，保留必要的Value，并且去掉那些可能带来歧义的Value。\n核心代码\n•\n获得每条数据 的Attribute\n    if args.attribute == 'similar': # find the similar topics\n        args.prompt = [re.sub(\"_\", \" \", f\"Give 5 most relevant classes related to {x} {args.domain} \non {args.data_source} from the classes: {json.dumps(label_names)}. Write each class in a line. Do \nnot include {x}.\") for x in label_names]\n\n        print(f\"Generate a {args.domain} using model {model}, prompt: {args.prompt}\")\n    else:\n        similar_keywords = load_attributes(attr_name = args.attribute, model = args.model_name, \ndataset = args.dataset, method = args.model_type, classes = label_names)\n        args.prompt = [re.sub(\"_\", \" \", f\"List {args.n_sample} diverse {args.attribute} related to \n{label_names[i]} on {args.data_source}. These {args.attribute} should be unrelated to  \n{similar_keywords[x]}.\") for (i,x) in enumerate(label_names)]\n    msg_lst = [\n                [{\"role\": \"user\", \"content\": p}] for p in args.prompt\n            ]\n•\n过滤掉Attribute低的数据\n    attributes = load_attributes(attr_name = args.attribute, model = args.model_name, dataset = \nargs.dataset, method = args.model_type, classes = label_names)\n    similar_keywords = load_attributes(attr_name = 'similar', model = args.model_name, dataset = \nargs.dataset, method = args.model_type, classes = label_names)\n    i = 0\n    max_reject = 5\n    for c in tqdm(label_names):\n        i += 1        \n        similar_keyword = \",\".join(similar_keywords[c])\n        args.prompt = [re.sub(\"_\", \" \", f\"Consider {x}. Is it relevant to the following categories: \n{similar_keyword}? Return 1 for yes and 0 for no.\") for x in attributes[c]]\n        \n        print(f\"Consider {attributes[c][0]}. Is it relevant to the following categories: \n{similar_keyword}? Return 1 for yes (related to any of these categories) and 0 for no. You only need \nto return one number.\")\n        n_reject = 0\n        args.prompt = split_list(args.prompt, 25)\n        for prompt in args.prompt:\n            msg_lst = [\n                        [{\"role\": \"user\", \"content\": p}] for p in prompt\n                    ] \nKMQ [2]\n一句话总结：核心是基于多样性的数据选择，通过反馈循环的迭代实现学习行为的一致性。\n做法\n•\n系统分析了各种聚类和采样方法，发现k-means聚类在选择最优多样化的指令数据子集方面特别有效，尤其是在结合质量采样步\n骤时。\n•\n首先对固定的数据子集进行采样，这里最初使用k-means方法，然后结合质量采样提出改进的KMQ算法，在确保选择的子集具有\n高度的多样性后，对模型进行微调。\n•\n考虑到采样和微调之间没有信息交换，通过早期训练反馈不断调整聚类的权重，以优化数据子集的选择。\nEntiGraph [3]\n一句话总结：从有限的文本中提取出关键实体和它们之间的关系，然后基于这些信息合成出大量的新文本。这个过程可以类比为，\n我们先从教科书中提取出知识点，然后用这些知识点编写出各种各样的习题和例子。\n做法\n1. 实体抽取：从原始文本中提取出所有的关键实体\n2. 单实体描述：针对每个提取出的实体，生成详细的描述文本。这个过程同样是通过设计提示词来引导GPT-4完成的。\n3. 实体关系分析：分析不同实体之间的关系，并生成相关的文本。这一步骤不仅考虑实体对，还会考虑三个实体之间的关系。\n\nEvol-Instruct [4]\n一句话总结：核心在于指令数据演化。它通过对初始指令集进行升级和演化，生成更多样化的指令，从而提高模型对不同类型指令\n的处理能力。\n做法\n1. 收集初始指令集：作为演化的基础，初始指令集应包含来自不同领域和任务、具有不同复杂度和难度级别的指令。这些指令可以\n是简单的问答、翻译任务，也可以是复杂的推理、总结任务。\n2. 指令数据演化：通过对初始指令集进行深度演化和广度演化，生成更多样化的指令。深度演化主要包括添加约束、深化、具体\n化、增加推理步骤和复杂化输入等操作。\n3. 淘汰低效指令：在演化过程中，会产生一些没有提供信息增益、难以生成响应或明显复制了演化提示词汇的指令。这些指令被称\n为低效指令，需要通过淘汰演化过程进行识别和过滤，以确保指令集的质量。\n4. 合并与微调：将演化的指令数据与初始指令集合并，形成最终的微调数据集。然后，在LLM上进行微调训练，以提高模型对复杂\n指令的处理能力。\n\n核心代码\n•\n深度指令进化\nbase_instruction = \"I want you act as a Prompt Rewriter.\\r\\n \\\n                                        Your objective is to rewrite a given prompt into a more \ncomplex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.\\r\\n \n\\\n                                        But the rewritten prompt must be reasonable and must be \nunderstood and responded by humans.\\r\\n \\\n                                        Your rewriting cannot omit the non-text parts such as the \ntable and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#. \n\\r\\n \\\n                                        You SHOULD complicate the given prompt using the following \nmethod: \\r\\n\\\n                                        {} \\r\\n\\\n                                        You should try your best not to make the #Rewritten Prompt# \nbecome verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#. \\r\\n\\\n                                        '#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' \nand 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#\\r\\n\"\n\ndef createConstraintsPrompt(instruction):\n        prompt = base_instruction.format(\"Please add one more constraints/requirements into #The \nGiven Prompt#'\")\n        prompt += \"#The Given Prompt#: \\r\\n {} \\r\\n\".format(instruction)\n        prompt += \"#Rewritten Prompt#:\\r\\n\"\n        return prompt\ndef createDeepenPrompt(instruction):\n        prompt = base_instruction.format(\"If #The Given Prompt# contains inquiries about certain \nissues, the depth and breadth of the inquiry can be increased.\")\n        prompt += \"#The Given Prompt#: \\r\\n {} \\r\\n\".format(instruction)\n        prompt += \"#Rewritten Prompt#:\\r\\n\"\n        return prompt\ndef createConcretizingPrompt(instruction):\n        prompt = base_instruction.format(\"Please replace general concepts with more specific \nconcepts.\")\n        prompt += \"#The Given Prompt#: \\r\\n {} \\r\\n\".format(instruction)\n        prompt += \"#Rewritten Prompt#:\\r\\n\"\n        return prompt\ndef createReasoningPrompt(instruction):\n        prompt = base_instruction.format(\"If #The Given Prompt# can be solved with just a few simple \nthinking processes, you can rewrite it to explicitly request multiple-step reasoning.\")\n        prompt += \"#The Given Prompt#: \\r\\n {} \\r\\n\".format(instruction)\n        prompt += \"#Rewritten Prompt#:\\r\\n\"\n        return prompt\n•\n宽度指令进化\nbase_instruction = \"I want you act as a Prompt Creator.\\r\\n\\\nYour goal is to draw inspiration from the #Given Prompt# to create a brand new prompt.\\r\\n\\\nThis new prompt should belong to the same domain as the #Given Prompt# but be even more rare.\\r\\n\\\nThe LENGTH and complexity of the #Created Prompt# should be similar to that of the #Given \nPrompt#.\\r\\n\\\nThe #Created Prompt# must be reasonable and must be understood and responded by humans.\\r\\n\\\n'#Given Prompt#', '#Created Prompt#', 'given prompt' and 'created prompt' are not allowed to appear \nin #Created Prompt#\\r\\n\"\ndef createBreadthPrompt(instruction):\n        prompt = base_instruction\n        prompt += \"#Given Prompt#: \\r\\n {} \\r\\n\".format(instruction)\n        prompt += \"#Created Prompt#:\\r\\n\"\n        return prompt\nQuad\n一句话总结：利用数据影响来评估数据质量，并通过簇聚类和多臂赌博机方法来确保数据多样性。\n做法\n簇聚类：Quad首先将数据集分成多个簇，使得同一簇内的数据实例相似，不同簇之间的数据实例具有多样性。\n多臂赌博机：每个簇被视为一个赌博机的臂，通过选择臂来抽取样本并计算影响分数，从而在确保高质量数据的同时，也保证了数\n据的多样性。\n加速计算：为了更准确地评估单个数据点对整体模型的影响，Quad扩展了从MLP层到整个层的加速iHV P计算方法。\n\n参考文献\n[1] Large Language Model as Attributed Training Data Generator: A Tale of Diversity and Bias.\n[2] Diversify and Conquer: Diversity-Centric Data Selection with Iterative Refinement.\n[3] Synthetic continued pretraining.\n[4] WizardLM: Empowering Large Language Models to Follow Complex Instructions.\n[5] Harnessing Diversity for Important Data Selection in Pretraining Large Language Models.",
-    "follow_up": []
+    "follow_up": [],
+    "images": [
+      "llmnotes_p593_img1.jpg",
+      "llmnotes_p594_img1.jpg",
+      "llmnotes_p594_img2.jpg"
+    ]
   },
   {
     "id": "llm-notes-017",
@@ -274,6 +302,10 @@
     "follow_up": [
       "RAG中如何处理多轮对话的上下文？",
       "向量检索和全文检索在RAG中如何结合？"
+    ],
+    "images": [
+      "llmnotes_p596_img1.jpg",
+      "llmnotes_p597_img1.jpg"
     ]
   },
   {
@@ -317,7 +349,10 @@
     ],
     "question": "手撕在MHA中加入KV Cache",
     "answer": "在写完MHA 后，遇到过要求在代码中加入KV Cache 的情况。\n代码实现：\nimport torch\nimport torch.nn as nn\nimport math\nimport torch.nn.functional as F\nfrom typing import *\nclass Attention(nn.Module):\n    def __init__(self, args):\n        # 此处省略了和 KV cache 无关的初始化代码\n        self.cache_k = torch.zeros(\n            (args.max_batch_size, args.max_seq_len, self.n_local_heads, self.head_dim)\n        ).cuda()\n        self.cache_v = torch.zeros(\n            (args.max_batch_size, args.max_seq_len, self.n_local_heads, self.head_dim)\n        ).cuda()\n    def forward(self, x: torch.Tensor, start_pos: int, freqs_cis: torch.Tensor, mask: \nOptional[torch.Tensor]):\n        bsz, seqlen, _ = x.shape\n        xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)\n        xq = xq.view(bsz, seqlen, self.n_local_heads, self.head_dim)\n        xk = xk.view(bsz, seqlen, self.n_local_heads, self.head_dim)\n        xv = xv.view(bsz, seqlen, self.n_local_heads, self.head_dim)\n        xq, xk = apply_rotary_emb(xq, xk, freqs_cis=freqs_cis)\n        self.cache_k = self.cache_k.to(xq)\n        self.cache_v = self.cache_v.to(xq)\n        self.cache_k[:bsz, start_pos : start_pos + seqlen] = xk\n        self.cache_v[:bsz, start_pos : start_pos + seqlen] = xv\n        keys = self.cache_k[:bsz, : start_pos + seqlen]\n        values = self.cache_v[:bsz, : start_pos + seqlen]\n        xq = xq.transpose(1, 2)\n        keys = keys.transpose(1, 2)\n        values = values.transpose(1, 2)\n        scores = torch.matmul(xq, keys.transpose(2, 3)) / math.sqrt(self.head_dim)\n        if mask is not None:\n            scores = scores + mask  # (bs, n_local_heads, slen, cache_len + slen)\n        scores = F.softmax(scores.float(), dim=-1).type_as(xq)\n        output = torch.matmul(scores, values)  # (bs, n_local_heads, slen, head_dim)\n        output = output.transpose(\n            1, 2\n        ).contiguous().view(bsz, seqlen, -1)\n        return self.wo(output)",
-    "follow_up": []
+    "follow_up": [],
+    "images": [
+      "llmnotes_p599_img1.jpg"
+    ]
   },
   {
     "id": "llm-notes-023",
@@ -447,7 +482,10 @@
     ],
     "question": "模型在SFT后会出现“复读机”情况该如何debug，以及出现的原因是什么？",
     "answer": "•\npretrain模型能力不强\n•\n复读的那部分数据不能给予更多的信息，所以模型attention时候会跳过这部分信息依然从之前的context后进行预测。也就是\n<context> -> 复读数据 & <context, 复读数据> -> 复读数据。之前的做法一般会搞一个复读的penalty阻止这一现象，现在几乎没\n用了。\n•\npre train阶段：1）模型承载能力（模型大小，模型结构），2）数据多样性\n•\n补充：确实sft数据训练过少的情况也会导致复读，本质还是模型一般学不会何时停止输出结果，因为pre-train的时候一般是\npacking，那么基本不太会学会输出<eos>，所以pre-train模型一般都是会复读的。\n参考链接：https://zhuanlan.zhihu.com/p/692962369",
-    "follow_up": []
+    "follow_up": [],
+    "images": [
+      "llmnotes_p590_img1.jpg"
+    ]
   },
   {
     "id": "llm-notes-032",
@@ -650,6 +688,11 @@
     "follow_up": [
       "ToT和CoT在实际应用中的trade-off是什么？",
       "如何评估复杂推理任务的效果？"
+    ],
+    "images": [
+      "llmnotes_p609_img1.jpg",
+      "llmnotes_p609_img2.jpg",
+      "llmnotes_p609_img3.jpg"
     ]
   },
   {
@@ -667,6 +710,11 @@
     "follow_up": [
       "为什么SentencePiece不依赖预分词（空格切分）？",
       "如何选择最优的词表大小？"
+    ],
+    "images": [
+      "llmnotes_p006_img1.jpg",
+      "llmnotes_p006_img2.jpg",
+      "llmnotes_p006_img3.jpg"
     ]
   },
   {
@@ -684,6 +732,11 @@
     "follow_up": [
       "Flash Attention v2相比v1有哪些改进？",
       "Continuous Batching和Static Batching的区别？"
+    ],
+    "images": [
+      "llmnotes_p022_img1.jpg",
+      "llmnotes_p022_img2.jpg",
+      "llmnotes_p022_img3.jpg"
     ]
   },
   {
@@ -702,6 +755,11 @@
       "GQA中group数量如何选择最优？",
       "MLA的压缩维度d_c如何确定？",
       "为什么MQA效果下降比GQA明显？"
+    ],
+    "images": [
+      "llmnotes_p032_img1.jpg",
+      "llmnotes_p032_img2.jpg",
+      "llmnotes_p032_img3.jpg"
     ]
   },
   {
@@ -719,6 +777,11 @@
     "follow_up": [
       "DeepNorm是如何改进Post-Norm的？",
       "为什么Pre-Norm的最终效果可能略差于Post-Norm？"
+    ],
+    "images": [
+      "llmnotes_p055_img1.jpg",
+      "llmnotes_p055_img2.jpg",
+      "llmnotes_p056_img1.jpg"
     ]
   },
   {
@@ -736,6 +799,11 @@
     "follow_up": [
       "GLU家族还有哪些变体（GEGLU, ReGLU等）？",
       "SwiGLU中隐藏层维度如何设置？"
+    ],
+    "images": [
+      "llmnotes_p062_img1.jpg",
+      "llmnotes_p063_img1.jpg",
+      "llmnotes_p063_img2.jpg"
     ]
   },
   {
@@ -753,6 +821,10 @@
     "follow_up": [
       "为什么高频分量不需要插值？",
       "LongRoPE如何实现2M上下文长度？"
+    ],
+    "images": [
+      "llmnotes_p074_img1.jpg",
+      "llmnotes_p075_img1.jpg"
     ]
   },
   {
@@ -771,6 +843,11 @@
       "为什么DPO在数学上等价于RLHF？",
       "KTO为什么不需要配对数据？",
       "SimPO相比DPO有什么改进？"
+    ],
+    "images": [
+      "llmnotes_p293_img1.jpg",
+      "llmnotes_p293_img2.jpg",
+      "llmnotes_p293_img3.jpg"
     ]
   },
   {
@@ -789,6 +866,11 @@
       "GRPO如何处理没有明确答案的开放性任务？",
       "GRPO中的group size G如何设置？",
       "DeepSeek-R1的RL训练流程是怎样的？"
+    ],
+    "images": [
+      "llmnotes_p308_img1.jpg",
+      "llmnotes_p308_img2.jpg",
+      "llmnotes_p308_img3.jpg"
     ]
   },
   {
@@ -806,6 +888,11 @@
     "follow_up": [
       "NF4为什么比INT4量化效果好？",
       "QLoRA和GPTQ/AWQ量化有什么区别？"
+    ],
+    "images": [
+      "llmnotes_p395_img1.jpg",
+      "llmnotes_p396_img1.jpg",
+      "llmnotes_p396_img2.jpg"
     ]
   },
   {
@@ -823,6 +910,10 @@
     "follow_up": [
       "DoRA为什么比LoRA效果更好？数学上如何解释？",
       "GaLore如何实现全参数训练但只占用LoRA级别的显存？"
+    ],
+    "images": [
+      "llmnotes_p388_img1.jpg",
+      "llmnotes_p389_img1.jpg"
     ]
   },
   {
@@ -842,6 +933,11 @@
       "为什么AWQ比GPTQ推理速度更快？",
       "SmoothQuant和AWQ有什么相似之处？",
       "如何评估量化后模型的质量损失？"
+    ],
+    "images": [
+      "llmnotes_p403_img1.jpg",
+      "llmnotes_p404_img1.jpg",
+      "llmnotes_p404_img2.jpg"
     ]
   },
   {
@@ -860,6 +956,11 @@
       "如何解决RAG中的Lost-in-the-Middle问题？",
       "GraphRAG相比传统RAG有什么优势？",
       "如何评估RAG系统的端到端效果？"
+    ],
+    "images": [
+      "llmnotes_p242_img1.jpg",
+      "llmnotes_p243_img1.jpg",
+      "llmnotes_p243_img2.jpg"
     ]
   },
   {
@@ -878,6 +979,11 @@
       "MoE模型的推理延迟和吞吐量有什么特点？",
       "Switch Transformer和GShard的MoE有什么区别？",
       "为什么MoE模型更难训练？"
+    ],
+    "images": [
+      "llmnotes_p311_img1.jpg",
+      "llmnotes_p311_img2.jpg",
+      "llmnotes_p311_img3.jpg"
     ]
   },
   {
@@ -896,6 +1002,9 @@
       "Beam Search为什么在开放域生成中效果不好？",
       "Contrastive Search是如何平衡质量和多样性的？",
       "什么是repetition penalty和frequency penalty？"
+    ],
+    "images": [
+      "llmnotes_p082_img1.jpg"
     ]
   },
   {

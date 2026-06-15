@@ -195,7 +195,7 @@ function openModal(id) {
       <div class="modal__section">
         <div class="modal__label">🖼️ 配图 (${q.images.length})</div>
         <div class="modal__images">
-          ${q.images.map(img => `<img class="modal__image" src="images/${img}" alt="${escapeAttr(img)}" loading="lazy" onclick="openImageFullscreen(this)">`).join('')}
+          ${q.images.map(img => `<img class="modal__image" src="images/${img}" alt="${escapeAttr(img)}" loading="eager" onclick="openImageFullscreen(this)">`).join('')}
         </div>
       </div>` : ''}
       ${q.follow_up && q.follow_up.length ? `
