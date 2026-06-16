@@ -12,8 +12,8 @@ const APP_CONFIG = {
   appName: 'AI 面试题库',
   appNameShort: 'AI面试题',
   appIcon: '🧠',
-  appVersion: '3.6',
-  appDescription: '精选 AI 面试题，涵盖 LLM核心、AI Agent、AI Harness、FDE、工程化实战、AI 基础七大方向，由浅入深 L1-L5 分级，支持按难度排序、智能搜索、遗忘曲线复习。',
+  appVersion: '3.7',
+  appDescription: '精选 AI 面试题，涵盖 LLM核心、AI Agent、AI Harness、FDE、工程化实战、AI 基础七大方向，包含 Transformer/微调/推理优化/RAG/Agent 前沿技术，支持难度排序、智能搜索、遗忘曲线复习。',
   keywords: 'AI面试题,大模型面试,Agent面试,RAG,LLM,人工智能,深度学习,Transformer,LoRA,DPO,PPO,DeepSeek,vLLM,FlashAttention',
 
   // ===== Storage =====
@@ -29,12 +29,12 @@ const APP_CONFIG = {
   // ===== Categories =====
   categories: {
     'all':          { label: '全部', icon: '📚', color: '#0071e3', files: null },
-    'llm-core':     { label: 'LLM 核心', icon: '🔥', color: '#ff3b30', files: ['data/llm-100.json', 'data/llm-notes.json', 'data/new-llm-core.json'] },
-    'ai-agent':     { label: 'AI Agent', icon: '🤖', color: '#af52de', files: ['data/ai-agent.json', 'data/agent-concept.json', 'data/agent-framework.json', 'data/agent-multi.json', 'data/new-agent-arch.json', 'data/agent-rag.json', 'data/agent-tools.json', 'data/agent-memory.json', 'data/agent-prompt.json', 'data/agent-llm.json', 'data/new-agent-skill.json'] },
-    'ai-harness':   { label: 'AI Harness', icon: '🏗️', color: '#5856d6', files: ['data/ai-harness.json', 'data/agent-eng.json'] },
+    'llm-core':     { label: 'LLM 核心', icon: '🔥', color: '#ff3b30', files: ['data/llm-100.json', 'data/llm-notes.json', 'data/new-llm-core.json', 'data/supp-llm-transformer.json', 'data/supp-llm-training.json', 'data/supp-llm-frontier.json'] },
+    'ai-agent':     { label: 'AI Agent', icon: '🤖', color: '#af52de', files: ['data/ai-agent.json', 'data/agent-concept.json', 'data/agent-framework.json', 'data/agent-multi.json', 'data/new-agent-arch.json', 'data/agent-rag.json', 'data/agent-tools.json', 'data/agent-memory.json', 'data/agent-prompt.json', 'data/agent-llm.json', 'data/new-agent-skill.json', 'data/supp-agent-arch.json', 'data/supp-agent-rag.json'] },
+    'ai-harness':   { label: 'AI Harness', icon: '🏗️', color: '#5856d6', files: ['data/ai-harness.json', 'data/agent-eng.json', 'data/supp-harness-inference.json'] },
     'fde':          { label: 'FDE', icon: '🚀', color: '#00c7be', files: ['data/fde.json'] },
-    'eng-practice': { label: '工程化实战', icon: '⚙️', color: '#ff9500', files: ['data/agent-interview-qa.json', 'data/new-eng-practice.json'] },
-    'ai-basics':    { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json', 'data/new-ai-basics.json'] },
+    'eng-practice': { label: '工程化实战', icon: '⚙️', color: '#ff9500', files: ['data/agent-interview-qa.json', 'data/new-eng-practice.json', 'data/supp-eng-practice.json'] },
+    'ai-basics':    { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json', 'data/new-ai-basics.json', 'data/supp-ai-basics.json'] },
   },
 
   // ===== Subcategory Group Mapping =====
@@ -57,6 +57,6 @@ const APP_CONFIG = {
   },
 
   // ===== About Text =====
-  aboutText: 'AI 面试题库 v3.6\n784 道精选题目 · 遗忘曲线复习系统\n覆盖 LLM核心 · AI Agent · AI Harness · 工程化实战 · AI基础',
+  aboutText: 'AI 面试题库 v3.7\n789 道精选题目 · 含网络优质资料补充\n覆盖 LLM核心 · AI Agent · AI Harness · 工程化实战 · AI基础',
   aboutTarget: '对标阿里 P7 / 字节 2-2 / 腾讯 T9',
 };

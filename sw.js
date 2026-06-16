@@ -1,5 +1,5 @@
 // AI Interview — Service Worker
-const CACHE_NAME = 'ai-interview-v11';
+const CACHE_NAME = 'ai-interview-v12';
 const STATIC_ASSETS = [
   './',
   './index.html',
