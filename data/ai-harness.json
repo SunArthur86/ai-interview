@@ -557,7 +557,7 @@
       "Kubernetes"
     ],
     "question": "LLM应用如何实现多租户隔离和权限控制?RAG知识库如何做文档级权限",
-    "answer": "- *多租户隔离方案:**\n\n| 层级 | 方案 | 示例 |\n|------|------|------|\n| 数据隔离 | 租户独立的向量索引 | tenant_a_index, tenant_b_index |\n| 元数据过滤 | 同一索引+metadata过滤 | filter: {tenant_id: 'a'} |\n| 应用隔离 | 每租户独立部署 | Docker/K8s namespace |\n\n- *文档级权限控制:**\n\n1. **Metadata标注**\n```json\n{\n**\"content\"：** \"高管薪酬报告\",\n**\"metadata\"：** {\n**\"doc_id\"：** \"doc_123\",\n**\"access_level\"：** \"executive\",\n**\"department\"：** \"finance\",\n**\"tenant_id\"：** \"company_a\"\n}\n}\n```\n\n2. **检索时过滤**\n```python\n# Qdrant\nresults = qdrant.search(\ncollection_name=\"docs\",\nquery_vector=embedding,\nquery_filter={\n**\"must\"：** [\n{\"key\": \"tenant_id\", \"match\": {\"value\": user.tenant_id}},\n{\"key\": \"access_level\", \"match\": {\"any\": user.permissions}}\n]\n}\n)\n```\n\n3. **RBAC + ABAC**\n- RBAC: 基于角色(admin/editor/viewer)\n- ABAC: 基于属性(部门/项目/安全等级)",
+    "answer": "- *多租户隔离方案:**\n\n| 层级 | 方案 | 示例 | |------|------|------| | 数据隔离 | 租户独立的向量索引 | tenant_a_index, tenant_b_index | | 元数据过滤 | 同一索引+metadata过滤 | filter: {tenant_id: 'a'} | | 应用隔离 | 每租户独立部署 | Docker/K8s namespace |\n\n- *文档级权限控制:**\n\n1. **Metadata标注**\n```json { **\"content\"：** \"高管薪酬报告\", **\"metadata\"：** { **\"doc_id\"：** \"doc_123\", **\"access_level\"：** \"executive\", **\"department\"：** \"finance\", **\"tenant_id\"：** \"company_a\" } } ```\n\n2. **检索时过滤**\n```python\n# Qdrant\nresults = qdrant.search( collection_name=\"docs\", query_vector=embedding, query_filter={ **\"must\"：** [ {\"key\": \"tenant_id\", \"match\": {\"value\": user.tenant_id}}, {\"key\": \"access_level\", \"match\": {\"any\": user.permissions}} ] } ) ```\n\n3. **RBAC + ABAC**\n- RBAC: 基于角色(admin/editor/viewer)\n- ABAC: 基于属性(部门/项目/安全等级)",
     "follow_up": [
       "向量库的metadata过滤性能如何?",
       "如何实现行级权限?"
@@ -748,7 +748,7 @@
       "Elasticsearch"
     ],
     "question": "Semantic Router(语义路由)是什么?它如何高效做意图分类",
-    "answer": "- *Semantic Router:** 基于语义相似度的意图路由,无需训练分类器.\n\n- *核心思想:**\n- 预定义一组「意图描述」\n- 用户输入与意图描述做embedding相似度\n- 最相似的意图 = 路由目标\n\n- *示例:**\n```python\nfrom semantic_router import Route\n\n# 定义路由\nbilling = Route(\nname=\"billing\",\nutterances=[\n\"我的账单有问题\",\n\"怎么退款\",\n\"支付失败\",\n\"发票相关\",\n]\n)\n\ntech = Route(\nname=\"tech_support\",\nutterances=[\n\"代码报错了\",\n\"API调用失败\",\n\"如何集成SDK\",\n]\n)\n\n# 路由\nrouter = SemanticRouter(routes=[billing, tech])\nresult = router(\"我想取消订阅\")  # → billing\n```\n\n- *优势:**\n1. **无需训练** - 只需几条示例\n2. **速度快** - embedding比对,比LLM调用快100倍\n3. **可扩展** - 新增意图只需加示例\n4. **零样本** - 不需要标注数据\n\n- *应用场景:**\n- 客服意图路由\n- Agent工具选择\n- RAG索引选择\n- 内容分类",
+    "answer": "- *Semantic Router:** 基于语义相似度的意图路由,无需训练分类器.\n\n- *核心思想:**\n- 预定义一组「意图描述」\n- 用户输入与意图描述做embedding相似度\n- 最相似的意图 = 路由目标\n\n- *示例:**\n```python from semantic_router import Route\n\n# 定义路由\nbilling = Route( name=\"billing\", utterances=[ \"我的账单有问题\", \"怎么退款\", \"支付失败\", \"发票相关\", ] )\n\ntech = Route( name=\"tech_support\", utterances=[ \"代码报错了\", \"API调用失败\", \"如何集成SDK\", ] )\n\n# 路由\nrouter = SemanticRouter(routes=[billing, tech]) result = router(\"我想取消订阅\")  # → billing ```\n\n- *优势:**\n1. **无需训练** - 只需几条示例\n2. **速度快** - embedding比对,比LLM调用快100倍\n3. **可扩展** - 新增意图只需加示例\n4. **零样本** - 不需要标注数据\n\n- *应用场景:**\n- 客服意图路由\n- Agent工具选择\n- RAG索引选择\n- 内容分类",
     "follow_up": [
       "Semantic Router如何处理多意图?",
       "如何提高路由准确率?"

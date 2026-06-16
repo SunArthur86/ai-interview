@@ -240,7 +240,7 @@
       "IOC"
     ],
     "question": "为什么说「工具描述」是 Agent 的接口设计",
-    "answer": "LLM 靠描述做路由与填参;描述就是 人机接口,直接影响成功率.\n\n50\n**附录：** 对比速记表\n框架/概念\n关键词\n典型循环\n**ReAct**\nReAct\n推理+行动交替\nThought→Action→Observation\nPlan-and-Execute\n先计划后执行\nPlan→Execute→(Replan)\n**Reflexion**\nReflexion\n反思记忆\nAct→Eval→Reflect→Retry\n**LATS**\nLATS\n树搜索 / MCTS\nSelect→Expand→Evaluate→Backprop\n**LangChain Agent**\nLangChain Agent\nExecutor 循环\ndecide→tool→observe\n**LangGraph**\nLangGraph\n图编排\nnode→conditional edge\n多 Agent\n角色协作\n对话/流水线\n**文档版本：** 面向入门详解;落地代码请以你所使用的库版本官方文档为准.\n\n51\n03 RAG 技术(面试八股文 · 模块三)\n**面向初学者的系统梳理：** 每个主题尽量包含 概念、原理、面试问答、追问应对 与 Python",
+    "answer": "LLM 靠描述做路由与填参;描述就是 人机接口,直接影响成功率.\n\n50 **附录：** 对比速记表 框架/概念 关键词 典型循环\n\n**ReAct**\nReAct 推理+行动交替 Thought→Action→Observation Plan-and-Execute 先计划后执行 Plan→Execute→(Replan)\n**Reflexion**\nReflexion 反思记忆 Act→Eval→Reflect→Retry\n\n**LATS**\nLATS 树搜索 / MCTS Select→Expand→Evaluate→Backprop\n\n**LangChain Agent**\nLangChain Agent Executor 循环 decide→tool→observe\n\n**LangGraph**\nLangGraph 图编排 node→conditional edge 多 Agent 角色协作 对话/流水线 **文档版本：** 面向入门详解;落地代码请以你所使用的库版本官方文档为准.\n\n51 03 RAG 技术(面试八股文 · 模块三) **面向初学者的系统梳理：** 每个主题尽量包含 概念、原理、面试问答、追问应对 与 Python",
     "follow_up": [
       "面试官追问方向请结合实际项目经验展开"
     ]
