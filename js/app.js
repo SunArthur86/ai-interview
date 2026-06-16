@@ -318,6 +318,7 @@ function openModal(id) {
   const q = State.allQuestions.find(x => x.id === id);
   if (!q) return;
   _currentModalIndex = State.filtered.findIndex(x => x.id === id);
+  State._currentModalId = id;  // Track for lightweight close
   State.viewed.add(id);
   localStorage.setItem(APP_CONFIG.storagePrefix + '.viewed', JSON.stringify([...State.viewed]));
   updateProgress();
@@ -406,8 +407,12 @@ function closeModal() {
   document.getElementById('modalOverlay').classList.remove('active');
   document.body.style.overflow = '';
   closeImageFullscreen();
-  // Re-render cards to update viewed status
-  renderCards();
+  // Light-weight update: only mark current card as viewed (no full re-render)
+  if (State._currentModalId) {
+    const card = document.querySelector(`[data-id="${State._currentModalId}"]`);
+    if (card) card.classList.add('card--viewed');
+  }
+  State._currentModalId = null;
   updateStats();
 }
 
