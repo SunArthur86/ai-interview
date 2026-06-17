@@ -10,7 +10,25 @@
     "follow_up": [],
     "images": [
       "svg_attention.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "在计算QK^T后除以√d_k（d_k是key的维度），目的是控制内积结果的方差",
+      "analogy": "Transformer 就像高效的读书小组——每个人（注意力头）同时读不同段落，然后交流关键信息，不像 RNN 逐字读。",
+      "key_points": [
+        "在计算QK^T后除以√d_k（d_k是key的维度），目的是控制内积结果的方差",
+        "当d_k很大时，QK^T的值会很大，导致softmax函数进入梯度饱和区（导数趋近于0），训练困难",
+        "数学推导：假设Q和K的元素是均值0、方差1的独立随机变量，则QK^T的方差为d_k"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 Transformer中Self-Attention为什么要除以根号d？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s002",
@@ -23,7 +41,25 @@
     "follow_up": [],
     "images": [
       "svg_kvcache.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "KV Cache是Transformer自回归推理的关键优化",
+      "analogy": "Transformer 就像高效的读书小组——每个人（注意力头）同时读不同段落，然后交流关键信息，不像 RNN 逐字读。",
+      "key_points": [
+        "KV Cache是Transformer自回归推理的关键优化",
+        "原理：在生成第t个token时，前t-1个token的K和V矩阵已经计算过",
+        "将其缓存下来，当前步骤只需计算新token的Q，与缓存的所有K做attention"
+      ]
+    },
+    "first_principle": {
+      "problem": "剥离所有术语：KV Cache的原理？为什么能加速推理 底层在做什么？为什么这样做是最优的？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s003",
@@ -36,7 +72,25 @@
     "follow_up": [],
     "images": [
       "svg_attention.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "Multi-Head Attention (MHA)：每个注意力头有独立的Q、K、V",
+      "analogy": "Transformer 就像高效的读书小组——每个人（注意力头）同时读不同段落，然后交流关键信息，不像 RNN 逐字读。",
+      "key_points": [
+        "Multi-Head Attention (MHA)：每个注意力头有独立的Q、K、V",
+        "Multi-Query Attention (MQA)：所有头共享同一组K和V，只有Q是多头",
+        "Grouped-Query Attention (GQA)：MHA和MQA的折中"
+      ]
+    },
+    "first_principle": {
+      "problem": "它们本质上为什么不同？各自的设计目标和适用场景是什么？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s004",
@@ -47,7 +101,25 @@
     "question": "RoPE旋转位置编码的原理是什么？",
     "answer": "RoPE（Rotary Position Embedding）通过旋转矩阵将位置信息编码到Q和K中。\n\n核心思想：在二维空间中，将Q和K向量按照其位置旋转一定角度。两个token的attention内积只依赖于它们的相对位置差。\n\n公式：对于位置m的向量q，乘以旋转矩阵R(m)：\nq_m' = R(m) · q_m\n其中R(m)是分块对角矩阵，每个2x2块是一个角度为m·θ_i的旋转矩阵。\n\n优势：\n1. 相对位置编码：attention结果自动包含相对位置信息\n2. 长度外推：训练时4K上下文，推理时可扩展到8K+（配合NTK-aware scaling）\n3. 计算高效：只需逐元素乘法\n4. 支持LongRoPE/YaRN等外推方法扩展到100K+\n\nLlama、Qwen、DeepSeek等主流模型均使用RoPE。",
     "follow_up": [],
-    "images": []
+    "images": [],
+    "feynman": {
+      "essence": "RoPE（Rotary Position Embedding）通过旋转矩阵将位置信息编码到Q和K中",
+      "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
+      "key_points": [
+        "RoPE（Rotary Position Embedding）通过旋转矩阵将位置信息编码到Q和K中",
+        "核心思想：在二维空间中，将Q和K向量按照其位置旋转一定角度",
+        "两个token的attention内积只依赖于它们的相对位置差"
+      ]
+    },
+    "first_principle": {
+      "problem": "剥离所有术语：RoPE旋转位置编码的原理 底层在做什么？为什么这样做是最优的？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s005",
@@ -60,7 +132,25 @@
     "follow_up": [],
     "images": [
       "svg_attention.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "FlashAttention通过优化GPU内存访问模式来加速Attention计算",
+      "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
+      "key_points": [
+        "FlashAttention通过优化GPU内存访问模式来加速Attention计算",
+        "问题：标准Attention需要将N×N的attention矩阵写入HBM（高带宽内存），N很大时内存读写成为瓶颈",
+        "FlashAttention核心优化： 1. Tiling（分块）：将Q、K、V分成小块加载到SRAM（片上缓存）中，在SRAM内完成计算 2. Recomputation（重计算）：不存储中间att"
+      ]
+    },
+    "first_principle": {
+      "problem": "剥离所有术语：FlashAttention的原理？为什么能加速 底层在做什么？为什么这样做是最优的？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s006",
@@ -73,7 +163,25 @@
     "follow_up": [],
     "images": [
       "svg_transformer.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "SwiGLU（Swish-Gated Linear Unit）= Swish(xW) × (xV)，是GLU（Gated Linear Unit）的变体",
+      "analogy": "好比学开车——不关心发动机怎么转（实现细节），掌握方向盘油门刹车（抽象接口）就能上路。",
+      "key_points": [
+        "SwiGLU（Swish-Gated Linear Unit）= Swish(xW) × (xV)，是GLU（Gated Linear Unit）的变体",
+        "公式：SwiGLU(x) = Swish(xW) ⊗ (xV) 其中Swish(x) = x · sigmoid(x)，W和V是可学习权重",
+        "与ReLU对比： 1. 平滑性：Swish处处可导（ReLU在x=0处不可导），梯度更平滑 2. 非单调性：Swish在x<0时也有非零梯度（ReLU直接为0），避免神经元死亡 3. 门控机制：通过("
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 SwiGLU激活函数？为什么比ReLU好？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "任何技术方案都是 trade-off——没有银弹",
+        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
+        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+      ],
+      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+    }
   },
   {
     "id": "llm-core-s007",
@@ -86,7 +194,25 @@
     "follow_up": [],
     "images": [
       "svg_transformer.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "LayerNorm：对每个样本在所有特征维度上做归一化",
+      "analogy": "归一化就像统一度量衡——把不同量级数据拉到同一尺度。",
+      "key_points": [
+        "LayerNorm：对每个样本在所有特征维度上做归一化",
+        "均值μ = mean(x)，方差σ² = var(x) y = (x - μ) / √(σ² + ε) × γ + β RMSNorm（Root Mean Square Normalization）：",
+        "RMS = √(mean(x²) + ε) y = x / RMS × γ 区别： 1. RMSNorm不计算均值，不进行中心化，只做缩放归一化 2. 计算量更小：少了一次mean计算和减法操作 3."
+      ]
+    },
+    "first_principle": {
+      "problem": "它们本质上为什么不同？各自的设计目标和适用场景是什么？",
+      "axioms": [
+        "任何技术方案都是 trade-off——没有银弹",
+        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
+        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+      ],
+      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+    }
   },
   {
     "id": "llm-core-s008",
@@ -99,7 +225,25 @@
     "follow_up": [],
     "images": [
       "svg_moe.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "MoE（Mixture of Experts）将模型的前馈网络（FFN）替换为多个专家网络，通过门控（Gate）路由机制动态选择激活哪些专家",
+      "analogy": "Token 就像语言的基本积木——不完全是字也不完全是词，是模型认为最合理的切分单元。",
+      "key_points": [
+        "MoE（Mixture of Experts）将模型的前馈网络（FFN）替换为多个专家网络，通过门控（Gate）路由机制动态选择激活哪些专家",
+        "架构： - N个专家FFN（如8个） - 门控网络（Router）：对每个token，输出N个分数，选Top-K个专家（如K=2） - 输出 = 加权求和被选中专家的输出 优势： 1. 参数解耦：总参",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "剥离所有术语：MoE（混合专家模型）的原理 底层在做什么？为什么这样做是最优的？",
+      "axioms": [
+        "任何技术方案都是 trade-off——没有银弹",
+        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
+        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+      ],
+      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+    }
   },
   {
     "id": "llm-core-s009",
@@ -112,7 +256,25 @@
     "follow_up": [],
     "images": [
       "svg_kvcache.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "PagedAttention是vLLM的核心创新，灵感来自操作系统的虚拟内存分页机制",
+      "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
+      "key_points": [
+        "PagedAttention是vLLM的核心创新，灵感来自操作系统的虚拟内存分页机制",
+        "问题：传统推理中，每个请求的KV Cache需要连续内存",
+        "当请求长度不同、动态变化时，导致严重的显存碎片和浪费（预留最大长度的空间）"
+      ]
+    },
+    "first_principle": {
+      "problem": "从第一性原理看：PagedAttention？vLLM如何优化推理 的根本优势/劣势来源于什么？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s010",
@@ -125,7 +287,25 @@
     "follow_up": [],
     "images": [
       "svg_quantization.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "量化（Quantization）将FP16/BF16权重压缩到低精度（INT8/INT4），减少显存和加速推理",
+      "analogy": "量化就像把高清图压缩成标清——参数从高精度（32位）变成低精度（8/4位），体积小速度快。",
+      "key_points": [
+        "量化（Quantization）将FP16/BF16权重压缩到低精度（INT8/INT4），减少显存和加速推理",
+        "主要方案： 1. GPTQ（后训练量化）： - 基于二阶Hessian矩阵信息逐层量化 - INT4量化效果好，速度快 - 适合服务端部署 2. AWQ（Activation-aware Weight",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 大模型推理中的量化有哪些方案？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "任何技术方案都是 trade-off——没有银弹",
+        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
+        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+      ],
+      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+    }
   },
   {
     "id": "llm-core-s011",
@@ -138,6 +318,24 @@
     "follow_up": [],
     "images": [
       "svg_kvcache.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "投机采样用一个小模型（Draft Model）快速生成候选token，大模型（Target Model）并行验证",
+      "analogy": "Token 就像语言的基本积木——不完全是字也不完全是词，是模型认为最合理的切分单元。",
+      "key_points": [
+        "投机采样用一个小模型（Draft Model）快速生成候选token，大模型（Target Model）并行验证",
+        "流程： 1. 小模型自回归生成k个候选token（速度快） 2. 大模型一次性并行计算这k个token的logits（并行，只需一次forward） 3. 对比大小模型输出： - 如果小模型生成的to",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 投机采样（Speculative Decoding）？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   }
 ]

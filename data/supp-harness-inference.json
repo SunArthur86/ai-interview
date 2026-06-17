@@ -10,7 +10,25 @@
     "follow_up": [],
     "images": [
       "svg_kvcache.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "vLLM是当前最流行的开源LLM推理框架，核心优化： 1. PagedAttention： - 将KV Cache分块管理（类似OS虚拟内存分页） - 消除显存",
+      "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
+      "key_points": [
+        "vLLM是当前最流行的开源LLM推理框架，核心优化： 1. PagedAttention： - 将KV Cache分块管理（类似OS虚拟内存分页） - 消除显存碎片，显存利用率从60%提升到96%+ ",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "从第一性原理看：vLLM的核心优化技术有哪些 的根本优势/劣势来源于什么？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "ai-harness-s002",
@@ -23,7 +41,25 @@
     "follow_up": [],
     "images": [
       "svg_kvcache.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "LLM自回归推理分两个阶段： Prefill阶段（预填充）： - 处理输入prompt的所有token - 一次性并行计算所有token的KV Cache -",
+      "analogy": "KV Cache 就像读书笔记——生成每个词时不用重读前面所有内容，直接查笔记就行。",
+      "key_points": [
+        "LLM自回归推理分两个阶段： Prefill阶段（预填充）： - 处理输入prompt的所有token - 一次性并行计算所有token的KV Cache - 计算密集型（compute-bound）",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "它们本质上为什么不同？各自的设计目标和适用场景是什么？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "ai-harness-s003",
@@ -36,7 +72,25 @@
     "follow_up": [],
     "images": [
       "svg_transformer.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "大模型超过单GPU显存时需要并行： 1. 张量并行（Tensor Parallelism, TP）： - 将每一层的权重矩阵按行/列切分到多GPU - 每层需要",
+      "analogy": "Batch Size 就像大巴车座位数——太少跑得频繁效率低，太多转弯难（内存不够）。",
+      "key_points": [
+        "大模型超过单GPU显存时需要并行： 1. 张量并行（Tensor Parallelism, TP）： - 将每一层的权重矩阵按行/列切分到多GPU - 每层需要All-Reduce通信 - 适合单机多",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 模型并行有哪些方案？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "任何技术方案都是 trade-off——没有银弹",
+        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
+        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+      ],
+      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+    }
   },
   {
     "id": "ai-harness-s004",
@@ -49,7 +103,25 @@
     "follow_up": [],
     "images": [
       "svg_quantization.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "按使用场景选择部署方案： 1. 云端GPU部署： - vLLM：最高吞吐量，支持PagedAttention - TGI（Text Generation Inf",
+      "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
+      "key_points": [
+        "按使用场景选择部署方案： 1. 云端GPU部署： - vLLM：最高吞吐量，支持PagedAttention - TGI（Text Generation Inference）：HuggingFace出",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 大模型部署有哪些方案？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "ai-harness-s005",
@@ -62,6 +134,24 @@
     "follow_up": [],
     "images": [
       "svg_kvcache.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "KV Cache是LLM推理的主要显存开销（可达总显存的80%+）： 1. PagedAttention（vLLM）： - 分块管理KV Cache - 消除内",
+      "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
+      "key_points": [
+        "KV Cache是LLM推理的主要显存开销（可达总显存的80%+）： 1. PagedAttention（vLLM）： - 分块管理KV Cache - 消除内部碎片 - 按需分配 2. GQA/MQ",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "从第一性原理看：LLM中的KV Cache如何优化 的根本优势/劣势来源于什么？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   }
 ]

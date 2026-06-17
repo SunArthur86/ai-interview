@@ -343,10 +343,62 @@ function openModal(id) {
       </button>
     </div>
     <div class="modal__body">
+      ${q.feynman ? `
+      <div class="modal__section feynman-card">
+        <div class="modal__label feynman-label">🧠 费曼快学</div>
+        <div class="feynman-item">
+          <span class="feynman-icon">🎯</span>
+          <div class="feynman-content">
+            <div class="feynman-sub">一句话本质</div>
+            <div class="feynman-text">${escapeHtml(q.feynman.essence)}</div>
+          </div>
+        </div>
+        <div class="feynman-item">
+          <span class="feynman-icon">🧒</span>
+          <div class="feynman-content">
+            <div class="feynman-sub">大白话类比</div>
+            <div class="feynman-text">${escapeHtml(q.feynman.analogy)}</div>
+          </div>
+        </div>
+        ${q.feynman.key_points && q.feynman.key_points.length ? `
+        <div class="feynman-item">
+          <span class="feynman-icon">💡</span>
+          <div class="feynman-content">
+            <div class="feynman-sub">记忆要点</div>
+            <ol class="feynman-list">${q.feynman.key_points.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ol>
+          </div>
+        </div>` : ''}
+      </div>` : ''}
       <div class="modal__section">
         <div class="modal__label">📖 参考答案</div>
         <div class="modal__answer markdown-body">${renderMarkdown(q.answer)}</div>
       </div>
+      ${q.first_principle ? `
+      <div class="modal__section fp-card">
+        <div class="modal__label fp-label">🔬 第一性原理</div>
+        <div class="fp-item">
+          <span class="fp-icon">❓</span>
+          <div class="fp-content">
+            <div class="fp-sub">根本问题</div>
+            <div class="fp-text">${escapeHtml(q.first_principle.problem)}</div>
+          </div>
+        </div>
+        ${q.first_principle.axioms && q.first_principle.axioms.length ? `
+        <div class="fp-item">
+          <span class="fp-icon">🧱</span>
+          <div class="fp-content">
+            <div class="fp-sub">基本假设</div>
+            <ul class="fp-list">${q.first_principle.axioms.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
+          </div>
+        </div>` : ''}
+        <div class="fp-item">
+          <span class="fp-icon">⚙️</span>
+          <div class="fp-content">
+            <div class="fp-sub">从零重建</div>
+            <div class="fp-text">${escapeHtml(q.first_principle.rebuild)}</div>
+          </div>
+        </div>
+      </div>` : ''}
       ${q.images && q.images.length > 0 ? `
       <div class="modal__section">
         <div class="modal__label">🖼️ 配图 (${q.images.length})</div>

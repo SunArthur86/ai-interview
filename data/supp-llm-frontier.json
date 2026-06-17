@@ -10,7 +10,25 @@
     "follow_up": [],
     "images": [
       "svg_rlhf_dpo.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "DeepSeek-R1展示了纯RL训练也能产生推理能力： DeepSeek-R1-Zero（纯RL）： - 直接在基座模型上用GRPO强化学习 - 不经过SFT",
+      "analogy": "Chain of Thought 就像写解题过程——一步一步推导比直接写答案准确率高。",
+      "key_points": [
+        "DeepSeek-R1展示了纯RL训练也能产生推理能力： DeepSeek-R1-Zero（纯RL）： - 直接在基座模型上用GRPO强化学习 - 不经过SFT - 奖励函数：规则化奖励（数学题有标准",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 DeepSeek-R1的训练方法有什么创新？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "任何技术方案都是 trade-off——没有银弹",
+        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
+        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+      ],
+      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+    }
   },
   {
     "id": "llm-core-s002",
@@ -23,7 +41,25 @@
     "follow_up": [],
     "images": [
       "svg_rlhf_dpo.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "OpenAI o1系列是首个大规模使用隐式CoT的推理模型： 核心特点： 1. 隐式思维链：o1在回答前内部进行长链推理（不可见），然后输出最终答案 2. 推理",
+      "analogy": "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。",
+      "key_points": [
+        "OpenAI o1系列是首个大规模使用隐式CoT的推理模型： 核心特点： 1. 隐式思维链：o1在回答前内部进行长链推理（不可见），然后输出最终答案 2. 推理时计算（Test-time Comput",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 o1模型的CoT推理有什么特点？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "任何技术方案都是 trade-off——没有银弹",
+        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
+        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+      ],
+      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+    }
   },
   {
     "id": "llm-core-s003",
@@ -36,7 +72,25 @@
     "follow_up": [],
     "images": [
       "svg_transformer.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "多模态LLM让模型理解和生成文本、图像、音频等多种模态： 1. 视觉-语言模型（VLM）： 架构一：投影层（Projector） - Vision Encode",
+      "analogy": "视觉理解就像教 AI 看图说话——把图片变成数字表示，像处理文字一样理解图片。",
+      "key_points": [
+        "多模态LLM让模型理解和生成文本、图像、音频等多种模态： 1. 视觉-语言模型（VLM）： 架构一：投影层（Projector） - Vision Encoder（CLIP/ViT）提取图像特征 - ",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 多模态大模型的架构有哪些？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s004",
@@ -49,7 +103,25 @@
     "follow_up": [],
     "images": [
       "svg_kvcache.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "长上下文（Long Context）指LLM能处理的输入token数从4K扩展到128K-1M+： 技术挑战： 1. 计算复杂度：标准Attention是O(n",
+      "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
+      "key_points": [
+        "长上下文（Long Context）指LLM能处理的输入token数从4K扩展到128K-1M+： 技术挑战： 1. 计算复杂度：标准Attention是O(n²) 2. KV Cache内存：线性增",
+        "结合实践深入理解",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "为什么需要 长上下文（Long Context）技术？如果不存在它会怎样？它解决了什么根本问题？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   },
   {
     "id": "llm-core-s005",
@@ -62,6 +134,24 @@
     "follow_up": [],
     "images": [
       "svg_rlhf_dpo.svg"
-    ]
+    ],
+    "feynman": {
+      "essence": "RLAIF（Reinforcement Learning from AI Feedback）：用AI（而非人类）提供偏好标注",
+      "analogy": "RLHF 就像给 AI 请人类老师——先让人类给 AI 回答打分排序，训练奖励模型，再用强化学习让 AI 越来越懂事。",
+      "key_points": [
+        "RLAIF（Reinforcement Learning from AI Feedback）：用AI（而非人类）提供偏好标注",
+        "RLHF流程： 1. 人工标注偏好对（A preferred over B）—— 成本高、慢 2. 训练Reward Model 3. 用PPO/DPO优化 RLAIF流程： 1. 用强LLM（如GP",
+        "结合实践深入理解"
+      ]
+    },
+    "first_principle": {
+      "problem": "它们本质上为什么不同？各自的设计目标和适用场景是什么？",
+      "axioms": [
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "Scaling Law：模型能力与参数量、数据量、算力正相关",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+      ],
+      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+    }
   }
 ]
