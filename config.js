@@ -12,8 +12,8 @@ const APP_CONFIG = {
   appName: 'AI 面试题库',
   appNameShort: 'AI面试题',
   appIcon: '🧠',
-  appVersion: '3.7',
-  appDescription: '精选 AI 面试题，涵盖 LLM核心、AI Agent、AI Harness、FDE、工程化实战、AI 基础七大方向，包含 Transformer/微调/推理优化/RAG/Agent 前沿技术，支持难度排序、智能搜索、遗忘曲线复习。',
+  appVersion: '3.8',
+  appDescription: '精选 AI 面试题，涵盖 LLM核心、AI Agent、AI Harness、AI场景设计、FDE、工程化实战、AI 基础八大方向，包含 Transformer/微调/推理优化/RAG/Agent/AI系统设计 前沿技术，支持难度排序、智能搜索、遗忘曲线复习。',
   keywords: 'AI面试题,大模型面试,Agent面试,RAG,LLM,人工智能,深度学习,Transformer,LoRA,DPO,PPO,DeepSeek,vLLM,FlashAttention',
 
   // ===== Storage =====
@@ -35,6 +35,7 @@ const APP_CONFIG = {
     'fde':          { label: 'FDE', icon: '🚀', color: '#00c7be', files: ['data/fde.json'] },
     'eng-practice': { label: '工程化实战', icon: '⚙️', color: '#ff9500', files: ['data/agent-interview-qa.json', 'data/new-eng-practice.json', 'data/supp-eng-practice.json'] },
     'ai-basics':    { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json', 'data/new-ai-basics.json', 'data/supp-ai-basics.json'] },
+    'ai-scenario':  { label: 'AI 场景设计', icon: '🎯', color: '#e74c3c', files: ['data/ai-scenario.json'] },
   },
 
   // ===== Subcategory Group Mapping =====
@@ -50,6 +51,17 @@ const APP_CONFIG = {
     'AI Harness': ['推理优化', '推理与部署', '生产工程化', '生产化部署', '模型服务', '模型部署', '部署架构', '工程化', '工程化实践', '工程实践', 'Agent工程化', 'Agent框架', 'LLM框架', 'RAG工程化', '向量数据库', '可观测性', '评估与安全', '评估', '评估指标', '评测与质量', 'Agent安全', '安全'],
     // AI 基础
     '大模型基础': ['大模型基础', '大模型架构', '大模型原理', '大模型综合', '大模型应用', '基础知识', '预训练模型', '表示学习', '长上下文'],
+    // AI 场景设计
+    'AI场景-RAG': ['RAG系统设计'],
+    'AI场景-Agent': ['AI Agent系统设计'],
+    'AI场景-对话': ['AI对话系统设计'],
+    'AI场景-推理部署': ['LLM推理与部署'],
+    'AI场景-安全治理': ['AI安全与治理'],
+    'AI场景-评测监控': ['AI评测与监控'],
+    'AI场景-多模态': ['多模态AI系统'],
+    'AI场景-推荐搜索': ['AI推荐与搜索'],
+    'AI场景-代码助手': ['AI代码助手'],
+    'AI场景-特殊应用': ['AI特殊场景'],
     // FDE
     'FDE': ['FDE基础概念', 'FDE工作实践', 'AI解决方案设计', 'AI部署实施', '数据安全与合规'],
     // 工程化实战
@@ -57,6 +69,6 @@ const APP_CONFIG = {
   },
 
   // ===== About Text =====
-  aboutText: 'AI 面试题库 v3.7\n789 道精选题目 · 含网络优质资料补充\n覆盖 LLM核心 · AI Agent · AI Harness · 工程化实战 · AI基础',
+  aboutText: 'AI 面试题库 v3.8\n839 道精选题目 · 含50道AI场景设计题\n覆盖 LLM核心 · AI Agent · AI Harness · AI场景设计 · 工程化实战 · AI基础',
   aboutTarget: '对标阿里 P7 / 字节 2-2 / 腾讯 T9',
 };
