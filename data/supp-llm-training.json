@@ -1,37 +1,36 @@
 [
   {
-    "id": "llm-core-s001",
+    "id": "slt-001",
     "category": "llm-core",
     "subcategory": "训练与微调",
     "difficulty": "L3",
     "tags": [],
     "question": "LoRA的原理是什么？为什么参数高效？",
-    "answer": "LoRA（Low-Rank Adaptation）冻结预训练权重W，额外引入低秩矩阵A和B来学习增量。\n\n公式：W' = W + ΔW = W + B·A\n其中A∈R^(d×r)，B∈R^(r×d)，r远小于d（如r=8）。\n\n参数量对比：\n- 全量微调：d×d参数（如4096×4096 = 16.7M）\n- LoRA r=8：2×d×r = 2×4096×8 = 65K（减少256倍）\n\n初始化：A用高斯随机初始化，B初始化为零。训练开始时ΔW=0，不改变模型输出。\n\n为什么有效？\n1. 大模型权重更新本质是低秩的（Aghajanyan等研究证明）\n2. 预训练模型已有丰富知识，微调只需少量参数调整\n3. 推理时可以将B·A合并回W，不增加推理延迟\n\nQLoRA：先用NF4量化基座模型（减少显存），再用LoRA微调。使65B模型在单张48GB GPU上可微调。",
+    "answer": "LoRA（Low-Rank Adaptation）冻结预训练权重W，额外引入低秩矩阵A和B来学习增量。\n\n公式：W' = W + ΔW = W + B·A\n其中A∈ℝ^(d×r)，B∈ℝ^(r×d)，r远小于d（如r=8）。\n\n参数量对比：\n- 全量微调：d×d参数（如4096×4096 = 16.7M）\n- LoRA r=8：2×d×r = 2×4096×8 = 65K（减少256倍）\n\n初始化：A用高斯随机初始化，B初始化为零。训练开始时ΔW=0，不改变模型输出。\n\n为什么有效？\n1. 大模型权重更新本质是低秩的（Aghajanyan等研究证明）\n2. 预训练模型已有丰富知识，微调只需少量参数调整\n3. 推理时可以将B·A合并回W，不增加推理延迟\n\nQLoRA：先用NF4量化基座模型（减少显存），再用LoRA微调。使65B模型在单张48GB GPU上可微调。",
     "follow_up": [],
     "images": [
       "svg_lora.svg"
     ],
     "feynman": {
       "essence": "LoRA（Low-Rank Adaptation）冻结预训练权重W，额外引入低秩矩阵A和B来学习增量",
-      "analogy": "LoRA 就像轻量级微调补丁——不修改原模型全部参数，只训练一个小补丁矩阵，效果接近全量微调但成本低几个数量级。",
+      "analogy": "微调就像给通才毕业生做岗前培训——已有基础能力（预训练），再针对具体岗位做专项训练（指令/偏好对齐）。",
       "key_points": [
         "LoRA（Low-Rank Adaptation）冻结预训练权重W，额外引入低秩矩阵A和B来学习增量",
-        "公式：W' = W + ΔW = W + B·A 其中A∈R^(d×r)，B∈R^(r×d)，r远小于d（如r=8）",
+        "公式：W' = W + ΔW = W + B·A 其中A∈ℝ^(d×r)，B∈ℝ^(r×d)，r远小于d（如r=8）",
         "参数量对比： - 全量微调：d×d参数（如4096×4096 = 16.7M） - LoRA r=8：2×d×r = 2×4096×8 = 65K（减少256倍） 初始化：A用高斯随机初始化，B初始化"
       ]
     },
     "first_principle": {
       "problem": "剥离所有术语：LoRA的原理？为什么参数高效 底层在做什么？为什么这样做是最优的？",
       "axioms": [
-        "任何技术方案都是 trade-off——没有银弹",
-        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
-        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
       ],
-      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+      "rebuild": "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
     }
   },
   {
-    "id": "llm-core-s002",
+    "id": "slt-002",
     "category": "llm-core",
     "subcategory": "训练与微调",
     "difficulty": "L3",
@@ -44,25 +43,24 @@
     ],
     "feynman": {
       "essence": "SFT（Supervised Fine-Tuning）： - 监督微调，用高质量的指令-回答对训练 - 让模型从'续写模式'转为'指令回答模式' - 数据格式：",
-      "analogy": "RLHF 就像给 AI 请人类老师——先让人类给 AI 回答打分排序，训练奖励模型，再用强化学习让 AI 越来越懂事。",
+      "analogy": "微调就像给通才毕业生做岗前培训——已有基础能力（预训练），再针对具体岗位做专项训练（指令/偏好对齐）。",
       "key_points": [
-        "SFT（Supervised Fine-Tuning）： - 监督微调，用高质量的指令-回答对训练 - 让模型从'续写模式'转为'指令回答模式' - 数据格式：{\"instruction\": \"...",
-        "先SFT让模型会对话，再RLHF/DPO对齐人类偏好",
-        "结合实践深入理解"
+        "监督微调，用高质量的指令-回答对训练",
+        "让模型从'续写模式'转为'指令回答模式'",
+        "数据格式：{\"instruction\": \"...\", \"output\": \"...\"}"
       ]
     },
     "first_principle": {
       "problem": "它们本质上为什么不同？各自的设计目标和适用场景是什么？",
       "axioms": [
         "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
         "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
     }
   },
   {
-    "id": "llm-core-s003",
+    "id": "slt-003",
     "category": "llm-core",
     "subcategory": "训练与微调",
     "difficulty": "L3",
@@ -75,25 +73,24 @@
     ],
     "feynman": {
       "essence": "RLHF中使用PPO的四个模型： 1. Actor（Policy Model）：待优化的模型，生成回答 2. Reference Model：冻结的SFT模型，",
-      "analogy": "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。",
+      "analogy": "RLHF 就像给 AI 请人类老师——人类给回答打分排序，训练奖励模型，再用强化学习让 AI 越来越符合人类偏好。",
       "key_points": [
-        "RLHF中使用PPO的四个模型： 1. Actor（Policy Model）：待优化的模型，生成回答 2. Reference Model：冻结的SFT模型，用于计算KL散度惩罚（防止Actor偏离",
-        "结合实践深入理解",
-        "结合实践深入理解"
+        "Actor（Policy Model）：待优化的模型，生成回答",
+        "Reference Model：冻结的SFT模型，用于计算KL散度惩罚（防止Actor偏离太远）",
+        "Reward Model：根据prompt+response打分"
       ]
     },
     "first_principle": {
       "problem": "为什么需要 PPO在RLHF中的工作流程？如果不存在它会怎样？它解决了什么根本问题？",
       "axioms": [
         "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
         "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
     }
   },
   {
-    "id": "llm-core-s004",
+    "id": "slt-004",
     "category": "llm-core",
     "subcategory": "训练与微调",
     "difficulty": "L3",
@@ -106,25 +103,24 @@
     ],
     "feynman": {
       "essence": "GRPO（Group Relative Policy Optimization）是DeepSeek提出的强化学习算法，简化了PPO",
-      "analogy": "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。",
+      "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
-        "GRPO（Group Relative Policy Optimization）是DeepSeek提出的强化学习算法，简化了PPO",
-        "与PPO的核心区别： - PPO需要Critic Model估计Value（baseline） - GRPO用组内均值替代Value：对同一个prompt采样G个response，计算group me",
-        "结合实践深入理解"
+        "PPO需要Critic Model估计Value（baseline）",
+        "GRPO用组内均值替代Value：对同一个prompt采样G个response，计算group mean作为baseline",
+        "PPO: A = R - V(s)（需要Critic）"
       ]
     },
     "first_principle": {
       "problem": "为什么需要 GRPO算法？DeepSeek为什么用它？如果不存在它会怎样？它解决了什么根本问题？",
       "axioms": [
         "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
         "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
     }
   },
   {
-    "id": "llm-core-s005",
+    "id": "slt-005",
     "category": "llm-core",
     "subcategory": "训练与微调",
     "difficulty": "L2",
@@ -135,7 +131,7 @@
     "images": [],
     "feynman": {
       "essence": "涌现能力指模型规模（参数量、训练数据、计算量）达到某个阈值后突然出现的能力，在小模型中不存在",
-      "analogy": "Chain of Thought 就像数学考试写解题过程——一步一步推导比直接写答案准确率高。",
+      "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "涌现能力指模型规模（参数量、训练数据、计算量）达到某个阈值后突然出现的能力，在小模型中不存在",
         "典型涌现能力： 1. In-context Learning（上下文学习）：GPT-3（175B）展示的few-shot能力 2. Chain-of-Thought（思维链推理）：~60B参数以上出现",
@@ -146,14 +142,13 @@
       "problem": "为什么需要 涌现能力（Emergent Abilities）？如果不存在它会怎样？它解决了什么根本问题？",
       "axioms": [
         "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
         "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
     }
   },
   {
-    "id": "llm-core-s006",
+    "id": "slt-006",
     "category": "llm-core",
     "subcategory": "训练与微调",
     "difficulty": "L2",
@@ -166,7 +161,7 @@
     ],
     "feynman": {
       "essence": "BPE（Byte Pair Encoding）是子词分词算法，LLM最常用的tokenizer",
-      "analogy": "Tokenizer 就像语言的分词剪刀——把文字切成模型能处理的最小单元。",
+      "analogy": "BPE 就像学习常用缩写——先认识单个字母，然后反复合并出现最多的字母对（t+h→th，th+e→the），逐步构建出高频词块表，让常见词整体编码、罕见词拆解为已知子词。",
       "key_points": [
         "BPE（Byte Pair Encoding）是子词分词算法，LLM最常用的tokenizer",
         "训练过程： 1. 初始化：将所有词拆成单个字符 2. 统计相邻字符对频率，合并最高频的字符对 3. 重复直到达到目标词表大小 示例： - 'low', 'lower', 'lowest' → 'l',",
@@ -177,14 +172,13 @@
       "problem": "剥离所有术语：BPE Tokenizer的原理 底层在做什么？为什么这样做是最优的？",
       "axioms": [
         "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
         "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
     }
   },
   {
-    "id": "llm-core-s007",
+    "id": "slt-007",
     "category": "llm-core",
     "subcategory": "训练与微调",
     "difficulty": "L2",
@@ -197,21 +191,20 @@
     ],
     "feynman": {
       "essence": "高质量预训练数据是大模型能力的基础",
-      "analogy": "预训练就像上大学通识课——先学广泛知识（海量文本），成为通才，再通过专业课（微调）成专家。",
+      "analogy": "预训练就像上大学通识课——先在海量文本上学广泛知识成为通才，再通过专业课（微调）成为专家。",
       "key_points": [
-        "关键步骤： 1. 数据收集：网页爬取（Common Crawl）、书籍（Books3）、代码（GitHub）、论文（arXiv） 2. 数据清洗： - 去重（MinHash LSH） - 去除低质量内",
-        "结合实践深入理解",
-        "结合实践深入理解"
+        "数据收集：网页爬取（Common Crawl）、书籍（Books3）、代码（GitHub）、论文（arXiv）",
+        "去重（MinHash LSH）",
+        "去除低质量内容（困惑度过滤、启发式规则）"
       ]
     },
     "first_principle": {
       "problem": "为什么需要 预训练数据处理有哪些关键步骤？如果不存在它会怎样？它解决了什么根本问题？",
       "axioms": [
-        "任何技术方案都是 trade-off——没有银弹",
-        "复杂系统由简单组件组合涌现——理解了组件就理解了系统",
-        "实践是检验真理的唯一标准——理论推导必须经过实验验证"
+        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
+        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
       ],
-      "rebuild": "回到根本：① 这个技术为什么存在？② 去掉它会怎样？③ 从零开始你会怎么设计？④ 你的方案和现有方案的根本区别是什么？"
+      "rebuild": "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
     }
   }
 ]

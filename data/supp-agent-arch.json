@@ -1,6 +1,6 @@
 [
   {
-    "id": "ai-agent-s001",
+    "id": "saa-001",
     "category": "ai-agent",
     "subcategory": "Agent架构",
     "difficulty": "L2",
@@ -13,25 +13,25 @@
     ],
     "feynman": {
       "essence": "ReAct（Reasoning + Acting）让LLM交替进行推理（Thought）和行动（Action）",
-      "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
+      "analogy": "ReAct 框架就像「边想边做」的工作方式——先思考（Thought）→ 行动（Action）→ 观察（Observation）→ 再思考，循环往复直到完成。",
       "key_points": [
-        "ReAct（Reasoning + Acting）让LLM交替进行推理（Thought）和行动（Action）",
-        "循环流程： 1. Thought：LLM分析当前状态，决定下一步 2. Action：调用工具（搜索、计算、API） 3. Observation：获取工具返回结果 4. 重复直到得出最终答案 示例：",
-        "结合实践深入理解"
+        "Thought：LLM分析当前状态，决定下一步",
+        "Action：调用工具（搜索、计算、API）",
+        "Observation：获取工具返回结果"
       ]
     },
     "first_principle": {
       "problem": "剥离所有术语：ReAct框架的原理 底层在做什么？为什么这样做是最优的？",
       "axioms": [
-        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
-        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+        "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚",
+        "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠",
+        "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
     }
   },
   {
-    "id": "ai-agent-s002",
+    "id": "saa-002",
     "category": "ai-agent",
     "subcategory": "Agent架构",
     "difficulty": "L2",
@@ -44,25 +44,25 @@
     ],
     "feynman": {
       "essence": "ReAct：边想边做，每步Thought→Action→Observation循环",
-      "analogy": "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整。",
+      "analogy": "ReAct 框架就像「边想边做」的工作方式——先思考（Thought）→ 行动（Action）→ 观察（Observation）→ 再思考，循环往复直到完成。",
       "key_points": [
-        "ReAct：边想边做，每步Thought→Action→Observation循环",
-        "Plan-and-Execute： 1. Planner：LLM先制定完整计划（多步骤） 2. Executor：逐步执行每个子任务 3. Re-Plan：根据执行结果可能调整计划 优势： - 减少L",
-        "结合实践深入理解"
+        "Planner：LLM先制定完整计划（多步骤）",
+        "Executor：逐步执行每个子任务",
+        "Re-Plan：根据执行结果可能调整计划"
       ]
     },
     "first_principle": {
       "problem": "它们本质上为什么不同？各自的设计目标和适用场景是什么？",
       "axioms": [
-        "计算资源（CPU、内存、IO）是有限的，必须在正确性和性能间权衡",
-        "并发环境下，数据一致性和吞吐量天然存在 tension",
-        "抽象和封装是管理复杂度的根本手段——隔离变化、隐藏细节"
+        "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚",
+        "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠",
+        "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
       ],
-      "rebuild": "从零思考：① 这个问题如果不解决会怎样？② 最简方案是什么？③ 工业级方案如何权衡？④ 如果重新设计，你会做什么不同选择？"
+      "rebuild": "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
     }
   },
   {
-    "id": "ai-agent-s003",
+    "id": "saa-003",
     "category": "ai-agent",
     "subcategory": "Agent架构",
     "difficulty": "L2",
@@ -73,25 +73,25 @@
     "images": [],
     "feynman": {
       "essence": "MCP是Anthropic于2024年底提出的开放协议，标准化了LLM应用与外部工具/数据源之间的连接",
-      "analogy": "Function Calling 就像 AI 学会了「打电话求助」——需要查天气、算数学时，能主动调用外部工具。",
+      "analogy": "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整，核心是「感知→规划→行动→反思」循环。",
       "key_points": [
-        "MCP是Anthropic于2024年底提出的开放协议，标准化了LLM应用与外部工具/数据源之间的连接",
-        "解决的问题： - 每个工具需要单独实现Function Calling的schema和逻辑 - 不同LLM平台的工具调用格式不统一 - 工具开发重复劳动 MCP架构： - MCP Host：LLM应用",
-        "结合实践深入理解"
+        "每个工具需要单独实现Function Calling的schema和逻辑",
+        "不同LLM平台的工具调用格式不统一",
+        "MCP Host：LLM应用（如Claude Desktop）"
       ]
     },
     "first_principle": {
       "problem": "为什么需要 MCP（Model Context Protocol）？解决了什么问题？如果不存在它会怎样？它解决了什么根本问题？",
       "axioms": [
-        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
-        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+        "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚",
+        "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠",
+        "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
     }
   },
   {
-    "id": "ai-agent-s004",
+    "id": "saa-004",
     "category": "ai-agent",
     "subcategory": "Agent架构",
     "difficulty": "L2",
@@ -104,25 +104,25 @@
     ],
     "feynman": {
       "essence": "Function Calling：LLM厂商提供的原生API能力，LLM根据用户意图输出结构化函数调用",
-      "analogy": "Function Calling 就像 AI 学会了「打电话求助」——需要查天气、算数学时，能主动调用外部工具。",
+      "analogy": "工具调用就像给 AI 配了瑞士军刀——根据任务需要灵活选择搜索、计算、代码执行等工具，LLM 决定何时用、怎么用。",
       "key_points": [
-        "Function Calling：LLM厂商提供的原生API能力，LLM根据用户意图输出结构化函数调用",
-        "流程： 1. 定义函数schema（名称、参数、描述） 2. 用户输入 + schema发给LLM 3. LLM返回要调用的函数名和参数（JSON） 4. 应用执行函数，将结果返回给LLM 5. LL",
-        "结合实践深入理解"
+        "定义函数schema（名称、参数、描述）",
+        "用户输入 + schema发给LLM",
+        "LLM返回要调用的函数名和参数（JSON）"
       ]
     },
     "first_principle": {
       "problem": "它们本质上为什么不同？各自的设计目标和适用场景是什么？",
       "axioms": [
-        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
-        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+        "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚",
+        "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠",
+        "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
     }
   },
   {
-    "id": "ai-agent-s005",
+    "id": "saa-005",
     "category": "ai-agent",
     "subcategory": "Agent架构",
     "difficulty": "L3",
@@ -133,25 +133,25 @@
     "images": [],
     "feynman": {
       "essence": "Agent记忆分为三个层级： 1. 短期记忆（Working Memory）： - 当前对话的上下文窗口 - LLM context中直接包含 - 容量有限（如",
-      "analogy": "Embedding 就像把人放到性格地图上——相似的人位置近，不同的人距离远，机器就能算「相似度」。",
+      "analogy": "Agent 记忆就像人的记忆——短期记忆是当前对话（工作记忆），长期记忆是过去经验（向量存储），摘要是对话的压缩笔记。",
       "key_points": [
-        "Agent记忆分为三个层级： 1. 短期记忆（Working Memory）： - 当前对话的上下文窗口 - LLM context中直接包含 - 容量有限（如128K tokens） 2. 长期记忆",
-        "结合实践深入理解",
-        "结合实践深入理解"
+        "短期记忆（Working Memory）：",
+        "LLM context中直接包含",
+        "容量有限（如128K tokens）"
       ]
     },
     "first_principle": {
       "problem": "为什么需要 Agent的记忆系统如何设计？如果不存在它会怎样？它解决了什么根本问题？",
       "axioms": [
-        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
-        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+        "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚",
+        "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠",
+        "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
     }
   },
   {
-    "id": "ai-agent-s006",
+    "id": "saa-006",
     "category": "ai-agent",
     "subcategory": "Agent架构",
     "difficulty": "L2",
@@ -162,21 +162,21 @@
     "images": [],
     "feynman": {
       "essence": "Agent评估比传统ML更复杂，需要多维评估： 1. 任务成功率：最终是否完成任务 2. 步骤效率：完成任务用了多少步 3. 工具调用准确率：工具选择和参数是否",
-      "analogy": "Benchmark 就像 AI 的期末考试——用标准化题集测试模型能力，横向对比不同模型。",
+      "analogy": "AI 评测体系就像学校的考试系统——Golden Set 是标准试题，LLM-as-Judge 是 AI 老师自动阅卷，持续监测模型质量。",
       "key_points": [
-        "Agent评估比传统ML更复杂，需要多维评估： 1. 任务成功率：最终是否完成任务 2. 步骤效率：完成任务用了多少步 3. 工具调用准确率：工具选择和参数是否正确 4. 成本效率：token消耗、A",
-        "结合实践深入理解",
-        "结合实践深入理解"
+        "任务成功率：最终是否完成任务",
+        "步骤效率：完成任务用了多少步",
+        "工具调用准确率：工具选择和参数是否正确"
       ]
     },
     "first_principle": {
       "problem": "为什么需要 Agent如何评估和评测？如果不存在它会怎样？它解决了什么根本问题？",
       "axioms": [
-        "模型本质是数学函数的参数优化——所有能力都来自数据和参数",
-        "Scaling Law：模型能力与参数量、数据量、算力正相关",
-        "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+        "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚",
+        "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠",
+        "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
       ],
-      "rebuild": "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+      "rebuild": "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
     }
   }
 ]
