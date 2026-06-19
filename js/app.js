@@ -14,6 +14,8 @@ const State = {
   currentSubcategory: 'all',
   showFavoritesOnly: false,
   searchQuery: '',
+  selectedTags: [],   // 选中的标签（多选筛选）
+  searchHistory: JSON.parse(localStorage.getItem(APP_CONFIG.storagePrefix + '.searchHistory') || '[]'),
   favorites: new Set(JSON.parse(localStorage.getItem(APP_CONFIG.storagePrefix + '.favorites') || '[]')),
   viewed: new Set(JSON.parse(localStorage.getItem(APP_CONFIG.storagePrefix + '.viewed') || '[]')),
   theme: localStorage.getItem(APP_CONFIG.storagePrefix + '.theme') || 'light',
@@ -112,6 +114,11 @@ function applyFilters() {
     if (State.currentDifficulty !== 'all' && q.difficulty !== State.currentDifficulty) return false;
     if (State.currentSubcategory !== 'all' && getSubcatGroup(q.subcategory) !== State.currentSubcategory) return false;
     if (State.showFavoritesOnly && !State.favorites.has(q.id)) return false;
+    // 多标签筛选：题目必须包含所有选中的标签
+    if (State.selectedTags.length > 0) {
+      const hasAll = State.selectedTags.every(t => q.tags.includes(t));
+      if (!hasAll) return false;
+    }
     if (State.searchQuery) {
       const q_lower = State.searchQuery.toLowerCase();
       const haystack = (q.question + ' ' + q.tags.join(' ') + ' ' + q.subcategory + ' ' + q.answer).toLowerCase();
@@ -128,6 +135,7 @@ function applyFilters() {
   }
   renderCards();
   renderSubcategoryFilter();
+  renderTagFilter();
   updateStats();
 }
 
@@ -1004,6 +1012,102 @@ function exportWrongBook() {
   });
 }
 
+// ============ Tag Cloud Filter (标签云筛选) ============
+function renderTagFilter() {
+  const container = document.getElementById('tagFilter');
+  if (!container) return;
+  // 统计当前分类下的标签频次（取 Top 20）
+  const tagCounts = {};
+  const base = State.allQuestions.filter(q =>
+    State.currentCategory === 'all' || q._category === State.currentCategory
+  );
+  base.forEach(q => {
+    (q.tags || []).forEach(t => {
+      if (t && t.length > 0) tagCounts[t] = (tagCounts[t] || 0) + 1;
+    });
+  });
+  // 过滤掉频次太低的标签（至少 2 题），按频次降序取 Top 20
+  const topTags = Object.entries(tagCounts)
+    .filter(([_, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20);
+  if (topTags.length === 0) { container.innerHTML = ''; container.style.display = 'none'; return; }
+  container.style.display = 'flex';
+  container.innerHTML = topTags.map(([tag, count]) => {
+    const active = State.selectedTags.includes(tag);
+    return `<button class="tag-chip ${active ? 'active' : ''}" onclick="toggleTag('${escapeAttr(tag)}')" title="${count} 题">
+      ${escapeHtml(tag)} <span class="tag-chip__count">${count}</span>
+    </button>`;
+  }).join('');
+  // 显示已选标签的清除按钮
+  if (State.selectedTags.length > 0) {
+    container.innerHTML += `<button class="tag-chip tag-chip--clear" onclick="clearTags()">✕ 清除 (${State.selectedTags.length})</button>`;
+  }
+}
+
+function toggleTag(tag) {
+  const idx = State.selectedTags.indexOf(tag);
+  if (idx >= 0) {
+    State.selectedTags.splice(idx, 1);
+  } else {
+    State.selectedTags.push(tag);
+  }
+  applyFilters();
+}
+
+function clearTags() {
+  State.selectedTags = [];
+  applyFilters();
+}
+
+// ============ Search History (搜索历史) ============
+function saveSearchHistory(query) {
+  if (!query || query.length < 2) return;
+  // 去重 + 移到最前 + 最多保留 8 条
+  State.searchHistory = [query, ...State.searchHistory.filter(h => h !== query)].slice(0, 8);
+  localStorage.setItem(APP_CONFIG.storagePrefix + '.searchHistory', JSON.stringify(State.searchHistory));
+}
+
+function showSearchHistory() {
+  const dropdown = document.getElementById('searchHistoryDropdown');
+  if (!dropdown) return;
+  if (State.searchHistory.length === 0) { dropdown.style.display = 'none'; return; }
+  dropdown.innerHTML = `
+    <div class="search-history__header">
+      <span>最近搜索</span>
+      <button class="search-history__clear" onclick="clearSearchHistory(event)">清空</button>
+    </div>
+    ${State.searchHistory.map(h => `
+      <div class="search-history__item" onclick="useSearchHistory('${escapeAttr(h)}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span>${escapeHtml(h)}</span>
+      </div>
+    `).join('')}
+  `;
+  dropdown.style.display = 'block';
+}
+
+function hideSearchHistory() {
+  const dropdown = document.getElementById('searchHistoryDropdown');
+  if (dropdown) dropdown.style.display = 'none';
+}
+
+function useSearchHistory(query) {
+  const input = document.getElementById('searchInput');
+  if (input) { input.value = query; }
+  State.searchQuery = query;
+  hideSearchHistory();
+  applyFilters();
+}
+
+function clearSearchHistory(e) {
+  if (e) e.stopPropagation();
+  State.searchHistory = [];
+  localStorage.removeItem(APP_CONFIG.storagePrefix + '.searchHistory');
+  hideSearchHistory();
+  showToast('搜索历史已清空');
+}
+
 let _currentModalIndex = -1;
 function navModal(dir) {
   if (_currentModalIndex < 0) return;
@@ -1032,9 +1136,27 @@ function bindEvents() {
       debounce = setTimeout(() => {
         State.searchQuery = e.target.value.trim();
         applyFilters();
+        // 输入时隐藏历史（有内容才显示结果）
+        if (State.searchQuery) hideSearchHistory();
       }, 200);
     });
+    // 聚焦时显示搜索历史
+    search.addEventListener('focus', () => {
+      if (!search.value.trim()) showSearchHistory();
+    });
+    // Enter 保存搜索历史
+    search.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = search.value.trim();
+        if (val) { saveSearchHistory(val); hideSearchHistory(); }
+      }
+      if (e.key === 'Escape') { hideSearchHistory(); search.blur(); }
+    });
   }
+  // 点击页面其他地方关闭搜索历史
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.top-nav__search')) hideSearchHistory();
+  });
   // Theme
   const themeBtn = document.getElementById('themeBtn');
   if (themeBtn) themeBtn.addEventListener('click', toggleTheme);

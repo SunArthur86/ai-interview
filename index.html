@@ -80,6 +80,7 @@
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
       </svg>
       <input type="text" id="searchInput" placeholder="搜索题目、标签、内容… (⌘K)" autocomplete="off">
+      <div class="search-history-dropdown" id="searchHistoryDropdown" style="display:none;"></div>
     </div>
     <div class="top-nav__actions">
       <button class="top-nav__btn" id="favFilter" onclick="toggleFavoritesOnly()" title="只看收藏">
@@ -182,6 +183,7 @@
       </button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;" id="subcategoryFilters"></div>
+    <div style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="tagFilter"></div>
 
     <!-- Cards Grid -->
     <div class="cards-grid" id="cardsGrid"></div>
