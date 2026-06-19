@@ -12,7 +12,7 @@ const APP_CONFIG = {
   appName: 'AI 面试题库',
   appNameShort: 'AI面试题',
   appIcon: '🧠',
-  appVersion: '3.8',
+  appVersion: '4.0',
   appDescription: '精选 AI 面试题，涵盖 LLM核心、AI Agent、AI Harness、AI场景设计、FDE、工程化实战、AI 基础八大方向，包含 Transformer/微调/推理优化/RAG/Agent/AI系统设计 前沿技术，支持难度排序、智能搜索、遗忘曲线复习。',
   keywords: 'AI面试题,大模型面试,Agent面试,RAG,LLM,人工智能,深度学习,Transformer,LoRA,DPO,PPO,DeepSeek,vLLM,FlashAttention',
 
@@ -70,6 +70,6 @@ const APP_CONFIG = {
   },
 
   // ===== About Text =====
-  aboutText: 'AI 面试题库 v3.9\n862 道精选题目 · 含50道AI场景设计题\n覆盖 LLM核心 · AI Agent · AI Harness · AI场景设计 · 工程化实战 · AI基础 · 多模态',
+  aboutText: 'AI 面试题库 v4.0\n862 道精选题目 · 含50道AI场景设计题 · 22张SVG概念图\n覆盖 LLM核心 · AI Agent · AI Harness · AI场景设计 · 工程化实战 · AI基础 · 多模态\n费曼学习法 + 第一性原理 + 遗忘曲线复习 + 报错/笔记/错题本/搜索历史/标签云/深度链接',
   aboutTarget: '对标阿里 P7 / 字节 2-2 / 腾讯 T9',
 };
