@@ -14,7 +14,7 @@
       "Text2SQL 的评测指标有哪些?"
     ],
     "feynman": {
-      "essence": "- *Text2SQL** 是将自然语言问题自动转换为 SQL 查询的技术. **核心流程：** 1. Schema Linking:将用户问题中的实体映射到数",
+      "essence": "**Text2SQL** 是将自然语言问题自动转换为 SQL 查询的技术.",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "Text2SQL 是将自然语言问题自动转换为 SQL 查询的技术.",
@@ -278,7 +278,7 @@
       "LLM-as-judge 的偏差如何控制?"
     ],
     "feynman": {
-      "essence": "- *典型场景**:离线 BLEU/accuracy 提升,但用户反馈回复'生硬'、'格式乱'、'不自然'. - *排查步骤** 1. **定位变化范围** -",
+      "essence": "离线 BLEU/accuracy 提升,但用户反馈回复'生硬'、'格式乱'、'不自然'.",
       "analogy": "微调就像给通才毕业生做岗前培训——已有基础能力（预训练），再针对具体岗位做专项训练（指令/偏好对齐）。",
       "key_points": [
         "典型场景:离线 BLEU/accuracy 提升,但用户反馈回复'生硬'、'格式乱'、'不自然'.",
@@ -313,7 +313,7 @@
       "如何设计 LLM-as-Judge 的评估?"
     ],
     "feynman": {
-      "essence": "- *Agent 回归测试**是确保 Agent 系统在迭代修改后不出现退化(regression)的测试方法. - *与普通功能测试的区别** - 功能测试:",
+      "essence": "**Agent 回归测试**是确保 Agent 系统在迭代修改后不出现退化(regression)的测试方法.",
       "analogy": "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整。",
       "key_points": [
         "Agent 回归测试是确保 Agent 系统在迭代修改后不出现退化(regression)的测试方法.",
@@ -387,7 +387,7 @@
       "如何处理多语言文档?"
     ],
     "feynman": {
-      "essence": "- *百万级文档 RAG 系统设计** - *数据层** - **文档解析**:Unstructured/DeepDoc(PDF表格/图片/OCR) - **分",
+      "essence": "**百万级文档 RAG 系统设计**\n\n- **数据层**\n- **文档解析**:Unstructured/DeepDoc(PDF表格/图片/OCR)\n- **分块策略**:RecursiveCharacterTextSplitter(chunk=512。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "百万级文档 RAG 系统设计",

@@ -14,7 +14,7 @@
       "Multi-Head Attention的作用?--不同head学习不同子空间的注意力模式"
     ],
     "feynman": {
-      "essence": "Self-Attention允许序列中每个位置直接关注所有其他位置,计算加权求和. - *核心公式:** Attention(Q,K,V) = softmax(",
+      "essence": "Self-Attention 让序列中每个 token 直接「看到」所有其他 token 并加权汇总信息，公式是 softmax(QKᵀ/√d_k)·V；因为所有位置可并行计算、任意两 token 距离为 O(1)，所以比必须串行处理的 RNN 高效得多。",
       "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度，数学上就是加权的加权求和。",
       "key_points": [
         "Q/K/V的来源: 输入X分别乘以三个权重矩阵Wq/Wk/Wv",
@@ -48,7 +48,7 @@
       "RoPE如何实现长度外推(NTK-aware/YaRN/Dynamic Scaling)?"
     ],
     "feynman": {
-      "essence": "位置编码让Transformer感知token顺序(Self-Attention本身是排列不变的). - *方案对比:** | 方案 | 类型 | 外推性 |",
+      "essence": "位置编码（Positional Encoding）让 Self-Attention 感知 token 顺序（它本身是排列不变的）。主流方案：绝对位置编码（学习的或 sin/cos，外推差）、相对位置编码、RoPE（旋转位置编码，把位置写成对 Q/K 的旋转，注意力内积天然只依赖相对位置，长度外推好）、ALiBi（在注意力分数上加线性偏置）。",
       "analogy": "RoPE 就像时钟指针——不同位置用不同角度旋转，相对位置就是两根指针的角度差，天然编码了「距离」信息。",
       "key_points": [
         "相对位置感知 - 只依赖m-n",
@@ -149,7 +149,7 @@
       "MQA在什么场景下值得质量折中?"
     ],
     "feynman": {
-      "essence": "三者是Key/Value在不同head间的共享策略: | 方案 | K/V头数 | KV Cache | 质量 | 速度 | |------|---------",
+      "essence": "MQA/GQA/MLA 都是 Key/Value 在不同 head 间的共享策略：MQA 所有 head 共享一组 KV（最快、质量略降），GQA 每 N 个 head 共享一组（折中），MLA 用低秩投影压缩 KV（DeepSeek 方案，质量高且省 KV Cache）。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "核心权衡: K/V头越少→KV Cache越小→推理越快,但质量可能下降",
@@ -452,7 +452,7 @@
       "如何平衡数据量和质量?"
     ],
     "feynman": {
-      "essence": "- *预训练数据配比策略:** | 数据类型 | 推荐比例 | 作用 | |---------|---------|------| | 英文网页/书籍 | 35",
+      "essence": "工具使用 - 代码理解能力是Function Calling的基础。",
       "analogy": "预训练就像上大学通识课——先在海量文本上学广泛知识成为通才，再通过专业课（微调）成为专家。",
       "key_points": [
         "推理迁移 - 代码训练大幅提升数学和逻辑推理",
@@ -486,7 +486,7 @@
       "Tensor Parallelism和ZeRO能否同时使用?"
     ],
     "feynman": {
-      "essence": "- *ZeRO分布式训练优化:** | 级别 | 切分对象 | 显存节省 | 通信量 | |------|---------|---------|-------",
+      "essence": "ZeRO-3 (Add Parameter Partitioning)。",
       "analogy": "分布式系统就像连锁店——一家变多家，需要统一菜单（一致性）、协调库存（分布式事务）、处理网络问题。",
       "key_points": [
         "ZeRO分布式训练优化:",
@@ -520,7 +520,7 @@
       "Flash Attention v3有什么改进?"
     ],
     "feynman": {
-      "essence": "- *Flash Attention核心:减少HBM(显存)读写** - *问题:** 标准Attention中QKᵀ产生n*n矩阵,频繁读写HBM(慢) -",
+      "essence": "**Flash Attention核心:减少HBM(显存)读写**",
       "analogy": "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。",
       "key_points": [
         "Flash Attention核心:减少HBM(显存)读写",
@@ -586,7 +586,7 @@
       "如何评估领域适配效果?"
     ],
     "feynman": {
-      "essence": "- *三种适配范式对比:** | 维度 | 继续预训练(CPT) | RAG | Prompt Engineering | |------|----------",
+      "essence": "CPT注入领域知识 -> SFT调整格式 -> RAG补充实时信息。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "CPT注入领域知识 -> SFT调整格式 -> RAG补充实时信息",
@@ -619,7 +619,7 @@
       "量化后的模型如何恢复精度损失?"
     ],
     "feynman": {
-      "essence": "- *量化方法对比:** | 方法 | 类型 | 精度损失 | 适用 | |------|------|---------|------| | RTN | 简单",
+      "essence": "核心发现:不是所有权重同等重要,激活值大的通道更重要.保护重要通道(缩放),非重要通道激进量化.不需要反向传播,比GPTQ更快.INT4量化下精度损失最小.。",
       "analogy": "量化就像把高清图压缩成标清——参数从 32 位降到 8/4 位，体积小速度快，但精度略降，是部署优化的关键手段。",
       "key_points": [
         "GPTQ: 逐层量化,用Hessian矩阵信息指导量化",
@@ -685,7 +685,7 @@
       "repetition_penalty如何影响生成质量?"
     ],
     "feynman": {
-      "essence": "- *采样策略:** | 策略 | 作用 | 推荐值 | |------|------|--------| | Temperature | 控制随机性,T越低越",
+      "essence": "Temperature + Top-p 最常用.代码/数学:T=0.1,p=0.95;创意写作:T=0.7,p=0.9。",
       "analogy": "采样策略就像调音响的三个旋钮——Temperature 调随机性（高=即兴发挥、低=稳准狠），Top-k 限制候选数量（只看前 k 名），Top-p 按累积概率圈范围（动态截断尾部）。",
       "key_points": [
         "组合建议: Temperature + Top-p 最常用.代码/数学:T=0.1,p=0.95;创意写作:T=0.7,p=0.9",
@@ -785,7 +785,7 @@
       "do_sample=True和False的区别?"
     ],
     "feynman": {
-      "essence": "- *解码策略对比:** | 策略 | 质量 | 多样性 | 速度 | 适用 | |------|------|--------|------|------|",
+      "essence": "score = p(x) - beta * max_sim(x, history)。",
       "analogy": "解码策略就像选路——Greedy 是每步选最近的（快但可能错过全局最优），Beam Search 是同时探索 K 条路（更优但更慢），Contrastive 是避免和已生成内容重复。",
       "key_points": [
         "Contrastive Search核心:",
@@ -820,7 +820,7 @@
       "RAG和长上下文(Long Context)如何取舍?"
     ],
     "feynman": {
-      "essence": "- *RAG (Retrieval-Augmented Generation) 流程:** ``` 用户问题 → Embedding → 向量检索 → Top-",
+      "essence": "**RAG (Retrieval-Augmented Generation) 流程:**",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "RAG (Retrieval-Augmented Generation) 流程:",
@@ -854,7 +854,7 @@
       "Markdown文档如何结构化分块?"
     ],
     "feynman": {
-      "essence": "- *分块策略:** | 策略 | 方法 | 优点 | 适用 | |------|------|------|------| | 固定长度 | 按token数切",
+      "essence": "RAG 分块（Chunking）策略：固定长度（按 token 数切，简单但可能切断语义）、按结构（段落/标题/Markdown 层级，保留语义）、递归分块（先按大结构再细分）、语义分块（按 embedding 相似度在语义断点切）、重叠分块（相邻块重叠几十 token 防边界丢失）。选型：结构化文档用按结构，长文用语义，追求简单用固定长度+重叠。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "chunk_size: 256-1024 tokens(常用512)",
@@ -955,7 +955,7 @@
       "Multi-Query会增加多少延迟?"
     ],
     "feynman": {
-      "essence": "- *查询改写技术:** - *1. Query Rewriting(查询改写):** - 用LLM将用户模糊问题改写为更精确的检索查询 - 例:「怎么用那个东",
+      "essence": "RAG 查询改写技术包括：① Query Rewriting（LLM 把模糊问题改写成精确检索查询）；② HyDE（先让 LLM 生成假设答案，再用它去检索，解决 query 与 doc 表达不一致）；③ Step-Back Prompting（先问更高层的概念再检索具体事实）；④ Multi-Query（生成多个子查询并行检索再融合）。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "1. Query Rewriting(查询改写):",
@@ -1127,7 +1127,7 @@
       "如何处理模型输出不合法JSON的情况?"
     ],
     "feynman": {
-      "essence": "- *结构化JSON输出的方法:** - *方法1:Function Calling / Tool Use(最可靠)** ```json {\"type\": \"f",
+      "essence": "Function Calling / Tool Use(最可靠)。",
       "analogy": "Prompt 就像给 AI 的工作指令——指令越清晰、示例越精准、推理步骤越明确（CoT），AI 完成质量越高。",
       "key_points": [
         "结构化JSON输出的方法:",
@@ -1161,7 +1161,7 @@
       "如何检测模型是否被注入?"
     ],
     "feynman": {
-      "essence": "- *Prompt Injection:** 攻击者在用户输入中嵌入恶意指令,劫持模型行为. - *攻击类型:** 1. **直接注入** - 用户输入「忽略以",
+      "essence": "**Prompt Injection:** 攻击者在用户输入中嵌入恶意指令,劫持模型行为.",
       "analogy": "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。",
       "key_points": [
         "Prompt Injection: 攻击者在用户输入中嵌入恶意指令,劫持模型行为.",
@@ -1196,7 +1196,7 @@
       "如何版本管理Prompt?"
     ],
     "feynman": {
-      "essence": "- *System Prompt设计框架 (CREATE):** - **C**ontext - 角色和背景(你是XX公司的AI助手) - **R**ole -",
+      "essence": "**System Prompt设计框架 (CREATE):**",
       "analogy": "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。",
       "key_points": [
         "System Prompt设计框架 (CREATE):",
@@ -1298,7 +1298,7 @@
       "BLIP-2的Q-Former和LLaVA的Projection有什么区别?"
     ],
     "feynman": {
-      "essence": "- *LLaVA架构:** ``` 图像 → CLIP ViT编码器 → 图像特征 → Projection Layer → LLM(Vicuna/LLaMA)",
+      "essence": "LLaVA 的架构：视觉编码器（CLIP ViT-L/14）把图片编码成 patch token → 一个可训练的投影层（MLP）把视觉 token 对齐到 LLM 的词嵌入空间 → 拼接到文本 token 后喂给 LLM（Vicuna/LLaMA）做理解与生成；训练分两阶段：特征对齐预训练 + 指令微调。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "视觉编码器 - CLIP ViT-L/14,输出576个patch token",
@@ -1399,7 +1399,7 @@
       "LiveBench如何解决数据污染问题?"
     ],
     "feynman": {
-      "essence": "- *主流评估基准:** | Benchmark | 评估能力 | 题目数 | 特点 | |-----------|---------|--------|---",
+      "essence": "C-Eval + GSM8K + HumanEval + MT-Bench + 真实用户A/B测试。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "数据污染 - 训练数据可能包含测试题",
@@ -1567,7 +1567,7 @@
       "如何选择Teacher模型?"
     ],
     "feynman": {
-      "essence": "- *知识蒸馏:** 用大模型(Teacher)的输出训练小模型(Student). - *软标签 vs 硬标签:** - **硬标签:** one-hot向量",
+      "essence": "**知识蒸馏:** 用大模型(Teacher)的输出训练小模型(Student).",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "知识蒸馏: 用大模型(Teacher)的输出训练小模型(Student).",
@@ -1601,7 +1601,7 @@
       "Matryoshka Embedding如何实现维度可变?"
     ],
     "feynman": {
-      "essence": "- *主流Embedding模型:** | 模型 | 类型 | 维度 | 中文支持 | 特点 | |------|------|------|---------",
+      "essence": "Embedding 模型选型看维度、语言、最大 token、MTEB 榜单成绩：BGE（智源，中英文强，bge-large-zh/bge-m3 多语言）、E5（微软，多任务通用）、Cohere（英文强、商用 API）、OpenAI text-embedding-3；中文场景推荐 BGE-large-zh-v1.5 或 BGE-M3（支持稠密+稀疏+多向量）。",
       "analogy": "Embedding 就像把词语放到语义地图上——意思相近的词距离近，无关的词距离远，让机器能计算「相似度」。",
       "key_points": [
         "主流Embedding模型:",

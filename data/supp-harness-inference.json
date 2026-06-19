@@ -43,7 +43,7 @@
       "svg_kvcache.svg"
     ],
     "feynman": {
-      "essence": "LLM自回归推理分两个阶段： Prefill阶段（预填充）： - 处理输入prompt的所有token - 一次性并行计算所有token的KV Cache -",
+      "essence": "LLM自回归推理分两个阶段：\n\nPrefill阶段（预填充）：\n- 处理输入prompt的所有token\n- 一次性并行计算所有token的KV Cache\n- 计算密集型（compute-bound）：大量矩阵乘法\n- GPU利用率高\n\nDecode阶段（解码）：\n- 逐个生成输出token\n- 每步用之前所有token的KV。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "处理输入prompt的所有token",

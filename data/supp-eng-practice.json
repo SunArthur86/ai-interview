@@ -100,7 +100,7 @@
       "svg_quantization.svg"
     ],
     "feynman": {
-      "essence": "Token成本是LLM应用的主要运营成本",
+      "essence": "Token成本是LLM应用的主要运营成本。",
       "analogy": "Agent 成本管控就像家庭理财——跟踪每笔支出（Token消耗），区分必需消费和浪费（缓存命中/模型路由优化），在预算内最大化效果。",
       "key_points": [
         "简单任务用小模型（GPT-3.5/GLM-4-Flash）",
@@ -130,7 +130,7 @@
       "svg_rag.svg"
     ],
     "feynman": {
-      "essence": "生产级LLM应用架构关键组件： 1. API Gateway： - 请求路由（不同模型） - 限流、认证 - 日志记录 2. LLM服务层： - 模型路由（大/",
+      "essence": "生产级 LLM 应用架构通常分层：API Gateway（路由/限流/认证）→ LLM 服务层（模型路由、多供应商 failover、缓存）→ 编排层（RAG/Agent/工具调用）→ 可观测性层（日志/指标/链路追踪），核心是把「调用模型」包装成可治理、可灰度、可降级的服务。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "API Gateway：",

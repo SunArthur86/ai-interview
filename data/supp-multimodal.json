@@ -4,7 +4,7 @@
     "question": "CLIP模型是什么？它如何实现图文跨模态对齐？",
     "answer": "🎯 本质：CLIP(Contrastive Language-Image Pre-training)是OpenAI提出的图文对比学习模型，通过将图像和文本映射到同一向量空间实现跨模态理解。\n\n🧒 类比：CLIP像一个双语翻译官，同时懂\"图像语言\"和\"文字语言\"。给它看一张猫的图片和\"cat\"这个词，它知道这两个东西说的是同一回事。\n\n📊 CLIP架构：\n1. 双编码器结构\n  Image Encoder：ResNet50/ViT（将图片编码为向量）\n  Text Encoder：Transformer（将文本编码为向量）\n\n2. 对比学习训练\n  输入：N个(图片, 文本)配对\n  目标：配对的图文向量距离最近，不配对的距离最远\n  损失函数：InfoNCE（对比损失）\n  \n  训练矩阵：\n  对角线（正确配对）-> 拉近\n  非对角线（错误配对）-> 推远\n\n3. 训练数据\n  4亿个图文对（从互联网爬取）\n  覆盖极其广泛的视觉概念\n\nCLIP能力：\n1. Zero-shot图像分类\n  不需要训练分类头\n  给出类别描述（\"a photo of a dog/cat/car\"）\n  计算图片与各类别描述的相似度\n  取最相似的作为分类结果\n\n2. 图文检索\n  用文字搜图片：输入\"沙滩上的日落\" -> 返回相关图片\n  用图片搜文字：输入图片 -> 返回描述性文字\n\n3. 生成模型引导\n  Stable Diffusion用CLIP的Text Encoder作为文本理解模块\n  DALL-E用CLIP做输出排序\n\n局限：\n1. 对数量/计数不敏感（\"3个苹果\"vs\"5个苹果\"）\n2. 空间关系理解弱（\"A在B上面\"）\n3. 细粒度分类困难（不同品种的狗）\n4. 训练需要海量数据\n\nCLIP是现代多模态AI的基石——几乎所有VLM(Vision-Language Model)都基于CLIP的视觉编码器。",
     "feynman": {
-      "essence": "🎯 本质：CLIP(Contrastive Language-Image Pre-training)是OpenAI提出的图文对比学习模型，通过将图像和文本映射到",
+      "essence": "🎯 本质：CLIP(Contrastive Language-Image Pre-training)是OpenAI提出的图文对比学习模型，通过将图像和文本映射到同一向量空间实现跨模态理解。",
       "analogy": "向量就像一串数字坐标——把文字/图片的语义编码成数学表示，让机器能计算相似度。",
       "key_points": [
         "🎯 本质：CLIP(Contrastive Language-Image Pre-training)是OpenAI提出的图文对比学习模型，通过将图像和文本映射到同一向量空间实现跨模态理解",
@@ -32,7 +32,7 @@
     "question": "Vision-Language Model (VLM)是什么？GPT-4V/Claude如何理解图片？",
     "answer": "🎯 本质：VLM(Vision-Language Model)将视觉编码器与LLM结合，让模型既能理解图片又能用自然语言推理和回答。\n\n📊 VLM三大架构范式：\n\n1. 有Adapter的架构（BLIP-2, LLaVA）\n  Image Encoder(CLIP ViT) -> Adapter(MLP/Q-Former) -> LLM\n  图片 -> 视觉编码器提取特征 -> Adapter对齐到LLM的token空间 -> LLM理解\n  代表：LLaVA（CLIP ViT + MLP + LLaMA）\n  \n2. 原生多模态架构（GPT-4V, Gemini, Qwen-VL）\n  从头训练的多模态模型\n  图像token和文本token在Transformer中自然混合\n  优势：更深度的图文融合\n  代表：GPT-4o, Gemini 1.5, Claude 3.5 Sonnet\n\n3. 工具调用架构\n  LLM本身不理解图片\n  通过调用OCR/目标检测/CLIP等工具间接理解\n  代表：早期GPT-4 + Plugin\n\nLLaVA工作原理（典型例子）：\n1. 图片 -> CLIP ViT -> 视觉特征序列\n2. 视觉特征 -> MLP投影层 -> 视觉tokens（如576个token）\n3. 视觉tokens + 文本tokens -> LLaMA -> 生成回答\n\n训练流程：\nStage 1: 特征对齐预训练（冻结LLM，只训练Adapter）\nStage 2: 指令微调（用图文指令数据训练）\n\nVLM核心能力：\n1. 图片理解与问答（VQA）\n2. 图片描述生成（Image Captioning）\n3. OCR/文档理解\n4. 图表/图表分析\n5. 视觉推理（\"图片中有几个红色的球？\"）\n6. 多图比较（\"这两张图有什么区别？\"）\n\n挑战：\n1. 高分辨率图片的token数量爆炸\n2. 视频理解的时序建模\n3. 幻觉问题（描述不存在的图片内容）\n4. 空间/计数推理能力不足",
     "feynman": {
-      "essence": "🎯 本质：VLM(Vision-Language Model)将视觉编码器与LLM结合，让模型既能理解图片又能用自然语言推理和回答",
+      "essence": "VLM（Vision-Language Model）把视觉编码器（如 CLIP ViT）与 LLM 结合：视觉编码器把图片转成 token 表示，经投影层对齐到语言空间后拼到文本 token，再由 LLM 理解与生成；GPT-4V/Claude 在此基础上用海量图文对训练，实现图片问答、OCR、图表理解、多图推理等能力。",
       "analogy": "视觉理解就像教 AI 看图说话——把图片变成数字表示，像处理文字一样理解图片。",
       "key_points": [
         "有Adapter的架构（BLIP-2, LLaVA）",
@@ -60,7 +60,7 @@
     "question": "Stable Diffusion的原理是什么？Latent Diffusion如何工作？",
     "answer": "🎯 本质：Stable Diffusion是一种潜在扩散模型(Latent Diffusion Model)，在压缩的潜在空间中进行扩散和去噪，而非在像素空间，大幅降低计算成本。\n\n📊 Diffusion基本原理：\n前向过程（加噪）：逐步给清晰图片加高斯噪声，直到变成纯噪声\n  x_0(原图) -> x_1 -> x_2 -> ... -> x_T(纯噪声)\n  每步加少量噪声，T通常为1000\n  \n反向过程（去噪）：训练一个UNet学习逐步去噪\n  x_T(噪声) -> x_{T-1} -> ... -> x_0(生成图)\n  每步预测并去除一点噪声\n\nLatent Diffusion创新：\n问题：在像素空间(512x512x3)做diffusion计算量太大\n解决：先用VAE将图片压缩到潜在空间(64x64x4)，在潜在空间做diffusion\n  计算量减少：512*512*3 / 64*64*4 = 48倍\n\nStable Diffusion组件：\n1. VAE Encoder/Decoder：图像 <-> 潜在空间\n2. UNet：在潜在空间去噪（核心模型）\n3. Text Encoder（CLIP）：将文本prompt编码为条件\n4. Scheduler：控制去噪步骤（DDIM/DPM++/Euler）\n\n文本控制生成（Classifier-Free Guidance）：\n  无条件预测：UNet(z_t) - 模型自由生成\n  有条件预测：UNet(z_t, text) - 按prompt生成\n  实际输出 = 无条件 + guidance_scale * (有条件 - 无条件)\n  guidance_scale越大，越遵循prompt但多样性降低\n\n关键参数：\n- steps（步数）：20-50步，越多质量越好但越慢\n- cfg_scale（引导强度）：7-12，越高越遵循prompt\n- sampler（采样器）：DPM++ 2M Karras（速度质量平衡好）\n- seed（随机种子）：相同seed=相同输出",
     "feynman": {
-      "essence": "🎯 本质：Stable Diffusion是一种潜在扩散模型(Latent Diffusion Model)，在压缩的潜在空间中进行扩散和去噪，而非在像素空间，",
+      "essence": "🎯 本质：Stable Diffusion是一种潜在扩散模型(Latent Diffusion Model)，在压缩的潜在空间中进行扩散和去噪，而非在像素空间，大幅降低计算成本。",
       "analogy": "Diffusion 就像从噪点中雕刻图片——先撒满噪点再逐步去噪，慢慢浮现目标图像。",
       "key_points": [
         "VAE Encoder/Decoder：图像 <-> 潜在空间",

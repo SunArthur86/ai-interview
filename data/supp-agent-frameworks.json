@@ -88,7 +88,7 @@
     "question": "OpenAI Swarm是什么？它和传统Agent框架有什么不同？",
     "answer": "🎯 本质：OpenAI Swarm是一个极简的实验性多Agent编排框架，核心概念是\"Handoff\"（交接），通过Agent之间的简单交接实现复杂工作流。\n\n📊 Swarm核心概念：\n\n1. Agent（极简定义）\n  只需要定义：\n  - name：名称\n  - instructions：系统指令\n  - functions：可用工具\n  \n2. Handoff（交接）\n  Agent A处理不了 -> 通过工具调用\"交接\"给Agent B\n  Swarm自动将上下文传递给Agent B\n  这是Swarm最核心的创新——极其简单的多Agent编排\n\n3. Context Variables（上下文变量）\n  在Agent间共享的变量\n  类似全局状态\n\nSwarm的设计哲学：\n  极简——只有两个核心概念(Agent + Handoff)\n  轻量——纯Python，无外部依赖\n  教育——展示多Agent编排的最简形式\n  非生产——官方明确说这是实验性项目\n\n示例：\n  triage_agent = Agent(name=\"分诊\", instructions=\"根据用户问题决定交给谁\")\n  billing_agent = Agent(name=\"账单\", instructions=\"处理账单问题\")\n  support_agent = Agent(name=\"技术支持\", instructions=\"处理技术问题\")\n  \n  分诊 -> 交给账单或技术支持 -> 处理完毕\n\nSwarm vs 其他框架：\n| 特性 | Swarm | AutoGen | CrewAI | LangGraph |\n|------|-------|---------|--------|-----------|\n| 复杂度 | 极简 | 复杂 | 简单 | 中等 |\n| 生产就绪 | 否 | 是 | 是 | 是 |\n| 代码行数 | ~500行 | 大型 | 中型 | 大型 |\n| 适用 | 学习概念 | 生产 | 生产 | 生产 |\n\n面试要点：Swarm的价值在于教育——用最少的代码展示了多Agent交接的本质。生产环境推荐LangGraph或AutoGen。",
     "feynman": {
-      "essence": "🎯 本质：OpenAI Swarm是一个极简的实验性多Agent编排框架，核心概念是\"Handoff\"（交接），通过Agent之间的简单交接实现复杂工作流",
+      "essence": "🎯 本质：OpenAI Swarm是一个极简的实验性多Agent编排框架，核心概念是\"Handoff\"（交接），通过Agent之间的简单交接实现复杂工作流。",
       "analogy": "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整，核心是「感知→规划→行动→反思」循环。",
       "key_points": [
         "🎯 本质：OpenAI Swarm是一个极简的实验性多Agent编排框架，核心概念是\"Handoff\"（交接），通过Agent之间的简单交接实现复杂工作流",
@@ -144,7 +144,7 @@
     "question": "如何评估Agent系统的质量？有哪些关键指标？",
     "answer": "🎯 本质：Agent评估比传统LLM评估复杂得多，需要同时评估推理质量、工具使用准确性和端到端任务完成率。\n\n📊 Agent评估维度：\n\n1. 任务完成率（Task Success Rate）\n  最核心指标——任务是否真正完成\n  评估方式：\n  - 人工评估（金标准但昂贵）\n  - LLM-as-Judge（用GPT-4评分）\n  - 自动化测试（如SWE-bench）\n\n2. 推理质量（Reasoning Quality）\n  评估Agent的思考过程\n  - 规划合理性：步骤是否有逻辑\n  - 错误恢复：出错后能否自我纠正\n  - 效率：是否用了最少步骤\n\n3. 工具使用准确性（Tool Use Accuracy）\n  - 工具选择：选对了工具吗\n  - 参数提取：参数正确吗\n  - 结果理解：正确理解了返回值吗\n\n4. 效率指标\n  - 平均步骤数：完成任务用了几步\n  - 平均token消耗：总token开销\n  - 平均延迟：从开始到完成的墙钟时间\n  - 成本：每次任务的花费\n\n主流评估基准：\n| Benchmark | 评估内容 | 特点 |\n|-----------|---------|------|\n| AgentBench | 多场景Agent能力 | 8个场景(购物/游戏/DB等) |\n| SWE-bench | 软件工程Agent | 真实GitHub PR |\n| WebArena | Web交互Agent | 真实网站操作 |\n| GAIA | 通用AI助手 | 多步骤真实世界问题 |\n| ToolBench | 工具使用 | 16000+ API |\n| τ-bench | 工具调用+对话 | 多轮工具调用 |\n\n评估工具：\n- LangSmith: LangChain的追踪+评估\n- Phoenix(Arize): 开源LLM可观测性\n- Opik(Comet): Agent评估平台\n- Braintrust: 端到端评估\n\n最佳实践：\n1. 分层评估：先评估单工具，再评估工具选择，最后评估端到端\n2. 黄金轨迹：记录人类专家的操作路径作为参照\n3. 回归测试：每次修改后跑全套测试\n4. 线上监控：记录Agent的实际运行轨迹并分析",
     "feynman": {
-      "essence": "🎯 本质：Agent评估比传统LLM评估复杂得多，需要同时评估推理质量、工具使用准确性和端到端任务完成率",
+      "essence": "🎯 本质：Agent评估比传统LLM评估复杂得多，需要同时评估推理质量、工具使用准确性和端到端任务完成率。",
       "analogy": "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整。",
       "key_points": [
         "任务完成率（Task Success Rate）",

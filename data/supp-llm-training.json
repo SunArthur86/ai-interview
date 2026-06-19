@@ -12,7 +12,7 @@
       "svg_lora.svg"
     ],
     "feynman": {
-      "essence": "LoRA（Low-Rank Adaptation）冻结预训练权重W，额外引入低秩矩阵A和B来学习增量",
+      "essence": "LoRA（Low-Rank Adaptation）冻结预训练权重W，额外引入低秩矩阵A和B来学习增量。",
       "analogy": "微调就像给通才毕业生做岗前培训——已有基础能力（预训练），再针对具体岗位做专项训练（指令/偏好对齐）。",
       "key_points": [
         "LoRA（Low-Rank Adaptation）冻结预训练权重W，额外引入低秩矩阵A和B来学习增量",
@@ -42,7 +42,7 @@
       "svg_rlhf_dpo.svg"
     ],
     "feynman": {
-      "essence": "SFT（Supervised Fine-Tuning）： - 监督微调，用高质量的指令-回答对训练 - 让模型从'续写模式'转为'指令回答模式' - 数据格式：",
+      "essence": "SFT（监督微调）用高质量的「指令-回答」对训练，让模型从预训练的「续写模式」转为「指令回答模式」，是 RLHF/对齐流程的第一步。",
       "analogy": "微调就像给通才毕业生做岗前培训——已有基础能力（预训练），再针对具体岗位做专项训练（指令/偏好对齐）。",
       "key_points": [
         "监督微调，用高质量的指令-回答对训练",
@@ -72,7 +72,7 @@
       "svg_rlhf_dpo.svg"
     ],
     "feynman": {
-      "essence": "RLHF中使用PPO的四个模型： 1. Actor（Policy Model）：待优化的模型，生成回答 2. Reference Model：冻结的SFT模型，",
+      "essence": "RLHF中使用PPO的四个模型：\n\n1. Actor（Policy Model）：待优化的模型，生成回答\n2. Reference Model：冻结的SFT模型。",
       "analogy": "RLHF 就像给 AI 请人类老师——人类给回答打分排序，训练奖励模型，再用强化学习让 AI 越来越符合人类偏好。",
       "key_points": [
         "Actor（Policy Model）：待优化的模型，生成回答",
@@ -130,7 +130,7 @@
     "follow_up": [],
     "images": [],
     "feynman": {
-      "essence": "涌现能力指模型规模（参数量、训练数据、计算量）达到某个阈值后突然出现的能力，在小模型中不存在",
+      "essence": "涌现能力指模型规模（参数量、训练数据、计算量）达到某个阈值后突然出现的能力，在小模型中不存在。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "涌现能力指模型规模（参数量、训练数据、计算量）达到某个阈值后突然出现的能力，在小模型中不存在",
@@ -190,7 +190,7 @@
       "svg_training.svg"
     ],
     "feynman": {
-      "essence": "高质量预训练数据是大模型能力的基础",
+      "essence": "网页爬取（Common Crawl）、书籍（Books3）、代码（GitHub）、论文（arXiv）。",
       "analogy": "预训练就像上大学通识课——先在海量文本上学广泛知识成为通才，再通过专业课（微调）成为专家。",
       "key_points": [
         "数据收集：网页爬取（Common Crawl）、书籍（Books3）、代码（GitHub）、论文（arXiv）",

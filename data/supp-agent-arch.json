@@ -103,7 +103,7 @@
       "svg_react.svg"
     ],
     "feynman": {
-      "essence": "Function Calling：LLM厂商提供的原生API能力，LLM根据用户意图输出结构化函数调用",
+      "essence": "Function Calling：LLM厂商提供的原生API能力，LLM根据用户意图输出结构化函数调用。",
       "analogy": "工具调用就像给 AI 配了瑞士军刀——根据任务需要灵活选择搜索、计算、代码执行等工具，LLM 决定何时用、怎么用。",
       "key_points": [
         "定义函数schema（名称、参数、描述）",

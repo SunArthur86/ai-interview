@@ -53,7 +53,7 @@
       "两者能否混用?"
     ],
     "feynman": {
-      "essence": "- *定位差异:** | | LangChain | LlamaIndex | |--|-----------|------------| | 核心定位 | *",
+      "essence": "Document - 原始文档(PDF/HTML/Markdown)。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "LlamaIndex核心概念:",
@@ -89,7 +89,7 @@
       "DSPy能优化非英语任务吗?"
     ],
     "feynman": {
-      "essence": "- *本质区别:** | | LangChain | DSPy | |--|-----------|------| | 范式 | **命令式**(手写promp",
+      "essence": "DSPy 与 LangChain 的本质区别：LangChain 是「Prompt 模板 + 链式编排」，Prompt 手写固定；DSPy 把 Prompt 当作可优化的参数，通过「声明式签名（Signature）+ 自动编译（teleprompter）」用少量标注数据自动优化 Prompt/示例/路由，更接近「编程」而非「提示工程」，适合需要系统性优化、可复现的场景。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "DSPy vs 手写Prompt:",
@@ -125,7 +125,7 @@
       "组件如何自定义?"
     ],
     "feynman": {
-      "essence": "- *Haystack (deepset) 核心设计:Pipeline + Component** ```python # 声明式Pipeline pipeli",
+      "essence": "Haystack (deepset) 核心设计:Pipeline + Component。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Haystack (deepset) 核心设计:Pipeline + Component",
@@ -162,7 +162,7 @@
       "如何实现Human-in-the-Loop?"
     ],
     "feynman": {
-      "essence": "- *LangChain LCEL的局限:** LCEL是DAG(有向无环图),不支持: 1. **循环** - 无法实现「执行→检查→重试」循环 2. **条",
+      "essence": "LangChain 的 LCEL（LangChain Expression Language）是线性 DAG，难以表达循环、条件、状态；LangGraph 把 Agent 建模成「状态机/图」——节点是函数、边是条件跳转，原生支持循环（ReAct 的多轮）、人工介入、持久化状态、子图。当你需要 Agent 多轮推理、带记忆、需人工审批、或复杂分支循环时该用 LangGraph。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "LangChain LCEL的局限:",
@@ -197,7 +197,7 @@
       "BAML和Instructor有什么区别?"
     ],
     "feynman": {
-      "essence": "- *Instructor核心:用Pydantic模型定义输出,自动处理重试和验证** ```python import instructor from pyd",
+      "essence": "Instructor vs 原生Function Calling。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Instructor核心:用Pydantic模型定义输出,自动处理重试和验证",
@@ -233,7 +233,7 @@
       "框架会不会成为技术债?"
     ],
     "feynman": {
-      "essence": "- *选型决策矩阵:** ``` 你的需求是什么? ├─ 简单API调用 → 原生API/OpenAI SDK ├─ RAG系统 │ ├─ 快速原型 → Lla",
+      "essence": "LLM 框架选型：简单 API 调用用原生 SDK 最轻；快速 RAG 原型用 LlamaIndex（索引/检索抽象好）；复杂 Agent 编排用 LangChain（生态全）；需要可优化的 Prompt 用 DSPy（把 Prompt 当参数自动优化）；选型核心是看「你的复杂度在检索、编排还是 Prompt 优化上」。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "快速验证:原生API + 几个辅助函数",
@@ -269,7 +269,7 @@
       "如何定义自定义Grammar?"
     ],
     "feynman": {
-      "essence": "- *Outlines核心:约束解码(Constrained Decoding)** **传统方式：** LLM生成文本 → 解析 → 可能失败 **约束解码：",
+      "essence": "**Outlines核心:约束解码(Constrained Decoding)**",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Outlines核心:约束解码(Constrained Decoding)",
@@ -342,7 +342,7 @@
       "原生API如何实现重试/流式等框架功能?"
     ],
     "feynman": {
-      "essence": "- *框架开销来源:** 1. **抽象层开销** - 额外的类/函数调用 2. **序列化/反序列化** - Prompt构造/输出解析 3. **依赖膨胀*",
+      "essence": "LLM 框架的性能开销来自：抽象层调用、Prompt 构造与输出解析的序列化/反序列化、依赖膨胀、不必要的重试与回调。选型原则：简单调用用原生 SDK 最快；需要编排/记忆/工具再用框架；对延迟敏感的核心链路可绕过框架直连；并实测对比，避免「框架税」。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "抽象层开销 - 额外的类/函数调用",
@@ -376,7 +376,7 @@
       "Contextual Retrieval的摘要如何生成?"
     ],
     "feynman": {
-      "essence": "- *生产级分块策略矩阵:** | 文档类型 | 推荐策略 | chunk_size | overlap | |---------|---------|----",
+      "essence": "生产 RAG 的分块策略要兼顾语义与检索：基础用按结构/固定长度+重叠；进阶用语义分块（embedding 相似度断点）、父子分块（小块检索、大块喂模型）、层级分块（多粒度索引）、表格/代码特殊处理。关键是不切断语义、控制块大小匹配模型与检索效率，并保留元数据（标题、页码）便于溯源。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "语义分块(Semantic Chunking)",
@@ -410,7 +410,7 @@
       "RRF融合的k值如何选择?"
     ],
     "feynman": {
-      "essence": "- *查询扩展技术对比:** | 技术 | 延迟增加 | 效果提升 | 适用 | |------|---------|---------|------| | Q",
+      "essence": "查询扩展（Query Expansion）最佳实践：Multi-Query（用 LLM 生成多个子查询并行检索再融合）、HyDE（生成假设答案再检索）、子问题分解、同义词扩展；平衡效果与延迟的方法：并行执行多查询、用小模型做扩展、对扩展结果做 RRF 融合去重、并对延迟敏感场景限制扩展数量（如 3~5 个）。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Multi-Query的多个查询并行检索",
@@ -442,7 +442,7 @@
       "Rerank的候选数量如何确定?"
     ],
     "feynman": {
-      "essence": "- *Reranker选择矩阵:** | 方案 | 类型 | 延迟 | 成本 | 效果 | |------|------|------|------|-----",
+      "essence": "Reranker 选型：API Reranker（Cohere/Jina）开箱即用、效果好但有成本和延迟；自建 Reranker（基于 cross-encoder 如 bge-reranker）可控、便宜但需部署和优化。数据量大、对成本敏感、有 GPU 资源自建；快速验证或规模小用 API；通常 Reranker 用 cross-encoder 比 bi-encoder 精度高但慢，只对 Top-K（如 50~100）重排。",
       "analogy": "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。",
       "key_points": [
         "Reranker选择矩阵:",
@@ -512,7 +512,7 @@
       "增量索引如何实现?"
     ],
     "feynman": {
-      "essence": "- *10大问题与方案:** | # | 问题 | 症状 | 解决方案 | |---|------|------|---------| | 1 | 检索不准 |",
+      "essence": "生产 RAG 常见 10 类问题：① 检索质量差（→ Reranker + 查询扩展）；② 分块不合理（→ 语义/父子分块）；③ 检索不到（→ Hybrid 检索 向量+BM25）；④ 答案不引用来源（→ 强制 citation Prompt）；⑤ 幻觉（→ 拒答策略 + 置信度）；⑥ 冷启动（→ 预热缓存）；⑦ 多轮上下文丢失（→ 查询改写）；⑧ 文档更新滞后（→ 增量索引）；⑨ 多租户串数据（→ 权限过滤）；⑩ 成本高（→ 缓存 + 模型路由）。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "数据质量(分块+解析)",
@@ -546,7 +546,7 @@
       "Milvus的分片机制如何工作?"
     ],
     "feynman": {
-      "essence": "- *向量数据库对比:** | 数据库 | 类型 | 适合规模 | 部署 | 特色 | |--------|------|---------|------|--",
+      "essence": "向量数据库选型看：规模（百万 vs 十亿级）、是否需 payload 过滤、是否需混合检索（向量+BM25）、托管 vs 自建、成本。Pinecone（全托管、贵）、Milvus（开源、可扩展、十亿级、复杂）、Qdrant（开源、Rust、性能好、原生支持向量+payload+BM25）、pgvector（PostgreSQL 扩展、复用现有 DB、规模适中）、Weaviate。中小规模+需要混合检索推荐 Qdrant。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Qdrant: 原生支持(向量+payload过滤+BM25)",
@@ -650,7 +650,7 @@
       "如何切换推理引擎?"
     ],
     "feynman": {
-      "essence": "- *推理引擎对比:** | 引擎 | 开发者 | 核心技术 | 优势 | |------|--------|---------|------| | **vLL",
+      "essence": "对于有共享前缀的场景(如多轮对话/Agent),RadixAttention复用前缀KV Cache,速度更快。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "SGLang vs vLLM:",
@@ -684,7 +684,7 @@
       "Ollama如何做GPU/CPU混合推理?"
     ],
     "feynman": {
-      "essence": "- *Ollama核心设计:** 1. **一行安装,一行运行** ```bash curl -fsSL https://ollama.ai/install |",
+      "essence": "Ollama 的巧妙之处在于：① Modelfile（类似 Dockerfile）把模型、参数、系统提示统一描述，体验对标 Docker；② 基于 llama.cpp + GGUF，量化模型小、CPU/GPU 通吃；③ 模型仓库（registry）一键 pull；④ REST API 简单，生态工具多——从而成为本地 LLM 部署的事实标准。",
       "analogy": "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。",
       "key_points": [
         "Ollama核心设计:",
@@ -719,7 +719,7 @@
       "Coze的Plugin如何开发?"
     ],
     "feynman": {
-      "essence": "- *Dify vs Coze:** | | Dify | Coze(扣子) | |--|------|-------------| | 定位 | 开源LLM应",
+      "essence": "Agent模式 - ReAct/Function Calling。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Dify vs Coze:",
@@ -756,7 +756,7 @@
       "checkpoint过多如何清理?"
     ],
     "feynman": {
-      "essence": "- *LangGraph生产部署要点:** - *1. 状态持久化(Checkpointer)** 生产环境用PostgreSQL/Redis而非MemoryS",
+      "essence": "LangGraph 生产部署要点：① 状态持久化用 PostgreSQL/Redis Checkpointer（而非内存）保证重启可恢复；② 节点要做幂等与重试；③ 长任务用异步 + 任务队列；④ 状态 schema 版本化以支持灰度；⑤ 监控每个节点的耗时/失败率；⑥ 限流与超时防止 Agent 死循环烧钱。",
       "analogy": "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。",
       "key_points": [
         "LangGraph生产部署要点:",
@@ -824,7 +824,7 @@
       "如何迁移Agent框架?"
     ],
     "feynman": {
-      "essence": "- *Agent框架全景对比:** | 框架 | 设计理念 | 适合 | 学习成本 | 生产就绪 | |------|---------|------|----",
+      "essence": "全代码控制 → 简单路由用Swarm,自由协作用AutoGen,复杂状态用LangGraph。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Agent框架全景对比:",
@@ -931,7 +931,7 @@
       "DSPy自动优化如何替代手动AB测试?"
     ],
     "feynman": {
-      "essence": "- *Prompt版本管理方案:** | 方案 | 适用 | 优势 | |------|------|------| | Git + 文件 | 小团队 | 简单",
+      "essence": "Prompt 版本管理最佳实践：① 把 Prompt 当代码，纳入 Git（与代码同版本）；② 结构化（system/user/template 分离，变量化）；③ A/B 测试（定义指标：准确率、用户满意度、延迟，用功效分析定样本量）；④ 灰度发布；⑤ 评测集回归（改 Prompt 前先跑 Golden Set）；⑥ 可回滚；⑦ 记录每次变更的假设与结果。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Prompt版本管理方案:",
@@ -995,7 +995,7 @@
       "Prompt回滚机制如何设计?"
     ],
     "feynman": {
-      "essence": "- *LLMOps vs MLOps:** | | MLOps | LLMOps | |--|-------|--------| | 部署对象 | 模型权重 |",
+      "essence": "代码提交 → Lint检查 → 单元测试 → Prompt评估(评估集+LLM-as-judge) → 金丝雀发布(5%流量) → 监控指标 → 全量发布 OR 回滚。",
       "analogy": "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。",
       "key_points": [
         "LLMOps vs MLOps:",
@@ -1097,7 +1097,7 @@
       "流式输出如何做错误处理?"
     ],
     "feynman": {
-      "essence": "- *流式输出方案:** - *SSE (Server-Sent Events) - 最常用:** ``` **HTTP响应头：** Content-Type:",
+      "essence": "- SSE (Server-Sent Events) - 最常用。",
       "analogy": "流式输出就像水龙头接水——不用等整桶水接满（全部生成），边接边用（逐字输出），体验更流畅。",
       "key_points": [
         "SSE (Server-Sent Events) - 最常用:",
@@ -1170,7 +1170,7 @@
       "分区索引如何设计?"
     ],
     "feynman": {
-      "essence": "- *增量更新策略:** 1. **文档变更检测** - 文件哈希(MD5/SHA256)对比 - 修改时间戳检查 - Webhook通知(CMS集成) 2.",
+      "essence": "RAG 增量更新策略：① 文档变更检测（文件哈希/时间戳/Webhook）；② 增量嵌入（只处理变更文档，保留稳定的 doc_id）；③ 索引部分更新（向量库支持 upsert）；④ 版本化与回滚；⑤ 大规模变更时用批量重建 + 双索引切换（蓝绿）避免停服；⑥ 定期全量校验纠正漂移。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "文件哈希(MD5/SHA256)对比",
@@ -1209,7 +1209,7 @@
       "如何实现行级权限?"
     ],
     "feynman": {
-      "essence": "- *多租户隔离方案:** | 层级 | 方案 | 示例 | |------|------|------| | 数据隔离 | 租户独立的向量索引 | tenan",
+      "essence": "LLM 应用多租户隔离：① 数据隔离（每租户独立 schema/命名空间/向量分区，文档带 tenant_id 过滤）；② 权限模型（RBAC：admin/editor/viewer，文档级 ACL）；③ 资源隔离（配额、限流、独立队列）；④ Prompt/模型隔离（按租户定制）；RAG 文档级权限要在检索时按用户权限过滤，不能只靠事后过滤（会漏召回）。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "RBAC + ABAC",
@@ -1244,7 +1244,7 @@
       "评估数据集如何构建?"
     ],
     "feynman": {
-      "essence": "- *LLM评估三层体系:** - *1. 单元测试(函数级)** - Prompt格式验证 - JSON Schema验证 - 工具参数合法性 - *2. 集",
+      "essence": "**LLM评估三层体系:**\n\n- **1. 单元测试(函数级)**\n- Prompt格式验证\n- JSON Schema验证\n- 工具参数合法性\n\n- **2. 集成测试(端到端)**\n- 评估数据集(100-1000样本)\n- 人工标注金标准\n- 自动化批量测试\n\n- **3. 线上监控(实时)**\n- 用户反馈(赞/踩)\n-。",
       "analogy": "AI 评测体系就像学校的考试系统——Golden Set 是标准试题，LLM-as-Judge 是 AI 老师自动阅卷，持续监测模型质量。",
       "key_points": [
         "1. 单元测试(函数级)",
@@ -1279,7 +1279,7 @@
       "如何评估是否需要微调?"
     ],
     "feynman": {
-      "essence": "- *RAG vs 微调决策矩阵:** | 维度 | RAG | 微调 | |------|-----|------| | 知识更新 | **实时** | 需重",
+      "essence": "选 RAG 还是微调：知识频繁变化、需要可溯源用 RAG（改知识库即可）；改变模型风格/格式/能力、知识相对稳定用微调。二者结合最优：微调教模型「怎么答」（格式、风格、领域推理能力），RAG 提供「答什么」（最新事实知识），先微调打底再 RAG 补实时信息。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "RAG vs 微调决策矩阵:",
@@ -1348,7 +1348,7 @@
       "Q4_K_M和Q4_0有什么区别?"
     ],
     "feynman": {
-      "essence": "- *量化方案对比:** | 方案 | 类型 | 精度损失 | 推理框架 | 适用 | |------|------|---------|---------|-",
+      "essence": "AWQ (Activation-aware Weight Quantization)。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "GGUF (llama.cpp)",
@@ -1382,7 +1382,7 @@
       "Continuous Batching如何工作?"
     ],
     "feynman": {
-      "essence": "- *PagedAttention:受OS虚拟内存启发的KV Cache管理** - *传统KV Cache问题:** - 每个请求预分配连续内存 - 实际使用",
+      "essence": "**PagedAttention:受OS虚拟内存启发的KV Cache管理**",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "PagedAttention:受OS虚拟内存启发的KV Cache管理",
@@ -1451,7 +1451,7 @@
       "健康检查如何设计?"
     ],
     "feynman": {
-      "essence": "- *高可用架构设计:** - *1. 多供应商冗余** ``` 用户请求 → API网关 ├─ 主供应商(OpenAI) ← 健康检查 ├─ 备供应商(Ant",
+      "essence": "LLM 应用高可用架构：① 多供应商 failover（主用 OpenAI，异常切 Claude/国产）；② 重试 + 退避 + 熔断；③ 降级（大模型→小模型→规则/缓存）；④ 缓存兜底（语义缓存）；⑤ 异步队列削峰；⑥ 健康检查与流量切换；⑦ 监控 P99 延迟、错误率、配额，提前告警；目标是 LLM API 不稳时仍能返回可用结果。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "API全部不可用时返回缓存",
@@ -1556,7 +1556,7 @@
       "如何处理超长PDF?"
     ],
     "feynman": {
-      "essence": "- *多模态Agent架构:** - *输入处理Pipeline:** ``` 多模态输入 → 类型路由 ├─ 文本 → 直接进入LLM ├─ 图片 → VLM",
+      "essence": "使用Unstructured.io解析PDF/DOCX/PPT。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "多模态Agent架构:",
@@ -1591,7 +1591,7 @@
       "如何处理多变量测试?"
     ],
     "feynman": {
-      "essence": "- *A/B测试设计:** - *1. 定义指标** - 主指标:任务成功率 / 用户满意度 / 准确率 - 辅助指标:延迟 / 成本 / Token消耗 -",
+      "essence": "LLM 应用 A/B 测试：① 明确指标（任务成功率、准确率、用户满意度、延迟、成本）；② 随机分流（按用户/请求哈希，保证组间可比）；③ 样本量（用功效分析算最小样本，避免假显著）；④ 同期对照（避免时间偏差）；⑤ 多重比较校正；⑥ 不仅看均值还要看分布（长尾）；统计显著性用 t 检验/卡方，效应量看 Cohen d。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "主指标:任务成功率 / 用户满意度 / 准确率",
@@ -1659,7 +1659,7 @@
       "如何评估长上下文的Lost-in-the-Middle?"
     ],
     "feynman": {
-      "essence": "- *长上下文 vs RAG:** | 维度 | 长上下文(128K-1M) | RAG | |------|------------------|-----|",
+      "essence": "128K 长上下文不会取代 RAG，而是融合使用：长上下文适合「单次大量文档分析」（如读整份合同），但成本高、中间易遗忘、无法覆盖超大规模知识库；RAG 适合「海量知识精准检索」、可溯源、成本低。融合方案：RAG 先检索相关片段，长上下文模型再深度理解这些片段，兼顾成本、精度、可扩展性。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "长上下文 vs RAG:",
@@ -1725,7 +1725,7 @@
       "团队需要什么样的人才?"
     ],
     "feynman": {
-      "essence": "- *生产级LLM应用路线图(7阶段):** - *阶段1:验证(1-2周)** - 明确场景和成功指标 - 用Prompt+原生API做原型 - 10-50个",
+      "essence": "生产级 LLM 应用从 0 到 1 的路线图：① 需求定义（场景、成功指标）；② PoC（验证可行性，用最强模型）；③ 数据准备（Golden Set、评测集）；④ Prompt 工程 + RAG/工具；⑤ 评测体系（离线 Golden Set + LLM-as-Judge）；⑥ 成本/延迟优化（模型路由、缓存、量化）；⑦ 生产化（监控、版本管理、灰度、合规）；每步都靠评测驱动，避免拍脑袋。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "生产级LLM应用路线图(7阶段):",
@@ -1792,7 +1792,7 @@
       "Agent Loop 如何防止无限循环?"
     ],
     "feynman": {
-      "essence": "- *Claude Code** 是 Anthropic 推出的 CLI AI 编程助手,其架构是现代 Agent 设计的参考标杆. - *核心架构:** -",
+      "essence": "**Claude Code** 是 Anthropic 推出的 CLI AI 编程助手,其架构是现代 Agent 设计的参考标杆.",
       "analogy": "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整。",
       "key_points": [
         "Claude Code 是 Anthropic 推出的 CLI AI 编程助手,其架构是现代 Agent 设计的参考标杆.",
@@ -1996,7 +1996,7 @@
       "如何做模型量化部署?"
     ],
     "feynman": {
-      "essence": "- *主流推理框架对比** | 框架 | 特点 | 适合场景 | |------|------|--------| | **vLLM** | PagedAtte",
+      "essence": "NVIDIA 环境 + 极致性能:TensorRT-LLM。",
       "analogy": "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。",
       "key_points": [
         "个人/开发:Ollama",
@@ -2028,7 +2028,7 @@
       "LangSmith 的 Trace 包含哪些信息?"
     ],
     "feynman": {
-      "essence": "- *LLM 监控的独特维度** 传统 Web:CPU/内存/QPS/延迟 LLM 应用还需要: 1. **Token 消耗**:每次请求消耗的 token 数",
+      "essence": "**LLM 监控的独特维度**\n\n传统 Web:CPU/内存/QPS/延迟\nLLM 应用还需要:\n\n1. **Token 消耗**:每次请求消耗的 token 数(直接关联成本)\n2. **质量指标**:幻觉率、回答相关性。",
       "analogy": "Agent 可观测性就像飞机的黑匣子——记录每一次思考（Thought）、行动（Action）、观察（Observation），出问题时能回放完整链路定位根因。",
       "key_points": [
         "LLM 监控的独特维度",
@@ -2060,7 +2060,7 @@
       "如何评估该用 API 还是自部署?"
     ],
     "feynman": {
-      "essence": "- *Token 成本控制策略** 1. **模型路由**:简单问题用小模型(GPT-3.5),复杂问题用大模型(GPT-4) 2. **语义缓存**:相同/相",
+      "essence": "控制 Token 成本的策略：① 模型路由（简单问题小模型、复杂问题大模型）；② 语义缓存（相同/相似问题直接返回缓存）；③ Prompt 精简与压缩；④ 分块与检索只塞相关片段；⑤ 批处理（Batch API 半价）；⑥ 监控与预算告警按租户/功能维度计量。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "Token 成本控制策略",
@@ -2095,7 +2095,7 @@
       "量化后如何恢复质量?"
     ],
     "feynman": {
-      "essence": "- *量化** 将模型权重从 FP16(16位浮点)压缩到更低位(INT8/INT4),减少显存和加速推理. | 精度 | 每参数 | 7B 模型大小 | 质量",
+      "essence": "**量化** 将模型权重从 FP16(16位浮点)压缩到更低位(INT8/INT4),减少显存和加速推理.",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "量化 将模型权重从 FP16(16位浮点)压缩到更低位(INT8/INT4),减少显存和加速推理.",
@@ -2164,7 +2164,7 @@
       "连续批处理如何处理不同长度的请求?"
     ],
     "feynman": {
-      "essence": "- *vLLM 的两大核心创新** - *问题背景** 传统推理(HuggingFace Transformers)的问题: 1. 每个 KV Cache 预分",
+      "essence": "vLLM 的 PagedAttention 把 KV Cache 按固定大小的 block（页）管理（类似 OS 虚拟内存的分页），消除显存碎片和预分配浪费；连续批处理（continuous batching）则在每次迭代动态把新请求加入、已完成的移出，配合 PagedAttention 让多个变长请求高效共享 GPU，大幅提升吞吐。",
       "analogy": "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。",
       "key_points": [
         "vLLM 的两大核心创新",
@@ -2201,7 +2201,7 @@
       "如何避免降级雪崩?"
     ],
     "feynman": {
-      "essence": "- *多模型网关架构** ``` 用户请求 → 路由决策(基于 query 复杂度/成本/延迟) → 模型调用(GPT-4 / Claude / GLM / 本",
+      "essence": "Token 预算 < 500 → 小模型,> 2000 → 大模型。",
       "analogy": "熔断就像保险丝——电流过大自动跳闸保护电器，过一会自动恢复（半开探测）。",
       "key_points": [
         "规则路由:代码问题 → Code模型,简单FAQ → 小模型",
@@ -2236,7 +2236,7 @@
       "语义缓存如何做 A/B 测试?"
     ],
     "feynman": {
-      "essence": "- *语义缓存** 不做精确匹配,而是基于**语义相似度**判断是否命中缓存. - *普通缓存 vs 语义缓存** | 维度 | 普通缓存 | 语义缓存 | |",
+      "essence": "**语义缓存** 不做精确匹配,而是基于**语义相似度**判断是否命中缓存.",
       "analogy": "语义缓存就像客服知识库——相似的问题不用每次重新查（LLM推理），直接从历史回答中找最相似的复用，省钱又快。",
       "key_points": [
         "语义缓存 不做精确匹配,而是基于语义相似度判断是否命中缓存.",

@@ -46,7 +46,7 @@
       "Function Calling 和 ReAct 哪个幻觉率更低?"
     ],
     "feynman": {
-      "essence": "- *幻觉式工具调用**指 LLM 调用不存在的工具、传递错误参数、或在不该调用工具时调用. - *常见原因** 1. **工具描述模糊**:LLM 不理解何时",
+      "essence": "Agent 幻觉式工具调用指 LLM 调用不存在的工具、填错参数、或不该调时调用；成因是工具描述不清、上下文不足、模型能力不够、训练数据偏置。缓解方法：① 把工具 schema 写清楚并加约束；② 用 Function Calling 强制结构化输出；③ 参数校验 + 自反思重试；④ few-shot 示例；⑤ 限制可选工具数。",
       "analogy": "控制幻觉就像给 AI 装事实核查员——通过 RAG 引用来源、设置置信度阈值、多路验证，减少一本正经的胡说八道。",
       "key_points": [
         "幻觉式工具调用指 LLM 调用不存在的工具、传递错误参数、或在不该调用工具时调用.",
@@ -143,7 +143,7 @@
       "LATS 的成本如何控制?"
     ],
     "feynman": {
-      "essence": "- *LATS (Language Agent Tree Search)** 将蒙特卡洛树搜索 (MCTS) 与 LLM Agent 结合,通过系统性探索多条路",
+      "essence": "LATS（Language Agent Tree Search）把 MCTS 引入 Agent：每一步不再是单条 Thought-Action，而是展开一棵搜索树，用 LLM 自评估做价值估计、UCB 选择扩展节点、回溯更新价值，从而系统性探索多条路径；比 ReAct 的线性「走错就错」强在能探索多个方案并择优，代价是 token 消耗大。",
       "analogy": "ReAct 框架就像「边想边做」的工作方式——先思考（Thought）→ 行动（Action）→ 观察（Observation）→ 再思考，循环往复直到完成。",
       "key_points": [
         "LATS (Language Agent Tree Search) 将蒙特卡洛树搜索 (MCTS) 与 LLM Agent 结合,通过系统性探索多条路径来提升决策质量.",
@@ -181,7 +181,7 @@
       "LangGraph 如何实现条件分支?"
     ],
     "feynman": {
-      "essence": "- *三种编排范式深度对比** - *1. 状态机 (State Machine)** - 适用:明确的有限状态集 + 状态转换规则 - 优势:可枚举所有合法状",
+      "essence": "**三种编排范式深度对比**\n\n- **1. 状态机 (State Machine)**\n- 适用:明确的有限状态集 + 状态转换规则\n- 优势:可枚举所有合法状态,便于 debug 和异常处理\n- 劣势:状态爆炸(状态数随业务复杂度指数增长)\n- 框架:LangGraph (StateGraph)\n- 适合:对话管理。",
       "analogy": "LangGraph 就像状态机工厂——用图（Graph）定义 Agent 的流转逻辑，节点是处理步骤，边是条件跳转，状态在节点间传递。",
       "key_points": [
         "1. 状态机 (State Machine)",
@@ -216,7 +216,7 @@
       "如何评估 MemGPT 的记忆效果?"
     ],
     "feynman": {
-      "essence": "- *MemGPT** 借鉴操作系统的虚拟内存管理来设计 Agent 记忆. - *OS 启发** - RAM(内存)= 上下文窗口(有限) - Disk(硬盘",
+      "essence": "MemGPT 借鉴 OS 的虚拟内存管理设计 Agent 记忆：把上下文窗口当 RAM（有限）、外部存储当 Disk，用 OS 式的「分页」在上下文与外部存储间换入换出（main context ↔ external storage），并由 LLM 自己决定何时 evict/recall；与简单 RAG 的本质区别是「主动内存管理 + OS 抽象」而非被动检索。",
       "analogy": "Agent 记忆就像人的记忆——短期记忆是当前对话，长期记忆是过去经验。",
       "key_points": [
         "MemGPT 借鉴操作系统的虚拟内存管理来设计 Agent 记忆.",
@@ -283,7 +283,7 @@
       "多Agent系统如何做评估?"
     ],
     "feynman": {
-      "essence": "- *三大多Agent框架深度对比** - *1. AutoGen (Microsoft)** - 核心抽象:**Agent = 可对话实体** - 模式:对话",
+      "essence": "三大多 Agent 框架的差异：AutoGen（微软）核心是「可对话的 Agent」，强调多角色对话协作；MetaGPT 用「SOP（标准作业流程）+ 角色分工」模拟软件团队，强结构化产出；CrewAI 强调「Crew + Role + Task」的顺序/并行编排，API 简单。选型：要灵活对话选 AutoGen，要结构化流水线选 MetaGPT，要轻量易用选 CrewAI。",
       "analogy": "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整，核心是「感知→规划→行动→反思」循环。",
       "key_points": [
         "三大多Agent框架深度对比",

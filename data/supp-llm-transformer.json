@@ -42,7 +42,7 @@
       "svg_kvcache.svg"
     ],
     "feynman": {
-      "essence": "KV Cache是Transformer自回归推理的关键优化",
+      "essence": "KV Cache是Transformer自回归推理的关键优化。",
       "analogy": "语义缓存就像客服知识库——相似的问题不用每次重新查（LLM推理），直接从历史回答中找最相似的复用，省钱又快。",
       "key_points": [
         "KV Cache是Transformer自回归推理的关键优化",
@@ -100,7 +100,7 @@
     "follow_up": [],
     "images": [],
     "feynman": {
-      "essence": "RoPE（Rotary Position Embedding）通过旋转矩阵将位置信息编码到Q和K中",
+      "essence": "RoPE（Rotary Position Embedding）通过旋转矩阵将位置信息编码到Q和K中。",
       "analogy": "RoPE 就像时钟指针——不同位置用不同角度旋转，相对位置就是两根指针的角度差，天然编码了「距离」信息。",
       "key_points": [
         "RoPE（Rotary Position Embedding）通过旋转矩阵将位置信息编码到Q和K中",
@@ -160,7 +160,7 @@
       "svg_transformer.svg"
     ],
     "feynman": {
-      "essence": "SwiGLU（Swish-Gated Linear Unit）= Swish(xW) × (xV)，是GLU（Gated Linear Unit）的变体",
+      "essence": "SwiGLU（Swish-Gated Linear Unit）= Swish(xW) × (xV)，是GLU（Gated Linear Unit）的变体。",
       "analogy": "SwiGLU 就像带门控的通道——先线性变换提取特征，再用门控控制信息流量（Swish激活），比 ReLU 的硬开关更平滑，梯度流动更好。",
       "key_points": [
         "SwiGLU（Swish-Gated Linear Unit）= Swish(xW) × (xV)，是GLU（Gated Linear Unit）的变体",
@@ -190,7 +190,7 @@
       "svg_transformer.svg"
     ],
     "feynman": {
-      "essence": "LayerNorm：对每个样本在所有特征维度上做归一化",
+      "essence": "RMSNorm（Root Mean Square Normalization）：去掉中心化（减均值）步骤，只做缩放。",
       "analogy": "归一化就像统一度量衡——把不同量级的数据拉到同一尺度，让训练更稳定、梯度流动更顺畅。",
       "key_points": [
         "LayerNorm：对每个样本在所有特征维度上做归一化",
@@ -310,7 +310,7 @@
       "svg_kvcache.svg"
     ],
     "feynman": {
-      "essence": "投机采样用一个小模型（Draft Model）快速生成候选token，大模型（Target Model）并行验证",
+      "essence": "投机采样用一个小模型（Draft Model）快速生成候选token，大模型（Target Model）并行验证。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "小模型自回归生成k个候选token（速度快）",

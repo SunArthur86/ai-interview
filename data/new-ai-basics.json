@@ -14,7 +14,7 @@
       "XLNet 的排列语言模型原理是什么?"
     ],
     "feynman": {
-      "essence": "- *BERT 的 MLM 不满足独立性假设**. **问题：** BERT 同时 mask 15% 的 token,这些被 mask 的 token 的预测是",
+      "essence": "BERT 同时 mask 15% 的 token,这些被 mask 的 token 的预测是并行独立的,即模型不利用被 mask token 之间的关系.。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "BERT 的 MLM 不满足独立性假设.",
@@ -151,7 +151,7 @@
       "Transformer 为什么能统一各种任务?"
     ],
     "feynman": {
-      "essence": "- *包含关系** ``` 机器学习 (ML) └─ 深度学习 (DL) └─ 大语言模型 (LLM) ``` - *机器学习**:从数据中学习规律(决策树、S",
+      "essence": "用多层神经网络学习特征表示(CNN、RNN、Transformer)。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "机器学习:从数据中学习规律(决策树、SVM、线性回归)",

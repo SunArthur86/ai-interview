@@ -88,7 +88,7 @@
     "question": "DeepSeek-V3的架构有哪些创新？为什么成本低但性能顶级？",
     "answer": "🎯 本质：DeepSeek-V3是671B参数的MoE模型，通过MLA+DeepSeekMoE+FP8训练实现极致性价比。\n\n📊 核心创新：\n\n1. Multi-Head Latent Attention (MLA)\n  替代MHA，通过低秩压缩减少KV Cache\n  将KV Cache压缩到1/4~1/8（比GQA更激进）\n  原理：高维KV投影到低维潜空间，推理时恢复\n\n2. DeepSeekMoE架构\n  256个路由专家 + 1个共享专家，每次激活8个\n  细粒度专家分配：每个专家更小但更专注\n  共享专家：始终激活，承载通用知识\n  无辅助损失的负载均衡：用偏置项调整而非loss惩罚\n\n3. Multi-Token Prediction (MTP)\n  一次预测多个token\n  训练时提升数据效率\n  推理时可做投机解码\n\n4. FP8训练\n  首次在大规模训练中全面使用FP8精度\n  总训练成本约557万美元（2048张H800，2个月）\n  仅为Llama 3 405B训练成本的1/11\n\n性能对比：\n| 模型 | 总参数 | 激活参数 | 训练成本 | 性能 |\n|------|--------|---------|---------|------|\n| DeepSeek-V3 | 671B | 37B | $5.57M | 接近GPT-4o |\n| Llama 3 405B | 405B | 405B | ~$60M+ | 略逊于V3 |\n\n为什么成本低：MoE架构(37B激活vs 405B)、FP8训练、高效数据配比、无需RLHF(GRPO直接训练推理能力)",
     "feynman": {
-      "essence": "🎯 本质：DeepSeek-V3是671B参数的MoE模型，通过MLA+DeepSeekMoE+FP8训练实现极致性价比",
+      "essence": "🎯 本质：DeepSeek-V3是671B参数的MoE模型，通过MLA+DeepSeekMoE+FP8训练实现极致性价比。",
       "analogy": "Agent 成本管控就像家庭理财——跟踪每笔支出（Token消耗），区分必需消费和浪费（缓存命中/模型路由优化），在预算内最大化效果。",
       "key_points": [
         "Multi-Head Latent Attention (MLA)",
@@ -144,7 +144,7 @@
     "question": "LLM推理中有哪些关键加速技术？vLLM的核心原理是什么？",
     "answer": "🎯 本质：LLM推理优化核心是最大化GPU利用率，主要围绕KV Cache管理、批处理和计算优化。\n\n📊 核心优化技术：\n\n1. Continuous Batching（连续批处理）\n  传统：一个batch中短请求等长请求\n  连续：每个iteration级动态调度，新请求随时加入，完成的随时离开\n  效果：吞吐量提升5-10倍\n\n2. PagedAttention（vLLM核心）\n  问题：传统KV Cache预分配最大长度，大量浪费\n  方案：借鉴OS虚拟内存，KV Cache分为固定大小block，按需分配\n  效果：显存利用率从20-40%提升到80-96%\n\n3. Prefix Caching\n  多请求共享相同前缀(system prompt)的KV Cache\n  效果：TTFT(首token延迟)降低50-90%\n\n4. Flash Attention\n  优化Attention计算的GPU内存访问模式\n  减少HBM读写次数，不改数学结果\n\n5. Tensor Parallelism\n  模型权重矩阵切分到多GPU\n  适合大模型单机多卡推理\n\nvLLM vs TensorRT-LLM：\n| 特性 | vLLM | TensorRT-LLM |\n|------|------|-------------|\n| 来源 | UC Berkeley | NVIDIA |\n| 易用性 | 高(pip install) | 中(需编译) |\n| 灵活性 | 高(支持多数模型) | 中 |\n| 性能 | 很高 | 最高(NVIDIA深度优化) |\n| PagedAttention | 原创 | 支持 |\n\n其他推理框架：llama.cpp(CPU/边缘)、TGI(HuggingFace)、SGLang(结构化生成)",
     "feynman": {
-      "essence": "🎯 本质：LLM推理优化核心是最大化GPU利用率，主要围绕KV Cache管理、批处理和计算优化",
+      "essence": "🎯 本质：LLM推理优化核心是最大化GPU利用率，主要围绕KV Cache管理、批处理和计算优化。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "Continuous Batching（连续批处理）",
@@ -172,7 +172,7 @@
     "question": "什么是LLM的幻觉(Hallucination)问题？有哪些缓解方案？",
     "answer": "🎯 本质：幻觉是指LLM生成看似合理但事实上不正确的内容。分为事实性幻觉（与客观事实不符）和忠实性幻觉（与输入/上下文不符）。\n\n📊 幻觉产生原因：\n1. 训练数据包含错误信息、统计偏差、知识过时\n2. 自回归生成基于概率采样，可能偏离事实\n3. 长尾知识分布不均\n4. 高温度采样引入随机性\n\n缓解方案：\n\n1. RAG（检索增强生成）——最有效\n  提供外部知识源，模型基于检索到的真实文档生成答案\n  减少对模型内部记忆的依赖\n\n2. 对齐训练\n  RLHF/DPO：训练模型在不确定时承认不知道\n  Constitutional AI：模型自我审查输出\n\n3. 解码策略优化\n  降低temperature（事实性任务用0-0.3）\n  Contrastive Search：对比搜索\n  对比不同层的输出（DoLa）\n\n4. 后处理验证\n  Self-Check：模型自我检查事实准确性\n  External Verification：用知识库验证关键事实\n  FActScore：细粒度事实评估\n\n5. 架构改进\n  多模态输入辅助验证\n  Tool Use：让模型调用搜索引擎/计算器\n  内置安全检查\n\n6. Prompt工程\n  明确要求引用来源\n  要求标注不确定性\n  分步推理(CoT)减少跳步错误",
     "feynman": {
-      "essence": "🎯 本质：幻觉是指LLM生成看似合理但事实上不正确的内容",
+      "essence": "幻觉是指LLM生成看似合理但事实上不正确的内容。分为事实性幻觉（与客观事实不符）和忠实性幻觉（与输入/上下文不符）。。",
       "analogy": "控制幻觉就像给 AI 装事实核查员——通过 RAG 引用来源、设置置信度阈值、多路验证，减少一本正经的胡说八道。",
       "key_points": [
         "🎯 本质：幻觉是指LLM生成看似合理但事实上不正确的内容",
@@ -228,7 +228,7 @@
     "question": "什么是LLM的涌现能力(Emergent Abilities)？",
     "answer": "🎯 本质：涌现能力是指模型规模达到某个临界点后，某些能力突然出现或大幅提升的现象。\n\n📊 典型的涌现能力：\n1. In-Context Learning（上下文学习）：GPT-3(175B)开始展现强大的few-shot学习\n2. Chain-of-Thought（思维链）：约60B参数以上的模型用CoT才能提升\n3. 指令遵循：中大模型可以准确遵循复杂指令\n4. 数学推理：大模型可解决GSM8K等数学问题\n5. 代码生成：大模型可以生成完整程序\n\n理论解释：\n1. 量化错觉（Schaeffer 2023）：涌现可能只是离散评估指标的假象，用连续指标看是平滑提升\n2. 组合泛化：大模型学到更多子任务组合，需要足够多子任务同时正确才能完成复杂任务\n3. 顿悟(Grokking)：训练后期模型突然理解了某些模式\n\n面试要点：涌现能力是scaling law的体现，但不是魔法，是统计学习的自然结果。争议在于是否是评估指标的假象。",
     "feynman": {
-      "essence": "🎯 本质：涌现能力是指模型规模达到某个临界点后，某些能力突然出现或大幅提升的现象",
+      "essence": "🎯 本质：涌现能力是指模型规模达到某个临界点后，某些能力突然出现或大幅提升的现象。",
       "analogy": "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。",
       "key_points": [
         "In-Context Learning（上下文学习）：GPT-3(175B)开始展现强大的few-shot学习",

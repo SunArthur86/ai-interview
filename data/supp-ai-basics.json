@@ -74,7 +74,7 @@
       "svg_training.svg"
     ],
     "feynman": {
-      "essence": "过拟合：模型在训练集表现好但泛化差",
+      "essence": "过拟合指模型在训练集上表现很好但在测试集/新数据上泛化差，本质是模型把训练数据的噪声也「记住了」。防止方法：① 增加数据量与数据增强；② 正则化（L1/L2、Dropout）；③ 早停（Early Stopping）；④ 降低模型复杂度；⑤ Batch Normalization；⑥ 交叉验证选模型。",
       "analogy": "Batch Size 就像大巴车座位数——太少跑得频繁效率低，太多转弯难（内存不够）。",
       "key_points": [
         "数据增强：翻转、裁剪、Mixup",
@@ -103,7 +103,7 @@
     "follow_up": [],
     "images": [],
     "feynman": {
-      "essence": "BatchNorm：在batch维度上归一化",
+      "essence": "BatchNorm依赖batch size，LLM训练batch size可能很小。",
       "analogy": "归一化就像统一度量衡——把不同量级的数据拉到同一尺度，让训练更稳定、梯度流动更顺畅。",
       "key_points": [
         "BatchNorm：在batch维度上归一化",

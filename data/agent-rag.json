@@ -14,7 +14,7 @@
       "索引失效的场景有哪些？"
     ],
     "feynman": {
-      "essence": "**离线：** 解析→清洗→分块→嵌入→建索引;在线:Query(可选改写)→检索→(可选重排) →拼 Prompt→生成.追问:增量更新怎么做?(见 10.3",
+      "essence": "RAG 两步流水线：离线阶段做 解析→清洗→分块→嵌入→建索引（把知识库预处理成可检索的向量）；在线阶段做 Query（可选改写）→检索→（可选重排）→拼 Prompt→生成；增量更新通过文档哈希/时间戳检测变更，只重建变更部分。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "**离线：** 解析→清洗→分块→嵌入→建索引",
@@ -40,9 +40,7 @@
     "tags": [],
     "question": "RAG 与微调如何配合",
     "answer": "微调改善 格式与领域表达,RAG 提供 可更新事实;事实类优先 RAG.追问:何时单独微\n调?(数据稳定且任务行为化)",
-    "follow_up": [
-      "面试官追问方向请结合实际项目经验展开"
-    ],
+    "follow_up": [],
     "feynman": {
       "essence": "微调改善 格式与领域表达,RAG 提供 可更新事实;事实类优先 RAG.追问:何时单独微 调?(数据稳定且任务行为化)",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
@@ -74,10 +72,8 @@
       "Elasticsearch"
     ],
     "question": "多模态 RAG 要点",
-    "answer": "图像/表格编码、跨模态对齐、与文本混合索引与路由.\n**附录：** LangChain 向量存储检索(LCEL 示意)\n# pip install langchain langchain-openai langchain-community faiss-cpu\nfrom langchain_community.vectorstores import FAISS\nfrom langchain_openai import OpenAIEmbeddings\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\nfrom langchain_core.documents import Document\ndocs = [Document(page_content=\"公司年假15天,需提前申请.\")]\nsplitter = RecursiveCharacterTextSplitter(chunk_size=200,\nchunk_overlap=20)\nchunks = splitter.split_documents(docs)\nemb = OpenAIEmbeddings(model=\"text-embedding-3-small\")\nvs = FAISS.from_documents(chunks, emb)\nretriever = vs.as_retriever(search_kwargs={\"k\": 2})\nfound = retriever.invoke(\"年假天数\")\nprint(found)\npython\n\n81\n小结\nRAG 的本质是 用检索把「可更新证据」接到生成模型上;落地胜负手常在 解析与分块、混合检\n索、重排、评估与多租户安全.建议你在简历项目里准备 一条可量化指标(如:Top-5 召回提\n升、成本下降比例)与 一次失败案例分析(检索错还是生成胡编),面试会非常有说服力.\n\n82\n04 工具调用(Tool / Function Calling)\n面向初学者的 AI Agent「工具调用」面试八股文:从 Function Calling、Tool 设计,到\nMCP、路由与编排,再到安全与常见实现.",
-    "follow_up": [
-      "面试官追问方向请结合实际项目经验展开"
-    ],
+    "answer": "图像/表格编码、跨模态对齐、与文本混合索引与路由.\n**附录：** LangChain 向量存储检索(LCEL 示意)\n# pip install langchain langchain-openai langchain-community faiss-cpu\nfrom langchain_community.vectorstores import FAISS\nfrom langchain_openai import OpenAIEmbeddings\nfrom langchain_text_splitters import RecursiveCharacterTextSplitter\nfrom langchain_core.documents import Document\ndocs = [Document(page_content=\"公司年假15天,需提前申请.\")]\nsplitter = RecursiveCharacterTextSplitter(chunk_size=200,\nchunk_overlap=20)\nchunks = splitter.split_documents(docs)\nemb = OpenAIEmbeddings(model=\"text-embedding-3-small\")\nvs = FAISS.from_documents(chunks, emb)\nretriever = vs.as_retriever(search_kwargs={\"k\": 2})\nfound = retriever.invoke(\"年假天数\")\nprint(found)\npython\n\n小结\nRAG 的本质是 用检索把「可更新证据」接到生成模型上;落地胜负手常在 解析与分块、混合检\n索、重排、评估与多租户安全.建议你在简历项目里准备 一条可量化指标(如:Top-5 召回提\n升、成本下降比例)与 一次失败案例分析(检索错还是生成胡编),面试会非常有说服力.\n\n04 工具调用(Tool / Function Calling)\n面向初学者的 AI Agent「工具调用」面试八股文:从 Function Calling、Tool 设计,到\nMCP、路由与编排,再到安全与常见实现.",
+    "follow_up": [],
     "feynman": {
       "essence": "图像/表格编码、跨模态对齐、与文本混合索引与路由. **附录：** LangChain 向量存储检索(LCEL 示意) # pip install langch",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
@@ -146,7 +142,7 @@
       "FAISS如何做GPU加速?"
     ],
     "feynman": {
-      "essence": "- *FAISS索引类型对比:** | | IndexFlatIP | IndexHNSW | |--|------------|-----------| |",
+      "essence": "FAISS 中 IndexFlatIP 是暴力内积搜索（精确、无参数、慢、O(n)），IndexHNSW 基于分层小世界图近似搜索（快、有精度损失、需建图、可控参）；数据量小（<10万）或要求精确用 FlatIP，数据量大且接受少量精度损失用 HNSW（M 控制连接数，越大越精确越耗内存）。",
       "analogy": "数据库索引就像书的目录——没目录要逐页翻（全表扫描），有目录直接跳到对应页，但目录也占空间。",
       "key_points": [
         "FAISS索引类型对比:",
@@ -180,7 +176,7 @@
       "除了MMR还有什么去重方法?"
     ],
     "feynman": {
-      "essence": "- *MMR 目标:** 在相关性和多样性之间做平衡,避免返回高度相似的多个结果. - *公式:** ``` MMR = argmax [ λ × Sim(d,",
+      "essence": "MMR 的 λ 在「相关性」和「多样性」之间做权衡：λ=1 完全按相关性排（可能返回一堆相似结果），λ=0 完全去重；通常取 0.5~0.7 既保证相关又避免冗余。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "MMR 目标: 在相关性和多样性之间做平衡,避免返回高度相似的多个结果.",
@@ -212,7 +208,7 @@
       "RRF的数学推导是什么?"
     ],
     "feynman": {
-      "essence": "- *RRF原理:** ``` RRF_score(d) = Σ 1 / (k + rank_i(d)) k通常取60 rank_i(d): 文档d在第i个检索",
+      "essence": "RRF（倒数排名融合）比加权分数融合更鲁棒，因为：① 只用排名不用分数，不受不同检索器分数量纲影响（BM25 与向量相似度量级完全不同）；② 公式简单 RRF(d)=Σ 1/(k+rank_i(d))，k 通常取 60；③ 对异常分不敏感，无需调权重。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "为什么比加权分数更鲁棒:",
@@ -315,7 +311,7 @@
       "不同归一化方式对结果的影响?"
     ],
     "feynman": {
-      "essence": "- *归一化的影响:** - *归一化前:** 向量的长度(模长)不固定,余弦相似度需要除以两个向量的模长. - *归一化后:** 所有向量长度=1,余弦相似度",
+      "essence": "**归一化的影响:**\n\n- **归一化前:** 向量的长度(模长)不固定,余弦相似度需要除以两个向量的模长.\n\n- **归一化后:** 所有向量长度=1,余弦相似度 = 点积(Dot Product).\n\n- **好处:**\n1. **计算更快** - 点积比余弦相似度少了两次开方和一次除法\n2. **精度更高** - 浮点运算步骤减少\n3.。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "归一化前: 向量的长度(模长)不固定,余弦相似度需要除以两个向量的模长.",
@@ -611,7 +607,7 @@
       "向量数据库需要支持事务吗?"
     ],
     "feynman": {
-      "essence": "**主流向量数据库对比：** - *Milvus:** - 开源,支持私有化部署 - 支持十亿级向量 - 索引算法丰富(IVF、HNSW、DiskANN) -",
+      "essence": "**主流向量数据库对比：** \n\n- **Milvus:**\n- 开源,支持私有化部署\n- 支持十亿级向量\n- 索引算法丰富(IVF、HNSW。",
       "analogy": "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。",
       "key_points": [
         "索引算法丰富(IVF、HNSW、DiskANN)",
