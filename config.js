@@ -30,11 +30,11 @@ const APP_CONFIG = {
   // ===== Categories =====
   categories: {
     'all':          { label: '全部', icon: '📚', color: '#0071e3', files: null },
-    'llm-core':     { label: 'LLM 核心', icon: '🔥', color: '#ff3b30', files: ['data/llm-100.json', 'data/llm-notes.json', 'data/new-llm-core.json', 'data/supp-llm-transformer.json', 'data/supp-llm-training.json', 'data/supp-llm-frontier.json', 'data/supp-llm-advanced.json', 'data/supp-finetuning.json'] },
+    'llm-core':     { label: 'LLM 核心', icon: '🔥', color: '#ff3b30', files: ['data/llm-100.json', 'data/llm-notes.json', 'data/new-llm-core.json', 'data/supp-llm-transformer.json', 'data/supp-llm-training.json', 'data/supp-llm-frontier.json', 'data/supp-llm-advanced.json', 'data/supp-finetuning.json', 'data/meituan-ai-interview.json'] },
     'ai-agent':     { label: 'AI Agent', icon: '🤖', color: '#af52de', files: ['data/ai-agent.json', 'data/agent-concept.json', 'data/agent-framework.json', 'data/agent-multi.json', 'data/new-agent-arch.json', 'data/agent-rag.json', 'data/agent-tools.json', 'data/agent-memory.json', 'data/agent-prompt.json', 'data/agent-llm.json', 'data/new-agent-skill.json', 'data/supp-agent-arch.json', 'data/supp-agent-rag.json', 'data/supp-agent-frameworks.json', 'data/supp-advanced-rag.json'] },
     'ai-harness':   { label: 'AI Harness', icon: '🏗️', color: '#5856d6', files: ['data/ai-harness.json', 'data/agent-eng.json', 'data/supp-harness-inference.json', 'data/xhs-ai-infra.json'] },
     'fde':          { label: 'FDE', icon: '🚀', color: '#00c7be', files: ['data/fde.json'] },
-    'eng-practice': { label: '工程化实战', icon: '⚙️', color: '#ff9500', files: ['data/agent-interview-qa.json', 'data/new-eng-practice.json', 'data/supp-eng-practice.json'] },
+    'eng-practice': { label: '工程化实战', icon: '⚙️', color: '#ff9500', files: ['data/agent-interview-qa.json', 'data/new-eng-practice.json', 'data/supp-eng-practice.json', 'data/meituan-ai-interview.json'] },
     'ai-basics':    { label: 'AI 基础', icon: '🧠', color: '#34c759', files: ['data/ai-basics.json', 'data/new-ai-basics.json', 'data/supp-ai-basics.json', 'data/supp-multimodal.json'] },
     'ai-scenario':  { label: 'AI 场景设计', icon: '🎯', color: '#e74c3c', files: ['data/ai-scenario.json'] },
   },
@@ -70,6 +70,6 @@ const APP_CONFIG = {
   },
 
   // ===== About Text =====
-  aboutText: 'AI 面试题库 v4.0\n862 道精选题目 · 含50道AI场景设计题 · 22张SVG概念图\n覆盖 LLM核心 · AI Agent · AI Harness · AI场景设计 · 工程化实战 · AI基础 · 多模态\n费曼学习法 + 第一性原理 + 遗忘曲线复习 + 报错/笔记/错题本/搜索历史/标签云/深度链接',
+  aboutText: 'AI 面试题库 v4.1\n884 道精选题目 · 含50道AI场景设计题 · 22张SVG概念图\n覆盖 LLM核心 · AI Agent · AI Harness · AI场景设计 · 工程化实战 · AI基础 · 多模态\n费曼学习法 + 第一性原理 + 遗忘曲线复习 + 报错/笔记/错题本/搜索历史/标签云/深度链接',
   aboutTarget: '对标阿里 P7 / 字节 2-2 / 腾讯 T9',
 };
