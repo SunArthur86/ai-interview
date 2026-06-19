@@ -1,5 +1,5 @@
 // AI Interview — Service Worker
-const CACHE_NAME = 'ai-interview-v15';
+const CACHE_NAME = 'ai-interview-v16';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -47,6 +47,29 @@ const STATIC_ASSETS = [
   './data/supp-eng-practice.json',
   './data/supp-ai-basics.json',
   './data/supp-multimodal.json',
+  // SVG concept diagrams (22)
+  './images/svg_attention.svg',
+  './images/svg_kvcache.svg',
+  './images/svg_lora.svg',
+  './images/svg_moe.svg',
+  './images/svg_quantization.svg',
+  './images/svg_rag.svg',
+  './images/svg_react.svg',
+  './images/svg_rlhf_dpo.svg',
+  './images/svg_training.svg',
+  './images/svg_transformer.svg',
+  './images/svg_rope.svg',
+  './images/svg_agent.svg',
+  './images/svg_pd_separation.svg',
+  './images/svg_clm_mlm.svg',
+  './images/svg_bpe.svg',
+  './images/svg_speculative.svg',
+  './images/svg_beam_search.svg',
+  './images/svg_transformer_blocks.svg',
+  './images/svg_normalization.svg',
+  './images/svg_embedding_training.svg',
+  './images/svg_gradient_descent.svg',
+  './images/svg_rag_pipeline.svg',
 ];
 
 // Install — cache static assets
