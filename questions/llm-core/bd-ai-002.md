@@ -1,0 +1,85 @@
+---
+id: "bd-ai-002"
+difficulty: "L3"
+category: "llm-core"
+categories:
+  - "ai-agent"
+  - "eng-practice"
+  - "llm-core"
+subcategory: "AI编程"
+tags:
+  - "字节跳动"
+  - "面经"
+  - "Claude Code"
+  - "Agent"
+  - "CLI"
+feynman:
+  essence: "Claude Code的本质是\"从建议者变成了执行者\"——传统AI告诉你怎么做，Claude Code直接帮你做完并验证结果。"
+  analogy: "传统网页AI像咨询顾问——你问方案，他给PPT和代码片段，你自己去落地。Claude Code像外包工程师——你给需求文档，他直接交付可运行的代码+测试通过报告。"
+  key_points:
+    - "Agent式：给目标，自主规划执行"
+    - "文件系统+Shell+Git全权限，形成闭环"
+    - "多轮自动迭代，遇到错误自动修复"
+    - "CLAUDE.md作为项目记忆注入规范"
+    - "最佳粒度：一个可验证的功能单元"
+first_principle:
+  problem: "为什么从\"对话式问答\"进化到\"Agent式执行\"是一个质变？"
+  axioms:
+    - "知识→行动之间存在巨大的翻译损耗——人把AI输出的代码手动落地时，会引入打字错误、遗漏依赖、忘记测试"
+    - "反馈闭环是学习的核心——只有能运行代码看到结果，AI才能自我纠错"
+    - "环境感知是复杂任务的前提——不理解项目结构就无法做跨文件修改"
+  rebuild: "从\"AI辅助编程\"的目标出发：① 最小化人的机械操作（补全→重写→自主执行）② 让AI能看到运行结果形成闭环 ③ 给AI环境访问权让它理解上下文。Claude Code把这三个维度都推到了极致——它不只是更强的问答，而是完全不同的交互范式。"
+follow_up:
+  - "Claude Code和Cursor的Agent模式有什么区别？—— Cursor的Agent仍在IDE沙箱内，Claude Code有完整Shell权限"
+  - "如何防止Claude Code做出破坏性操作？—— 用Git checkpoint + 限制工作目录 + 关键命令需人工确认"
+  - "Claude Code能替代多少开发工作量？—— 对样板/CRUD/重构类任务可达70%+，复杂业务逻辑约20-30%"
+---
+
+# 【字节面经】Claude Code的使用经验？与传统网页问答AI有什么核心区别？
+
+Claude Code 是 Anthropic 推出的 CLI-based AI 编程 Agent，我深度使用了约3个月，完成了多个项目的搭建、重构和Bug修复。以下是与传统网页问答AI（如 ChatGPT Web、Claude.ai）的核心区别和实战经验。
+
+**核心区别：**
+
+| 维度 | 网页问答AI | Claude Code |
+|------|-----------|-------------|
+| 交互模式 | 对话式（一问一答） | Agent式（给目标，自主执行） |
+| 上下文 | 手动粘贴代码 | 自动读取项目文件 |
+| 执行力 | 只输出代码，人手动执行 | 可直接运行命令、写文件、跑测试 |
+| 迭代方式 | 人工复制粘贴 | 自动多轮迭代直到完成 |
+| 环境感知 | 无 | 有文件系统/Shell/Git访问权 |
+
+**Claude Code 的关键能力：**
+
+1. **自主任务执行（Agentic Loop）**
+```
+用户：「给这个Express项目加上JWT认证」
+Claude Code 执行链：
+  → 读取 package.json 了解依赖
+  → 浏览 routes/ 理解现有路由结构
+  → 创建 middleware/auth.js
+  → 修改 routes/users.js 加入认证中间件
+  → 运行 npm test 验证
+  → 如果测试失败，自动修复并重试
+```
+
+2. **文件系统感知** — 能`ls`/`cat`/`grep`整个项目，不需要手动喂上下文
+
+3. **命令执行** — 能运行 `npm install`、`git commit`、`pytest`，形成闭环
+
+4. **多轮自主迭代** — 遇到错误会自动分析traceback、修改代码、重新运行
+
+**使用经验与最佳实践：**
+
+- **任务粒度要适中** — 太小（改一行）浪费Agent能力，太大（重写整个系统）容易跑偏。最佳粒度是"一个可验证的功能单元"
+- **给约束比给步骤好** — 说「用JWT，token过期时间1h，放在httpOnly cookie里」比说「先做A再做B」效果好
+- **利用Git checkpoint** — 每次大改动前`git commit`，让Claude Code在可控范围内操作
+- **CLAUDE.md 项目记忆** — 在项目根目录放CLAUDE.md，写明技术栈、编码规范、项目结构，Claude Code会自动读取
+- **平行任务用--resume** — 可以保存/恢复会话，适合长任务分多次完成
+
+**踩过的坑：**
+- Claude Code有时会"过度工程化"——简单需求用了复杂的设计模式，需要明确说"用最简方案"
+- 长任务（>30轮）后期会"忘记"早期约束，需要定期重复关键约束
+- 对非主流框架的API了解可能过时，会生成已废弃的API调用
+
+**适用边界：** Claude Code适合有明确验收标准、可自动化测试的任务。对于需要产品判断、UX设计、跨团队沟通的任务，仍然需要人类决策。

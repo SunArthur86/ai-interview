@@ -1,0 +1,67 @@
+---
+id: "ai-scen-005"
+difficulty: "L2"
+category: "ai-scenario"
+subcategory: "RAG系统设计"
+tags:
+  - "Chunking策略"
+  - "语义分块"
+  - "文档预处理"
+  - "父子chunk"
+  - "RAG优化"
+feynman:
+  essence: "【场景分析】 Chunking是RAG最关键的预处理环节——分块太大有信息稀释，太小丢失上下文，错位切分破坏语义完整性。"
+  analogy: "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。"
+  key_points:
+    - "【场景分析】 Chunking是RAG最关键的预处理环节——分块太大有信息稀释，太小丢失上下文，错位切分破坏语义完整性"
+    - "【分块策略矩阵】 1. 固定窗口分块（Baseline）： - 按Token数切分（如500 tokens），滑窗重叠100 tokens - 适用：纯文本、FAQ、聊天记录 - 优点：简单稳定"
+    - "缺点：可能切断句子 2. 语义分块（推荐）： - 基于句子边界 + 语义连贯性检测 - 工具：spaCy/LangChain RecursiveCharacterTextSplitter - 策略：先"
+first_principle:
+  problem: "为什么需要 在RAG系统中如何设计有效的Chunking策略？不同类型的文档应该用什么分块方法？如果不存在它会怎样？它解决了什么根本问题？"
+  axioms:
+    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
+    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
+  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+follow_up:
+  - "如何自动检测最佳chunk大小？"
+  - "对于中英混排的文档，分块策略需要调整吗？"
+  - "父子chunk方案如何影响检索和存储成本？"
+---
+
+# 在RAG系统中如何设计有效的Chunking策略？不同类型的文档应该用什么分块方法？
+
+【场景分析】
+Chunking是RAG最关键的预处理环节——分块太大有信息稀释，太小丢失上下文，错位切分破坏语义完整性。
+
+【分块策略矩阵】
+1. 固定窗口分块（Baseline）：
+   - 按Token数切分（如500 tokens），滑窗重叠100 tokens
+   - 适用：纯文本、FAQ、聊天记录
+   - 优点：简单稳定；缺点：可能切断句子
+2. 语义分块（推荐）：
+   - 基于句子边界 + 语义连贯性检测
+   - 工具：spaCy/LangChain RecursiveCharacterTextSplitter
+   - 策略：先按段落分，段落内按句子分，保持完整句子
+   - 适用：文章、报告、文档
+3. 结构化分块（Markdown/HTML）：
+   - 按标题层级分块（H1→H2→H3）
+   - 每个chunk携带父级标题作为上下文
+   - 适用：技术文档、Wiki、产品手册
+4. 表格/代码特殊处理：
+   - 表格：整表作为chunk + 自然语言摘要
+   - 代码：按函数/类边界分块
+   - 公式：保留LaTeX完整性
+5. 混合粒度分块（Advanced）：
+   - 同时生成大chunk（1000t）和小chunk（200t）
+   - 大chunk用于生成上下文，小chunk用于精准检索
+   - 父子chunk关联：命中子chunk时召回父chunk
+
+【Chunk元数据设计】
+- 必须携带：source_doc_id, page_num, section_title, chunk_type
+- 权限标签：access_level, department
+- 时间戳：created_at, updated_at
+
+【参数调优】
+- chunk_size: 256~1024 tokens（根据文档类型）
+- overlap: 10%~20%的chunk_size
+- 评测：不同参数下的Recall@K和答案质量
