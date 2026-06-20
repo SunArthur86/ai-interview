@@ -1,5 +1,5 @@
 // AI Interview — Service Worker
-const CACHE_NAME = 'ai-interview-v16';
+const CACHE_NAME = 'ai-interview-v17';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -49,7 +49,8 @@ const STATIC_ASSETS = [
   './data/supp-multimodal.json',
   './data/xhs-ai-infra.json',
     'data/meituan-ai-interview.json',
-    'data/zhipu-infra-interview.json'',
+    'data/zhipu-infra-interview.json',
+    'data/bytedance-ai-fullstack.json'',
   // SVG concept diagrams (22)
   './images/svg_attention.svg',
   './images/svg_kvcache.svg',
