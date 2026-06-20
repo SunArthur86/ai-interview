@@ -53,3 +53,8 @@ MQA: KV Cache = 2 × 32 × 1 × 128 × seq      (减少 32x)
 - MQA 所有 Q 头共享 1 组 KV → 表达能力损失大
 - GQA 是 MHA 和 MQA 的折中：分组共享既减少 KV 又保持质量
 - 实验表明 GQA g=8 时几乎所有 benchmark 都接近 MHA
+
+## 常见考点
+1. **GQA 在实现上如何做 Split 和 Concat？**（Q 维度不变，K/V 维度减少后通过 Repeat 扩展以匹配 Q 计算）
+2. **GQA 对训练和推理速度的影响是否相同？**（主要收益在推理显存，训练速度收益相对较小，主要受限于 Memory Bound）
+3. **除了减少显存，GQA 对 Attention Kernel 计算还有哪些优化点？**（减少了 HBM 读取 K/V 的次数）

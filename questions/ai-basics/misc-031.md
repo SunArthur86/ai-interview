@@ -38,4 +38,39 @@ follow_up:
 - 无需人工标注,用LLM自动评估
 - 支持 grounding(忠实度) / relevance(相关性) / recall(召回)
 
+- **评估流程架构:**
+
+```text
+Question + Ground Truth (Optional)
+      │
+      ▼
+┌──────────────────┐
+│   RAG System     │
+└────┬────────┬─────┘
+     │        │
+     ▼        ▼
+Context   Answer
+     │        │
+     ▼        ▼
+┌─────────────────────────┐
+│   LLM-as-a-Judge        │
+│ (Ragas Evaluation)      │
+└────────┬────────────────┘
+         │
+         ▼
+   Metrics Scores
+```
+
 - **其他评估工具:** TruLens、LlamaIndex Evaluation、LangSmith
+
+## 常见考点
+1. **Context Recall 和 Context Precision 的计算逻辑是什么？**
+   - **Precision** = 检索到的文档中，被标注为相关的比例（不查错）。
+   - **Recall** = 标注为相关的文档中，被成功检索到的比例（不漏查）。
+
+2. **Faithfulness 和 Answer Relevancy 评分的原理？**
+   - **Faithfulness**: 将答案拆解为多个陈述，让 LLM 判断每个陈述是否能在 Context 中找到依据。
+   - **Answer Relevancy**: 基于生成的答案反向生成一个问题，计算该问题与原问题的 Embedding 相似度。
+
+3. **Ragas 评估的缺点是什么？**
+   - 评估本身依赖于 LLM（LLM-as-a-Judge），因此不仅成本高，而且评估结果可能受到 Judge 模型偏见的影响，且速度较慢，不适合实时监控。

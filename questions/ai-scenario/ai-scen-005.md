@@ -27,37 +27,84 @@ follow_up:
 # 在RAG系统中如何设计有效的Chunking策略？不同类型的文档应该用什么分块方法？
 
 【场景分析】
-Chunking是RAG最关键的预处理环节——分块太大有信息稀释，太小丢失上下文，错位切分破坏语义完整性。
+纯向量检索擅长语义匹配但弱于精确关键词（产品名、错误码）；纯BM25擅长精确匹配但不懂同义改写。混合检索取两者之长。
 
-【分块策略矩阵】
-1. 固定窗口分块（Baseline）：
-   - 按Token数切分（如500 tokens），滑窗重叠100 tokens
-   - 适用：纯文本、FAQ、聊天记录
-   - 优点：简单稳定；缺点：可能切断句子
-2. 语义分块（推荐）：
-   - 基于句子边界 + 语义连贯性检测
-   - 工具：spaCy/LangChain RecursiveCharacterTextSplitter
-   - 策略：先按段落分，段落内按句子分，保持完整句子
-   - 适用：文章、报告、文档
-3. 结构化分块（Markdown/HTML）：
-   - 按标题层级分块（H1→H2→H3）
-   - 每个chunk携带父级标题作为上下文
-   - 适用：技术文档、Wiki、产品手册
-4. 表格/代码特殊处理：
-   - 表格：整表作为chunk + 自然语言摘要
-   - 代码：按函数/类边界分块
-   - 公式：保留LaTeX完整性
-5. 混合粒度分块（Advanced）：
-   - 同时生成大chunk（1000t）和小chunk（200t）
-   - 大chunk用于生成上下文，小chunk用于精准检索
-   - 父子chunk关联：命中子chunk时召回父chunk
+【双路检索架构】
+1. Sparse路径（BM25）：
+   - Elasticsearch/OpenSearch全文本索引
+   - 分词器：IK中文分词 + 标准英文分词
+   - 优势：精确匹配、缩写、专有名词、错误码
+   - 返回Top-50候选
+2. Dense路径（向量）：
+   - Embedding模型 → Milvus/Qdrant HNSW检索
+   - 优势：语义相似、同义词、跨语言
+   - 返回Top-50候选
+3. 融合策略：
+   - RRF（Reciprocal Rank Fusion）：score = Σ 1/(k+rank_i)，k=60
+   - 加权融合：α×BM25_score + (1-α)×Dense_score
+   - 线性插值需要先归一化两路分数（min-max或softmax）
 
-【Chunk元数据设计】
-- 必须携带：source_doc_id, page_num, section_title, chunk_type
-- 权限标签：access_level, department
-- 时间戳：created_at, updated_at
+【混合检索流程图】
+```text
+           用户查询
+              │
+      ┌───────┴───────┐
+      ▼               ▼
+┌───────────┐   ┌───────────┐
+│  稠密检索  │   │  稀疏检索  │
+│ (Vector)  │   │  (BM25)   │
+└─────┬─────┘   └─────┬─────┘
+      │               │
+   Top-K           Top-K
+(Doc Scores)   (Doc Scores)
+      │               │
+      └───────┬───────┘
+              ▼
+      ┌───────────────┐
+      │   分数归一化   │
+      │ (Normalization)│
+      └───────┬───────┘
+              ▼
+      ┌───────────────┐
+      │    融合排序    │
+      │ (RRF / Weighted)│
+      └───────┬───────┘
+              │
+              ▼
+      ┌───────────────┐
+      │   Cross-Encoder│
+      │      重排     │
+      └───────┬───────┘
+              │
+              ▼
+         最终结果 Top-N
+```
 
-【参数调优】
-- chunk_size: 256~1024 tokens（根据文档类型）
-- overlap: 10%~20%的chunk_size
-- 评测：不同参数下的Recall@K和答案质量
+【Query路由优化】
+- 意图分类：关键词型查询 → BM25权重↑；语义型查询 → Dense权重↑
+- 混合型：动态调整权重
+- 短查询（<3词）倾向BM25，长查询倾向Dense
+
+【Rerank精排】
+- 融合后Top-50 → Cross-encoder Reranker精排
+- 模型：bge-reranker-v2-m3 / Cohere Rerank
+- 输出Top-5给LLM生成
+- Rerank提升MRR通常20%~40%
+
+【RRF 算法细节】
+- 公式：$RRF(d) = \sum_{i=1}^{N} \frac{1}{k + rank_i(d)}$
+- 参数：$k$ 通常取 60（平滑系数，防止排名靠后的分数差异过大）。
+- 优势：无需考虑不同检索器分数的量纲差异，仅基于排序稳定性，鲁棒性强。
+
+【评测对比】
+| 策略 | Recall@10 | MRR | 延迟 |
+|------|-----------|-----|------|
+| 纯BM25 | 62% | 0.45 | 5ms |
+| 纯Dense | 71% | 0.52 | 12ms |
+| 混合+Rerank | 85% | 0.68 | 35ms |
+
+## 常见考点
+1. **BM25和向量检索的区别**：在什么场景下BM25会明显优于Dense？（答：匹配专有名词、ID、生僻词，或用户查询非常精准时；Dense在泛化能力上更强，但可能模糊边界）。
+2. **分数融合的难点**：为什么不能直接相加 BM25 分数和 Cosine Similarity？（答：两者分布和量纲完全不同，直接相加会导致某种分数被淹没，必须先归一化或使用基于排名的RRF）。
+3. **Rerank的性能瓶颈**：Cross-Encoder 是慢速模型，如何保证系统整体响应速度？（答：只对召回的Top-N（如50或100）进行重排，而不是全库重排；通常Rerank耗时<100ms，在可接受范围内）。
+

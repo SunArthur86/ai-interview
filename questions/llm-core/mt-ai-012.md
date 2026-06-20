@@ -35,49 +35,52 @@ follow_up:
 
 1. **"Attention Is All You Need"** (2017)
    - Transformer 原始论文，理解 Self-Attention/Multi-Head/Positional Encoding
-   - 帮助：理解所有后续大模型的架构基础
+   - 帮助：理解所有后续大模型（BERT/GPT）的架构基础，掌握 Q/K/V 机制
 
 2. **"RoFormer: Enhanced Transformer with Rotary Position Embedding"** (2021)
    - RoPE 原始论文
-   - 帮助：理解位置编码设计原理和长度外推
+   - 帮助：理解位置编码设计原理和长度外推，现在主流模型（Llama/Qwen）都在用
 
 3. **"LoRA: Low-Rank Adaptation of Large Language Models"** (2021)
    - 参数高效微调经典
-   - 帮助：理解微调的数学原理和工程实现
+   - 帮助：理解微调的数学原理和工程实现，节省显存
 
 4. **"Direct Preference Optimization"** (DPO, 2023)
    - 无需 RM 的对齐方法
-   - 帮助：理解 RLHF 的替代方案和偏好优化数学
+   - 帮助：理解 RLHF 的替代方案和偏好优化数学原理，SFT 后必备
 
-5. **DeepSeek-V2/V3 技术报告** (2024)
+5. **DeepSeek-V2/V3 技术报告** (2024) / Llama 3 Report
    - MLA + MoE + 训练细节
-   - 帮助：理解 SOTA 开源模型的工程创新
+   - 帮助：理解 SOTA 开源模型的工程创新（如 MLA 如何节省 KV Cache 显存）
 
-**面试回答模板：**
+**Transformer 计算流程可视化（对应 Attention 论文）：**
+
 ```
-我重点读了 XX 论文/技术报告。
-
-第一遍（快速浏览）：
-  - 了解核心贡献和创新点
-  - 判断是否值得深入
-
-第二遍（精读方法）：
-  - 逐节理解技术细节
-  - 推导关键公式
-  - 复现核心实验
-
-第三遍（批判性思考）：
-  - 这篇论文的局限性？
-  - 和 XX 方法对比优劣？
-  - 在我们项目中能怎么用？
-
-帮助：
-  - 理解了 XX 原理，在项目 YY 中解决了 ZZ 问题
-  - 建立了从论文到工程的转化能力
+┌──────────────────────────────────────────────────────────────────┐
+│                    Self-Attention Mechanism                      │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   Input X (Seq_Len, Dim)                                         │
+│      │                                                           │
+│      ├──> W_Q  (Linear) ──> Query (Q)                            │
+│      ├──> W_K  (Linear) ──> Key   (K)                            │
+│      └──> W_V  (Linear) ──> Value (V)                            │
+│                      │                                           │
+│                      ▼                                           │
+│            Attention Score = Q * K^T / sqrt(d_k)                 │
+│                      │                                           │
+│                      ▼                                           │
+│            Weighted Score = Softmax(Score)                      │
+│                      │                                           │
+│                      ▼                                           │
+│              Output = Weighted Score * V                         │
+│                      │                                           │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-**加分点：**
-- 能说出论文的**局限和改进方向**
-- 能联系到**自己的项目实践**
-- 能对比**相关工作**的异同
-- 能讨论**工程落地**的细节
+**## 常见考点**
+1. **RoPE 细节**：面试官常问 RoPE 如何实现相对位置编码？（通过复数域的旋转矩阵相乘，将绝对位置编码转换为相对位置感知）。
+2. **长度外推**：为什么 Llama 用 RoPE 后还是会有长度限制？（旋转角度的 base 值导致远距离位置区分度下降，解决方案如 NTK-aware scaling）。
+3. **KV Cache 优化**：DeepSeek 的 MLA（Multi-Head Latent Attention）是如何省显存的？（将 Key/Value 压缩到低维 latent vector，推理时再解压，大幅减少 Cache 大小）。
+4. **DPO vs PPO**：DPO 为什么不需要训练 Reward Model？（DPO 通过解析 RLHF 的目标函数，推导出可以直接用偏好数据优化的 Loss 函数，隐式包含了奖励模型）。
+5. **MoE 负载均衡**：在 DeepSeek MoE 架构中，如何避免专家负载不均？（Auxiliary Loss 均衡专家负载，以及细粒度专家切分策略）。

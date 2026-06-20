@@ -18,22 +18,28 @@ feynman:
 
 # LLM应用的Prompt工程有哪些最佳实践？
 
+### 基础技巧
 1. **角色设定**: '你是一个经验丰富的XX专家'
-2. **任务分解**: 复杂任务拆成步骤
-3. **Few-shot**: 提供2-5个示例
+2. **任务分解**: 复杂任务拆成步骤（复杂推理任务表现提升显著）
+3. **Few-shot**: 提供2-5个示例（示例多样性比数量更重要，需涵盖不同场景边界）
 4. **输出格式约束**: '请以JSON格式输出，包含字段：xxx'
-5. **Chain-of-Thought**: '请一步一步思考'
+5. **Chain-of-Thought (CoT)**: '请一步一步思考'（注意：CoT 在简单任务上可能降低准确率并增加 Latency）
 6. **负面约束**: '不要编造数据，如果不确定请说不知道'
 
-**高级技巧**：
-- **Self-Consistency**: 多次采样取多数投票
-- **CoT-SC**: CoT + Self-Consistency
-- **Tree-of-Thoughts**: 树状思维探索
-- **ReAct**: 结合工具调用的推理
+### 高级技巧
+- **Self-Consistency**: 对同一问题多次采样，对推理路径进行多数投票（适用于数学/逻辑推理，成本较高）
+- **CoT-SC**: CoT + Self-Consistency 结合
+- **Tree-of-Thoughts (ToT)**: 树状思维探索，允许模型回溯和自我修正（适合规划类任务）
+- **ReAct**: 结合推理与行动，循环执行 Thought -> Action -> Observation
 
-**实际工程中**：
-1. 模板化管理Prompt（版本控制）
-2. A/B测试不同Prompt
-3. 使用Prompt框架：LangChain、LlamaIndex
-4. 结构化输出：JSON Mode、Outlines、Guidance
-5. 多轮对话管理：context window管理
+### 实际工程中
+1. **模板化管理Prompt**：使用 LangChain/Jinja2 模板，纳入 Git 版本控制
+2. **A/B测试不同Prompt**：基于生产流量进行离线或在线评估
+3. **使用Prompt框架**：LangChain、LlamaIndex（处理 prompt 组装和记忆模块）
+4. **结构化输出**：JSON Mode（强制格式）、Outlines（正则约束）、Guidance（Token级别控制）
+5. **多轮对话管理**：基于 Sliding Window 或 Token Limit 动态截断，使用 Summary 累积历史信息
+
+## 常见考点
+1. **如何处理 Prompt 越界问题？**：System Prompt 和 User Prompt 的优先级是如何处理的（通常 System 优先级最高，但部分模型可通过特定 Prompt 注入覆盖）。
+2. **Few-shot 学习的样本选择策略？**：如何通过 Embedding 相似度从向量库中动态检索最相关的 Examples，而不是静态写死。
+3. **CoT 的局限性？**：在闭集任务中显式推理有时反而会引入噪音，如何判断何时该用 CoT。

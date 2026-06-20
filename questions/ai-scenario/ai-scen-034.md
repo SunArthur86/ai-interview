@@ -67,3 +67,11 @@ OpenTelemetry标准，一次请求的完整Trace：
 - 趋势分析：日/周/月维度的质量变化趋势
 - 对比分析：不同模型/Prompt版本的效果对比
 - Bad Case分析：差评案例的分类统计和根因分析
+
+## 常见考点
+1. **非结构化数据的监控难点**：如何量化监控“幻觉率”或“逻辑错误”？
+   *答案要点*：无法直接通过日志指标监控。通常采用“抽检机制”或“离线评测回溯”。在线上通过设定规则（如事实性校验、引用完整性）作为代理指标；或者使用轻量级Judge模型实时流式抽样打分。
+2. **Trace ID透传**：在微服务架构中，如何保证从网关到LLM调用的全链路Trace ID一致？
+   *答案要点*：遵循OpenTelemetry标准，在HTTP Headers（如`traceparent`）中传递Trace ID。在异步调用（如消息队列）或工具调用时，需手动将Trace Context写入消息体或Metadata中，确保断链也能追踪。
+3. **成本监控的精细化**：如何区分不同租户或不同功能的Token消耗？
+   *答案要点*：在写入Metric时打上丰富的Tag（Labels），如`tenant_id`, `feature`, `model_name`。注意控制Cardinality（基数）数量，防止将`user_id`这种高基数标签直接带入Prometheus，可能导致内存溢出，可先聚合存入OLAP数据库（如ClickHouse）进行成本分析。

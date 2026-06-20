@@ -46,8 +46,40 @@ follow_up:
 - 向量数据库是存这些向量的专用仓库（Milvus/Pinecone/Qdrant），核心能力是快速做相似度检索
 - RAG的检索不是关键词匹配而是算向量距离
 
+**Function Calling 与 RAG 流程对比：**
+```text
+Function Calling 流程:          RAG 流程:
+User Query                       User Query
+    ↓                                ↓
+┌─────────────┐                ┌───────────────────┐
+│   Intent    │                │   Query Rewrite   │
+│Classification│               └─────────┬─────────┘
+└──────┬──────┘                          │
+       │                                 ↓
+       ↓                         ┌───────────────────┐
+┌─────────────┐                │  Vector Retrieval │ (Semantic Search)
+│   External  │                └─────────┬─────────┘
+│   API Call  │                          │
+└──────┬──────┘                          ↓
+       │                         ┌───────────────────┐
+       ↓                         │  Context (Chunks) │
+┌─────────────┐                └─────────┬─────────┘
+│ Structured  │                          │
+│    Data     │                          ↓
+└──────┬──────┘                    ┌───────────────────┐
+       │                           │   LLM Generation │
+       └───────────┬───────────────┴─────────┬─────────┘
+                   ↓                           ↓
+              Final Answer (Fact+Reasoning)
+```
+
 **检索策略设计关键点：**
 1. 混合检索（向量+关键词，用RRF融合）
 2. Chunk大小要调（512-1024 Token，带重叠）
 3. HyDE（先生成假答案再检索）
 4. Rerank（Cross-Encoder重排提升精度）
+
+## 常见考点
+1. **参数缺失**：如果Function Call需要的参数用户没给，是直接报错还是反问用户？（策略：反问用户补充信息，不要自己瞎编参数）
+2. **多跳查询**：RAG中遇到复杂问题需要多次检索才能回答，如何设计？（Agent推理链路：Answer A -> Question B -> Retrieve B -> Synthesize）
+3. **时效性差异**：RAG适合解决时效性问题吗？（不适合，除非向量库更新频率极高，否则实时数据还是依赖Function Calling或搜索引擎）

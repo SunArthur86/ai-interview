@@ -36,7 +36,7 @@ Agent自主运行的核心是"感知→规划→行动→观察"的闭环（Perc
 
 **核心架构：ReAct + 工具增强**
 
-```
+```text
 用户输入
     ↓
 [感知层] 意图理解 + 上下文组装
@@ -55,20 +55,21 @@ Agent自主运行的核心是"感知→规划→行动→观察"的闭环（Perc
 ```
 
 **1. 感知层 — 上下文组装**
+感知层的核心是将非结构化的用户输入转化为LLM可理解的Prompt，并注入必要的知识。
 ```python
 def build_context(user_input, memory, knowledge_base):
     context = {
         "user_query": user_input,
-        "conversation_history": memory.get_recent(n=10),
-        "relevant_knowledge": knowledge_base.retrieve(user_input, top_k=5),
-        "available_tools": get_tool_schemas(),
+        "conversation_history": memory.get_recent(n=10),  # 滑动窗口保留近期对话
+        "relevant_knowledge": knowledge_base.retrieve(user_input, top_k=5),  # RAG检索
+        "available_tools": get_tool_schemas(),  # 当前可用的工具定义
         "system_prompt": AGENT_SYSTEM_PROMPT
     }
     return context
 ```
 
 **2. 规划层 — 任务分解**
-对于复杂任务，先做ReWOO（Reasoning Without Observation）式的规划：
+对于复杂任务，先做ReWOO（Reasoning Without Observation）式的规划，避免在思维过程中产生无效的工具调用开销。
 ```python
 # 规划Prompt示例
 planning_prompt = """
@@ -89,6 +90,7 @@ plan = [
 ```
 
 **3. 行动层 — 工具选择与调用（ReAct Loop）**
+这是Agent的"大脑"与"手脚"连接的关键。
 ```python
 def react_loop(query, tools, max_iterations=10):
     messages = [{"role": "user", "content": query}]
@@ -101,60 +103,53 @@ def react_loop(query, tools, max_iterations=10):
             tool_choice="auto"
         )
         
+        # 助手回复加入历史
+        messages.append({"role": "assistant", "content": response.content})
+        
         # 如果LLM选择调用工具
         if response.tool_calls:
             for tool_call in response.tool_calls:
-                # 执行工具
-                result = execute_tool(tool_call.name, tool_call.arguments)
-                # 观察结果加入上下文
+                # 执行工具 (关键：异常处理)
+                try:
+                    result = execute_tool(tool_call.name, tool_call.arguments)
+                except Exception as e:
+                    result = f"Error: {str(e)}"
+                    
+                # 观察结果加入上下文 (关键：反馈闭环)
                 messages.append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,
-                    "content": json.dumps(result)
+                    "content": json.dumps(result, ensure_ascii=False)
                 })
         else:
-            # LLM认为任务完成，返回最终答案
+            # 如果没有工具调用，说明任务完成或无法继续
             return response.content
-    
-    return "达到最大迭代次数，任务未完成"
+            
+    return "Error: Max iterations reached without conclusion."
 ```
 
-**4. 知识增强 — RAG融合**
-```python
-def knowledge_augmented_agent(query):
-    # Step1: 检索相关知识
-    docs = vector_store.similarity_search(query, k=5)
-    knowledge = rerank(docs, query, top_k=3)
-    
-    # Step2: 注入到Agent上下文
-    augmented_query = f"""
-    相关知识：{knowledge}
-    
-    用户问题：{query}
-    """
-    
-    # Step3: 正常Agent执行
-    return react_loop(augmented_query, tools)
+**4. 知识增强（RAG）与记忆机制**
+- **短期记忆**：存储在`messages`列表中，随上下文窗口滚动。
+- **长期记忆**：通过Vector DB存储重要信息，在感知层通过Retriever召回。
+- **知识库**：静态文档（如API文档、产品手册），切片后向量化。
+
+**5. 自主运行中的关键挑战与对策**
+- **死循环**：设置`max_iterations`，或者在Prompt中明确"如果多次尝试失败，请直接告知用户"。
+- **参数幻觉**：要求LLM在调用工具前先校验参数格式，或者在`execute_tool`层做强校验。
+- **错误恢复**：工具返回错误时，LLM需要有能力自我修正（Self-Correction），这依赖于Prompt中的Few-Shot示例。
+
+**执行链示例（查询天气并穿衣建议）：**
+```text
+1. User: 北京今天天气怎么样？穿什么？
+2. Agent Thought: 需要查天气 -> Call WeatherAPI(location="Beijing")
+3. Environment: {"temp": 5, "condition": "Windy"}
+4. Agent Thought: 获得天气数据，现在需要推理穿衣 -> Call KnowledgeBase(query="5度大风穿衣")
+5. Environment: "建议穿羽绒服..."
+6. Agent Final: 北京今天5度且有大风，建议您穿防风羽绒服...
 ```
 
-**5. 异常处理与恢复**
-```python
-def robust_tool_execution(tool_name, params):
-    try:
-        result = execute_tool(tool_name, params)
-        # 结果验证
-        if validate_result(result, expected_schema):
-            return result
-        else:
-            return {"error": "结果格式异常", "raw": result}
-    except TimeoutError:
-        return {"error": "工具超时", "retry": True}
-    except Exception as e:
-        return {"error": str(e)}
-```
-
-**设计要点总结：**
-1. **工具设计原子化** — 每个工具做一件事，参数用JSON Schema严格校验
-2. **规划与执行分离** — ReWOO减少Token消耗，ReAct保证实时纠错
-3. **上下文动态组装** — 只注入相关知识（RAG），避免 Context Window 爆炸
-4. **鲁棒性设计** — 超时控制、重试机制、结果校验缺一不可
+## 常见考点
+1. **ReAct vs Plan-and-Solve 的区别**：ReAct是边思考边行动（交互式），Plan-and-Solve是先规划再执行（批量式），各有什么优劣？
+2. **Function Calling 的并发控制**：如果LLM一次性生成了3个工具调用，是串行执行还是并行执行？并行执行需要注意什么？（如状态依赖问题）。
+3. **Agent的评估指标**：除了最终答案的正确率，如何评估规划能力和工具使用的准确率？（如Tool Use Accuracy, Step Success Rate）。
+4. **多智能体协作**：当单个Agent无法完成任务时，如何设计多Agent架构？（如Manager-Worker模式，或像MetaGPT那样的角色扮演模式）。

@@ -42,3 +42,40 @@ follow_up:
 3. 温度设为0
 4. 后处理:正则提取JSON / json5解析 / 重试机制
 5. 用Pydantic/Zod定义schema并验证
+
+- **鲁棒性设计流程:**
+
+```text
+User Request
+    │
+    ▼
+┌───────────────────┐
+│ LLM (Temp=0)      │
+│ Prompt + Schema   │
+└──────┬────────────┘
+       │ Raw Output
+       ▼
+┌───────────────────┐
+│ Output Parser     │
+│ 1. Regex Extract  │◄── Handle "```json ... ```"
+│ 2. JSON Loader    │◄── Handle json5/missing quotes
+└──────┬────────────┘
+       │
+       ▼ Valid? ──No──▶ Retry (Max 3x)
+       │ Yes
+       ▼
+Pydantic Validation
+       │
+       ▼
+   Structured Data
+```
+
+## 常见考点
+1. **即使使用了 JSON Mode，为什么还需要后处理？**
+   - 模型可能会在 JSON 前后添加解释性文字（如 "Here is the JSON: ..."），或者偶尔输出不合法的 JSON（如尾随逗号）。正则提取 `\{.*\}` 和容错解析器（如 `json5` 或 `lark`）能显著提升鲁棒性。
+
+2. **Few-shot 示例在 JSON 提取中的作用？**
+   - 对于复杂结构或罕见字段，提供一个完整的输入-输出 JSON 示例比单纯的 Schema 描述更有效，能帮助模型理解嵌套关系和格式要求。
+
+3. **如果模型总是输出不完整怎么办？**
+   - 可能是 `max_tokens` 设置过小导致截断。建议预估 JSON 长度并预留足够的 Token 余量，或者使用支持流式 JSON 解析的库进行增量处理。

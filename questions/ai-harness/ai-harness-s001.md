@@ -40,3 +40,15 @@ vLLM是当前最流行的开源LLM推理框架，核心优化：
 - Quantization：支持AWQ、GPTQ量化模型
 
 性能：比HuggingFace Transformers快14-24倍，接近商用API吞吐量。
+
+- **补充：PagedAttention 内部机制**
+- **Block 表**: vLLM 为每个 Sequence 维护一个 Block 表，映射逻辑 Block 到物理 Block，支持非连续内存分配，解决内存碎片。
+- **迭代级调度**: 调度器在每个解码步骤结束后，根据已完成和新加入的请求重组 Batch，无需等待 Batch 中所有请求结束。
+
+## 常见考点
+1. **vLLM 的 Block Size 如何选择？**
+   - 通常设为 16，需权衡显存管理开销和内存粒度。太小导致 Block Table 过大，太大致内部浪费。
+2. **Continuous Batching 和 Orca 有什么区别？**
+   - Orca 是 Continuous Batching 的一种早期实现，vLLM 结合 PagedAttention 进一步提升了显存管理效率。
+3. **vLLM 如何处理 Prefix Caching 的失效？**
+   - 引用计数管理，当所有引用该 Prefix 的请求结束后，释放对应的物理 Block。

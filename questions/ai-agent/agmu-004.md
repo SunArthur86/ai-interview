@@ -16,8 +16,35 @@ feynman:
 
 # Boss-Worker 和 Pipeline 有什么本质差异
 
-Pipeline 强调固定的阶段顺序与数据形态；Boss-Worker 强调动任务态图——Boss 可按需增删子任务、并行派发。
+### Boss-Worker 和 Pipeline 有什么本质差异
 
-**Pipeline 更像工厂流水线**；**Boss-Worker 更像项目经理排期**。
+**本质差异**：
+- **Pipeline (流水线)**：强调**固定的阶段顺序**与**数据形态转换**。数据必须流经 Stage A -> B -> C，每个 Stage 处理不同形态的数据（如：文本 -> AST -> 代码）。
+- **Boss-Worker (主从)**：强调**动态任务图**。Boss 负责任务分解、分发和聚合，Workers 是无状态的执行者。Boss 可按需增删子任务、并行派发，路径不一定线性。
 
-**追问应对**：若问「能混合吗？」——答：非常常见，例如 Boss 定阶段，阶段内 Pipeline，阶段间讨论。
+**形象比喻**：
+- **Pipeline** 更像工厂流水线，每个工位做一道工序。
+- **Boss-Worker** 更像项目经理排期，经理派活给组员，组员干完汇总。
+
+**架构对比图**：
+```
+Pipeline (线性):         Boss-Worker (动态):
+Input ──▶ [A] ──▶ [B] ──▶ Output      [Boss]───────┐
+   │        │        │                 │  (Dispatch)
+   ▼        ▼        ▼                 ▼            ▼
+[A fixed] [B fixed] [C fixed]      [Worker 1]   [Worker 2]
+                                      (Task X)    (Task Y)
+                                           │           │
+                                           └─────┬─────┘
+                                                 ▼
+                                             [Result]
+```
+
+**追问应对**：
+若问「能混合吗？」——答：非常常见。宏观上是 Boss 架构，Boss 定义好阶段，每个阶段内部跑 Pipeline；或者 Boss 动态插入节点，节点间同步执行。
+
+## 常见考点
+1. **Pipeline 的背压如何处理？**
+   答：在 Agent 语境下通常体现为队列积压，需限制并发数或丢弃低优先级任务，防止上下游速度不匹配导致资源耗尽。
+2. **Boss-Worker 模式中 Worker 的输出格式如何统一？**
+   答：必须强类型约束（如 Pydantic Model），否则 Boss 难以解析结果进行下一步决策。

@@ -29,26 +29,34 @@ follow_up:
 
 **大模型三大量化算法对比（按粒度）：**
 
-| 算法 | 粒度 | 核心思想 | 激活值处理 |
-|------|------|----------|-----------|
-| **SmoothQuant** | per-channel / per-tensor | 平滑激活值异常值到权重 | 是（激活感知） |
-| **AWQ** | per-group / per-channel | 保护激活感知的显著权重 | 是（activation-aware） |
-| **GPTQ** | per-column（逐列） | 基于二阶信息（Hessian）的权重补偿 | 否（仅权重量化） |
+| 算法 | 粒度 | 核心思想 | 激活值处理 | 适用场景 |
+|------|------|----------|-----------|----------|
+| **SmoothQuant** | per-channel / per-tensor | 平滑激活值异常值到权重 | 是（激活感知） | W8A8，Transformer架构 |
+| **AWQ** | per-group / per-channel | 保护激活感知的显著权重 | 是（activation-aware） | W4A16，通用LLM |
+| **GPTQ** | per-column（逐列） | 基于二阶信息（Hessian）的权重补偿 | 否（仅权重量化） | W4A16，学术界首选 |
 
 **SmoothQuant 流程：**
-1. 分析激活值的异常 channel（outlier）
-2. 将异常值从激活"迁移"到权重：`W' = W · diag(s), X' = X / diag(s)`
-3. 对平滑后的 W' 和 X' 分别做 per-channel/per-tensor INT8 量化
-4. **粒度最粗**，但计算最简单，适合 W8A8（权重+激活均量化）
+1. **分析**：统计校准集的激活值，发现某些 Channel 存在数值极大的异常值，导致量化范围被拉伸，精度丢失。
+2. **迁移（平滑）**：引入缩放因子 `s`，将激活值的难度“迁移”到权重上。
+   - 数学变换：`W' = W · diag(s)`, `X' = X / diag(s)`
+   - 逻辑：激活值除以 `s` 变小（易量化），权重乘以 `s` 变大（但权重分布通常较平缓，能更好吸收误差）。
+3. **量化**：对平滑后的 `W'` 和 `X'` 分别做 per-channel/per-tensor INT8 量化。
+4. **特点**：**粒度最粗**，但引入了数学等价变换，使得 W8A8 在 Transformer 上能保持极低精度损失。
 
-**AWQ 流程：**
-1. 用少量校准数据找"显著权重"（对激活大的 channel 的权重）
-2. 对显著权重做 per-group 缩放保护（不直接量化）
-3. 非显著权重正常 INT4 量化
-4. **per-group 粒度**，精度高，适合 W4A16（仅权重量化）
+**AWQ (Activation-aware Weight Quantization) 流程：**
+1. **寻找显著权重**：基于少量校准数据，分析激活值幅度。对于激活值较大的 Channel，对应的权重对输出影响最大（显著权重）。
+2. **保护机制**：只保留约 1% 的显著权重为 FP16，其余 99% 做 INT4 量化。
+   - 公式思想：`Y = X @ W`，将 `W` 分割为 `W_keep` 和 `W_quant`。通过缩放让 `W_quant` 承担主要数值范围，而 `W_keep` 补偿量化误差。
+3. **量化**：非显著权重进行 per-group INT4 量化（Group size 通常为 64 或 128）。
+4. **特点**：**per-group 粒度**，精度高，推理速度快（仅需少量反量化计算），适合 W4A16。
 
 **GPTQ 流程：**
-1. 逐列量化权重矩阵
-2. 每量化一列后，用 Hessian 矩阵的逆补偿剩余列的误差
-3. 类似 OBS（Optimal Brain Surgeon）的贪心算法
-4. **per-column 粒度**，精度高，适合 W4A16
+1. **逐列处理**：按顺序量化权重矩阵的每一列。
+2. **二阶补偿**：每量化一列后，利用 Hessian 矩阵（二阶导数信息，代表输入数据的特征分布）的逆矩阵，来调整剩余未量化列的数值，以最小化整体量化误差。
+   - 类似于 **OBS (Optimal Brain Surgeon)** 剪枝算法的逆过程：剪枝是删节点，GPTQ是降精度，都用 Hessian 补偿。
+3. **特点**：**per-column 粒度**，精度高，无需保留部分FP16权重（纯INT4），但反量化推理计算量较 AWQ 略大（取决于实现）。
+
+## 常见考点
+1. **追问**：GPTQ 和 AWQ 在推理时有什么区别？（答：GPTQ 通常需要在线反量化，或者需要特定的 Dequant Kernel；AWQ 往往通过保留部分 FP16 权重简化了推理 Kernel 实现，实际推理吞吐量 AWQ 往往更有优势）。
+2. **追问**：SmoothQuant 中的 alpha 参数通常取多少？（答：通常取 0.5，表示激活值和权重各承担一半的量化难度，不同模型可能需要微调）。
+3. **追问**：Per-channel 和 Per-token 量化的区别是什么？（答：Per-channel 是对权重矩阵的每一列/行单独定 Scale；Per-token 是对每一个 Token 的激活值单独定 Scale。Per-channel 训练前/后均可，Per-tensor 仅能训练后；Per-token 推理计算开销大但精度高）。

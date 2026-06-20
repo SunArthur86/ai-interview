@@ -78,3 +78,8 @@ MFU = 实际 FLOPS / 峰值 FLOPS
 - `NCCL_DEBUG=INFO` → NCCL 通信日志
 - `CUDA_LAUNCH_BLOCKING=1` → 同步执行定位错误
 - `nccl-tests` → 通信基准测试
+
+## 常见考点
+1. **ZeRO-1, ZeRO-2, ZeRO-3 的切分粒度有什么区别？**（Optimizer States / Gradients / Parameters）
+2. **如何区分是通信 Bound 还是计算 Bound？**（查看 Nsight Systems 的 gap，如果计算Kernel之间有长空闲等待 NCCL，则是通信未重叠）
+3. **Gradient Checkpointing 为什么能节省显存？原理是什么？**（以计算换空间，前向不存所有中间激活，反向时重算）

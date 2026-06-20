@@ -36,59 +36,72 @@ follow_up:
 
 **维度一：记忆机制**
 
-| 框架 | 短期记忆 | 长期记忆 | 跨会话记忆 |
-|------|---------|---------|-----------|
-| Claude Code | 对话窗口 + 自动摘要压缩 | CLAUDE.md（项目级） | --resume 恢复会话 |
-| Hermes | 对话窗口 + Skills记忆体 | Memories目录（JSON持久化） | Profile隔离的多Profile记忆 |
-| OpenClaw | 对话窗口 + 事件流 | Workspace状态持久化 | 可选向量数据库集成 |
+| 框架 | 短期记忆 | 长期记忆 | 跨会话记忆 | 存储介质 |
+|------|---------|---------|-----------|----------|
+| Claude Code | 对话窗口 + 自动摘要压缩 | CLAUDE.md（项目级） | --resume 恢复会话 | 本地文件系统 |
+| Hermes | 对话窗口 + Skills记忆体 | Memories目录（JSON持久化） | Profile隔离的多Profile记忆 | JSON/向量DB |
+| OpenClaw | 对话窗口 + 事件流 | Workspace状态持久化 | 可选向量数据库集成 | Docker/沙箱 FS |
 
 **关键差异：**
-- **Claude Code** 采用"对话窗口+自动压缩"——超过上下文窗口时自动对早期对话做摘要，保留最近N轮原文。优点是无缝，缺点是早期细节可能丢失
-- **Hermes** 采用"结构化记忆"——把重要事实存为memories/*.json，可以精确检索和修改。适合需要精确回溯的场景
-- **OpenClaw** 采用"事件溯源"——记录所有Action/Observation对，可以replay。适合需要审计和debug的场景
+- **Claude Code** 采用"对话窗口+自动压缩"——超过上下文窗口时自动对早期对话做摘要，保留最近N轮原文。优点是无缝，缺点是早期细节可能丢失。压缩算法通常基于LLM自身的Summary能力，关键参数是`--max-tokens`阈值。
+- **Hermes** 采用"结构化记忆"——把重要事实存为memories/*.json，可以精确检索和修改。适合需要精确回溯的场景。支持语义检索，记忆体包含`content`, `importance_score`, `timestamp`等元数据。
+- **OpenClaw** 采用"事件溯源"——记录所有Action/Observation对，可以replay。适合需要审计和debug的场景。其工作区状态（如文件修改）是记忆的一部分，通过Docker Volume持久化。
 
 **维度二：工具调用**
 
-| 框架 | 工具定义方式 | 工具发现 | 并行调用 |
-|------|------------|---------|---------|
-| Claude Code | 内置Shell/FS + MCP Client | MCP Server自动发现 | 支持 |
-| Hermes | Tools + Skills + MCP | 配置文件声明 + MCP | 支持 |
-| OpenClaw | Plugin系统 | 注册式 | 有限支持 |
+| 框架 | 工具定义方式 | 工具发现 | 并行调用 | 安全沙箱 |
+|------|------------|---------|---------|----------|
+| Claude Code | 内置Shell/FS + MCP Client | MCP Server自动发现 | 支持 | 本地权限受限 |
+| Hermes | Tools + Skills + MCP | 配置文件声明 + MCP | 支持 | 依赖运行环境 |
+| OpenClaw | Plugin系统 | 注册式 | 有限支持 | Docker强隔离 |
 
 **关键差异：**
-- **Claude Code** 的MCP集成最深——启动时自动加载~/.claude/下的MCP配置，工具发现是零配置的
-- **Hermes** 的Skill系统最强——Skill=Prompt+工具+流程+记忆体，是最完整的能力封装
-- **OpenClaw** 的Plugin最灵活——支持热加载，但配置较复杂
+- **Claude Code** 的MCP集成最深——启动时自动加载~/.claude/下的MCP配置，工具发现是零配置的。Tool调用通过stdio流传输，支持Tool Timeout设置。
+- **Hermes** 的Skill系统最强——Skill=Prompt+工具+流程+记忆体，是最完整的能力封装。一个Skill可以包含多个子工具的编排逻辑。
+- **OpenClaw** 的Plugin最灵活——支持热加载，但配置较复杂。其通过Runtime动态加载代码，危险操作（如`rm -rf`）通常在容器内执行以保护宿主机。
 
 **维度三：上下文管理**
 
-| 框架 | 窗口策略 | 上下文注入 | 分支/并行 |
-|------|---------|-----------|----------|
-| Claude Code | 自动摘要压缩 | CLAUDE.md + 文件引用 | --resume多会话 |
-| Hermes | Token计数 + 智能裁剪 | Skills注入 + Memories检索 | Profile隔离 |
-| OpenClaw | 可配置窗口管理 | Workspace注入 | Agent分支 |
+| 框架 | 窗口策略 | 上下文注入 | 分支/并行 | Token利用率 |
+|------|---------|-----------|----------|------------|
+| Claude Code | 自动摘要压缩 | CLAUDE.md + 文件引用 | --resume多会话 | 高（自动去重） |
+| Hermes | Token计数 + 智能裁剪 | Skills注入 + Memories检索 | Profile隔离 | 中（检索开销） |
+| OpenClaw | 可配置窗口管理 | Workspace注入 | Agent分支 | 低（全量日志） |
 
 **上下文管理深度分析：**
 
 Claude Code的上下文压缩策略：
-```
-原始对话: [msg1, msg2, ..., msg50]  # 超出窗口
+```text
+原始对话: [msg1, msg2, ..., msg50]  # 超出窗口 (假设Limit=200k)
 压缩后:   [summary(msg1-30), msg31, ..., msg50]
-          └── 摘要替代原文 ──┘  └── 保留近期原文 ──┘
+          └── 摘要替代原文(消耗Token少) ──┘  └── 保留近期原文(高保真) ──┘
 ```
 
 Hermes的上下文注入策略：
-```
+```text
 系统Prompt = 固定指令
           + Skills定义（按需注入相关Skill）
-          + Memories检索（语义搜索相关记忆）
-          + 工具Schema
+          + Memories检索（语义搜索相关记忆，Top-K）
+          + 工具Schema (仅注入当前步骤可能用到的)
           + 当前对话
 ```
 
+OpenClaw事件溯源状态图：
+```text
+[用户输入] → [Agent决策] → [工具调用(Action)] → [环境反馈(Observation)]
+     ↑             ↓                              ↓
+     └────── [状态快照] ←─────────── [Workspace变更] ←─┘
+```
+
 **选型建议：**
-- **日常编程/快速原型** → Claude Code（零配置，开箱即用）
-- **需要持久记忆/多Profile** → Hermes（结构化记忆，Profile隔离）
-- **需要审计/可定制** → OpenClaw（事件溯源，Plugin灵活）
+- **日常编程/快速原型** → Claude Code（零配置，开箱即用，上下文压缩最智能）
+- **需要持久记忆/多Profile** → Hermes（结构化记忆，Profile隔离，适合复杂业务）
+- **需要审计/可定制** → OpenClaw（事件溯源，Plugin灵活，适合CI/CD集成）
 
 **架构启示：** 一个好的Agent框架需要在三个维度平衡——记忆不能太重（影响速度）也不能太轻（丢失上下文）；工具调用要灵活但有安全边界；上下文管理要自动但可干预。目前没有"完美"框架，选型应基于场景需求。
+
+## 常见考点
+1. **向量数据库 vs 传统数据库在Agent记忆中的区别**：RAG场景下为什么必须用向量？传统JSON检索无法解决语义匹配问题。
+2. **Context Window溢出处理策略**：除了摘要压缩，还有哪些策略？（如：滚动窗口、重要性打分分层丢弃）。
+3. **MCP (Model Context Protocol) 的核心价值**：为什么它比简单的Function Calling定义更强大？（标准化传输、独立性、可组合性）。
+4. **Agent状态的幂等性**：在ReAct循环中，如果工具调用失败，如何保证Agent不会陷入死循环？（设置Max Iterations、Fallback Mechanism）。

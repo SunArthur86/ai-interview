@@ -17,20 +17,48 @@ feynman:
 
 # 什么是Reranking？为什么RAG需要它？
 
-Reranking（重排序）是对初步检索结果用更精确的模型重新排序。
+Rerank（重排序）是提升 RAG 精度性价比最高的手段之一。
 
-**为什么需要：**
-1. 向量检索速度快但精度有限（embedding是压缩表示，有信息损失）
-2. 召回阶段取Top-50/100（高召回率），Rerank阶段精排到Top-5/10（高精确率）
-3. Cross-Encoder模型比Bi-Encoder更准确
+### 原理与架构
+```text
+阶段1: 检索 - 追求高召回
+User Query ──> Embedding Model ──> 向量库
+                           ↓
+                    Top-100 候选集
+                           │
+阶段2: 重排 - 追求高精度
+             ┌──────────────┴──────────────┐
+             │   Cross-Encoder (Reranker)  │ <── Query + Docs 拼接输入
+             │    (交互计算相关性分数)      │
+             └──────────────┬──────────────┘
+                           ↓
+                    Top-5 / Top-10
+                           ↓
+                    LLM Generation
+```
 
-**Bi-Encoder vs Cross-Encoder：**
-- **Bi-Encoder（Embedding）**：query和doc分别编码，计算余弦相似度。速度快但精度有限。
-- **Cross-Encoder（Reranker）**：query和doc拼接后一起输入模型，输出相关性分数。精度高但速度慢。
+### 为什么需要 Rerank
+1.  **弥补向量检索的不足**：Embedding 是将复杂语义压缩成向量，存在信息损失。对于细微差别（如否定词、具体数量），向量检索往往不如字面匹配。
+2.  **计算效率权衡**：
+    *   向量检索：独立编码 Query 和 Doc，可预先计算 Doc 向量，速度极快，适合从海量数据中捞出 Top-100。
+    *   Rerank：需将 Query 和每个 Doc 拼接输入模型进行交互，计算量大。仅对 Top-100 进行计算，耗时可控，但能显著提升 Top-5 的准确率。
 
-**常用Reranker：**
-- BAAI/bge-reranker-v2-m3（多语言）
-- Cohere Rerank API
-- bce-reranker-base_v1
+### 核心模型对比
+| 特性 | Bi-Encoder (检索) | Cross-Encoder (Rerank) |
+| :--- | :--- | :--- |
+| **输入** | Query 和 Doc 分别独立输入 | Query 和 Doc 拼接成 `[CLS] Query [SEP] Doc [SEP]` 一起输入 |
+| **计算方式** | 计算两个向量的余弦相似度 | 模型深层交互 Attention 机制，直接输出 0-1 相关性分数 |
+| **速度** | 极快 (毫秒级) | 慢 (与 Doc 数量成正比) |
+| **精度** | 中等 | 高 (SOTA 水平) |
 
-**流程：** 向量检索Top-100 → Rerank到Top-5 → 拼入Prompt
+### 常用模型
+*   **BAAI/bge-reranker-v2-m3**：支持多语言，轻量级。
+*   **Cohere Rerank (API)**：效果极佳，商业可用，支持多语言。
+
+## 常见考点
+1.  **Rerank 会对 RAG 系统的延迟产生多大影响？**
+    通常 Rerank 仅处理前 50-100 个文档，增加的延迟在几百毫秒级（取决于模型大小），相比 LLM 生成的时间（秒级）通常是可以接受的。
+2.  **向量检索效果已经很差了，Rerank 能救回来吗？**
+    不能。Rerank 只能从召回的集合中挑选最好的，如果相关信息根本没被召回，Rerank 也无能为力。它负责“锦上添花”，不负责“无中生有”。
+3.  **除了提升准确度，Rerank 还有其他作用吗？**
+    有的。Rerank 模型可以输出分数，我们可以设定阈值，低于阈值的 Context 不送给 LLM，从而过滤掉噪声，减少幻觉。

@@ -58,6 +58,20 @@ follow_up:
   - 数学能力大幅提升（Qwen2.5-Math）
 - 贡献：全面开源 SOTA，多个垂直版本
 
+**核心技术架构演进：**
+```text
+┌─────────────┐    ┌───────────────────────┐    ┌───────────────────────┐
+│  Qwen-1     │    │     Qwen-1.5          │    │    Qwen-2 / 2.5       │
+│─────────────│    │───────────────────────│    │───────────────────────│
+│ MHA / MQA   │───►│ GQA (Grouped Query)   │───►│ GQA + Rope Scaling     │
+│ SwiGLU      │    │ SwiGLU                │    │ SwiGLU                │
+│ 8K Context  │    │ 32K Context           │    │ 128K (YaRN/DCA)       │
+└─────────────┘    └───────────────────────┘    └───────────────────────┘
+       │                    │                            │
+       ▼                    ▼                            ▼
+  Base Release      Cache Effort Up         Long Context & Multilingual
+```
+
 **核心技术贡献汇总：**
 | 方面 | 贡献 |
 |------|------|
@@ -67,3 +81,9 @@ follow_up:
 | 多语言 | 29 种语言支持 |
 | 对齐 | DPO + 多轮 RLHF |
 | 生态 | Coder/Math/VL 多模态全家桶 |
+
+## 常见考点
+1. **GQA (Grouped Query Attention) 的优势**：相比 MHA 和 MQA，它在推理速度和模型效果之间是如何取得平衡的（KV Cache 显存占用减少，同时保持性能）？
+2. **长文本外推技术 YaRN**：它是如何在不重新训练全量长度的情况下扩展上下文窗口的（RoPE 基于位置插值的改进）？
+3. **MoE 架构相关**：Qwen2 是否引入了 MoE？（当前版本 Qwen2 主要是 Dense，但 Qwen1.5-MoE 曾尝试，注意区分）
+4. **数据规模效应**：Qwen2.5 使用 18T tokens 训练，体现了 Scaling Laws（缩放定律）的什么结论？

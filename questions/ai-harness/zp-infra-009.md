@@ -34,8 +34,8 @@ follow_up:
 | **KV 管理** | 分页块表 | Radix Tree 前缀复用 |
 | **批处理** | Continuous Batching | Continuous Batching + 结构化约束 |
 | **多轮对话** | 前缀复用有限 | Radix Tree 自动复用（优势大） |
-| **结构化输出** | 需后处理 | 原生支持（JSON/Regex/选择） |
-| **吞吐** | 高（通用场景） | 更高（多轮/前缀共享场景） |
+| **结构化输出** | 需后处理 | 原生支持（JSON/Regex/选择）|
+| **吞吐** | 高（通用场景） | 更高（多轮/前缀共享场景）|
 | **生态** | 更成熟，社区大 | 新兴，增长快 |
 
 **vLLM 核心优势：**
@@ -57,3 +57,8 @@ follow_up:
 **适用场景：**
 - **vLLM**：通用推理、单轮对话、API 服务
 - **SGLang**：多轮对话、Agent、结构化输出、Few-shot 大量前缀共享
+
+## 常见考点
+1. **Radix Tree 相比 vLLM 的 Block Manager 在前缀共享上有何本质不同？**（Block Manager 主要解决碎片，Radix Tree 逻辑上更高效地处理了树状结构的共享引用）
+2. **vLLM 的 PagedAttention 在实现计算时是如何处理非连续物理 Block 的？**（通过 paged_kernel 索引映射）
+3. **结构化输出的正则约束通常如何集成到 Decoding 过程中？**（通常构建一个 Finite State Machine (FSM) 动态屏蔽无效 Token）

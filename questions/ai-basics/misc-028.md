@@ -31,10 +31,43 @@ follow_up:
 | 角色 | **召回**(第一阶段) | **重排**(第二阶段) |
 
 - **两阶段检索流程:**
-1. Bi-Encoder召回Top-50(快)
-2. Cross-Encoder重排选Top-5(准)
+
+```text
+Query
+ │
+ ├──────────────────┐
+ │                  │
+ ▼                  ▼
+┌──────────────┐
+│ Phase 1:     │
+│ Bi-Encoder   │
+│ (Recall)     │
+└──────┬───────┘
+       │
+       │ Returns Top-50 (Fast, Approx)
+       ▼
+┌──────────────┐
+│ Phase 2:     │
+│ Cross-Encoder│
+│ (Rerank)     │
+└──────┬───────┘
+       │
+       │ Returns Top-5 (Slow, Precise)
+       ▼
+    Answer
+```
 
 - **主流Reranker:**
 - Cohere Rerank(API)
 - BGE-Reranker(开源)
 - Jina Reranker(开源)
+
+## 常见考点
+1. **为什么Cross-Encoder精度更高但速度慢？**
+   - Cross-Encoder让Query和Doc在全连接层中充分交互（Self-Attention），能捕捉深层匹配信号，但无法预先计算Doc的Embedding，必须实时计算Q-D对。
+
+2. **Reranker的输入规模如何控制？**
+   - 通常只对第一阶段的Top-K（如Top-50或Top-100）进行重排，否则计算开销会随文档数量线性增长，无法在线使用。
+
+3. **如何处理Reranker的长文本限制？**
+   - 切片处理或只截取关键部分（如标题和首段）。部分模型（如BGE-large）支持更长的上下文窗口。

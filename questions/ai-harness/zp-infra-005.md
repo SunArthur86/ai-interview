@@ -65,3 +65,8 @@ follow_up:
 | 延迟 | 单次前向延迟高 | 持续低延迟 |
 | 吞吐 | 低 batch 好 | 高 batch 好 |
 | 实现 | Medusa/EAGLE | PEARL |
+
+## 常见考点
+1. **Speculative Decoding 如何保证数学上的等价性？**（涉及 rejection sampling 的概率证明）
+2. **树状投机验证时 Attention Mask 是如何构造的？**（需构建稀疏 Mask 以并行计算所有候选路径）
+3. **Acceptance Rate 是什么？低于多少时投机解码会变成负优化？**（通常需 >50% 才能抵消并行计算开销）

@@ -22,15 +22,37 @@ follow_up:
 
 # 处理100K+长上下文推理时,KV Cache和Attention如何优化
 
-- **挑战:** 128K上下文,KV Cache可达80GB+(70B模型),Attention O(n²)计算
+- **挑战:** 128K 上下文下，KV Cache 显存占用可达 80GB+ (70B 模型)，Attention 计算 $O(N^2)$ 导致延迟极高，且显存带宽成为瓶颈。
 
-- **KV Cache优化:**
-1. **量化KV Cache** - INT8/FP8,减少50%显存
-2. **PagedAttention** - 分页管理消除碎片
-3. **KV Cache Offloading** - 不活跃部分放到CPU/SSD
+- **KV Cache 优化:**
+1. **量化** - INT8/FP8 甚至 INT4 (如 GPTQ, AWQ, SmoothQuant)，减少 50%-75% 显存，注意量化误差对长尾语义的影响。
+2. **PagedAttention (vLLM)** - 将 KV Cache 划分为固定大小的 Block，类似操作系统虚拟内存，物理上不连续，逻辑上连续，有效解决内存碎片问题，支持动态 Batch。
+3. **KV Cache Offloading** - 将不活跃或历史层级的 KV 数据交换到 CPU 内存或 NVMe SSD (如 PowerInfer)，利用 CPU 大内存换取 GPU 显存，代价是增加了 IO 延迟。
+4. **Shared Prefix Caching** - 对于 System Prompt 或重复的文档前缀，在显存中只保留一份，多个请求共享计算结果 (RadixAttention)。
 
-- **Attention优化:**
-1. **Ring Attention** - 多GPU环形分片,支持百万token
-2. **稀疏Attention** - 只关注局部窗口+全局token
-3. **滑动窗口注意力** - Mistral用SWA,固定窗口大小
-4. **StreamingLLM** - 保留attention sink + 滑动窗口,支持无限长度推理
+- **Attention 计算/架构优化:**
+1. **Ring Attention** - 多 GPU 环形分片。每个 GPU 只计算局部 Attention，通过 Ring All-Pass 通信传递 KV Block，支持超长上下文 (1M+)，通信开销与 GPU 数量相关。
+2. **稀疏 Attention** - 如 Longformer, BigBird，结合局部窗口 + 全局 token，复杂度降至 $O(N)$，但可能损害长距离依赖建模。
+3. **滑动窗口注意力 (SWA)** - Mistral/Alibaba 采用，固定窗口大小 (如 4096)，显存恒定，但超出窗口的信息完全丢失。
+4. **StreamingLLM** - 保留初始的 "Attention Sink" token (通常是 [BOS] 或高频 token) + 滑动窗口，利用 Sink 稳定 Attention 分数分布，支持流式无限长度推理而不重训。
+
+```text
+┌─────────────────────────────────────────────────────┐
+│                  Ring Attention (4 GPUs)            │
+├─────────────┬─────────────┬─────────────┬─────────────┤
+│   GPU 0     │   GPU 1     │   GPU 2     │   GPU 3     │
+│  Local Q&K  │  Local Q&K  │  Local Q&K  │  Local Q&K  │
+│  [Block 0]  │  [Block 1]  │  [Block 2]  │  [Block 3]  │
+│      │      │      │      │      │      │      │      │
+│      ▼      │      ▼      │      ▼      │      ▼      │
+│  Compute ◄──┼──Compute ◄──┼──Compute ◄──┼──Compute ◄──┤
+│ (Pass KV)   │ (Pass KV)   │ (Pass KV)   │ (Pass KV)   │
+└─────────────┴─────────────┴─────────────┴─────────────┘
+说明: KV Block 在环中依次传递，每个 GPU 计算完当前块后
+将 KV 传给下一台 GPU，最终 Q 看到了所有的 K。
+```
+
+- **## 常见考点**
+1. **Attention Sink 的原理**：为什么丢弃中间 token 会导致生成崩塌，而保留开头几个 token 就能稳定输出？(Softmax 归一化特性)
+2. **PagedAttention 的计算复杂度**：在连续生成时，PagedAttention 相比传统显存管理在算子层面有哪些额外开销？(Block table 读取)
+3. **FlashAttention 的地位**：在长上下文优化中，FlashAttention (IO 感识) 是基础，其他策略主要解决的是显存容量和多卡扩展问题。

@@ -68,3 +68,8 @@ follow_up:
 
 5. **GQA/MQA 减少 KV 头数**
    - GLM-4 用 GQA（4-8 组）→ KV Cache 减少 4-8x
+
+## 常见考点
+1. **PagedAttention 中 Block Table 的维护开销在哪里？**（CPU 管理开销与 GPU 内存碎片消除的权衡）
+2. **Continuous Batching 和 Static Batching 在调度策略上的本质区别？**（基于 Step vs 基于 Token 的时间片）
+3. **KV Cache 量化（INT8）对推理精度的具体影响在哪些场景最明显？**（通常在长文本、复杂推理任务中）

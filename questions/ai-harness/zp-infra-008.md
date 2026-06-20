@@ -73,3 +73,8 @@ Arithmetic Intensity (AI) = FLOPs / Bytes
   3. Tensor Core: 用 WMMA/MMA 指令做矩阵乘
   4. Vectorized access: float4 一次读 4 个 float
 ```
+
+## 常见考点
+1. **Occupancy 是不是越高越好？**（不是，有时牺牲 Occupancy 换取更多的 Register/Shared Memory 使用能减少全局内存访问）
+2. **如何通过 Nsight Compute 的 `dram__throughput` 和 `dram__bytes_sum` 快速判断是否 Memory Bound？**（如果吞吐接近峰值或 Stall 主要在 Memory，即为 Memory Bound）
+3. **Warp Divergence 对性能的影响有多大？如何检测？**（查看 `smsp__thread_branch_executed` 指标）

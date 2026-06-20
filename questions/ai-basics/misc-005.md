@@ -20,7 +20,7 @@ follow_up:
 
 # MHA、MQA、GQA三者有什么区别?为什么大模型倾向用GQA
 
-三者是Key/Value在不同head间的共享策略:
+MHA、MQA、GQA三者是Key/Value在不同head间的共享策略:
 
 | 方案 | K/V头数 | KV Cache | 质量 | 速度 |
 |------|---------|----------|------|------|
@@ -30,7 +30,14 @@ follow_up:
 
 - **核心权衡:** K/V头越少→KV Cache越小→推理越快,但质量可能下降
 
-- **GQA (Grouped Query Attention):**
+**补充细节：**
+- **MHA (Multi-Head Attention)**: 每个头都有独立的 $W_Q, W_K, W_V$。表达能力最强，但解码时访存开销巨大，因为每个头都要加载对应的 Key/Value 向量。
+- **MQA (Multi-Query Attention)**: 所有头共享同一组 $W_K, W_V$。KV Cache 仅需一份，极大减少显存占用和 HBM 带宽（带宽通常是推理瓶颈），但可能导致模型表达能力的“坍缩”。
+- **GQA (Grouped-Query Attention)**: 折中方案。将 $N$ 个 Query 头分为 $G$ 组，每组共享一个 $K$ 和 $V$ 头。当 $G=1$ 时退化为 MQA，当 $G=N$ 时退化为 MHA。
+
+**计算影响**：在推理阶段，Attention 计算受限于内存带宽。GQA 减少了读取 Key/Value 的数据量，从而显著提升推理吞吐量（TPS），而不仅仅是显存静态占用的减少。
+
+- **GQA (Grouped-Query Attention):**
 - 将Q头分为G组,每组共享一对K/V
 - 例如32个Q头分为8组,每组4个Q头共享K/V
 - KV Cache减少为MHA的1/4
@@ -40,3 +47,37 @@ follow_up:
 - LLaMA-3: GQA
 - Mistral: GQA
 - GLM-4: GQA
+
+**ASCII 结构图（Head 共享模式）：**
+```
+MHA (标准模式):
+  Q_head1 ───┐
+  Q_head2 ───┤
+  Q_head3 ───┼──► Attention ──► Output
+  Q_head4 ───┤      (各算各的 K/V)
+              │
+  K_head1 ───┤
+  K_head2 ───┤
+  K_head3 ───┘
+  K_head4 ───┘  (V 同理)
+
+MQA (极致共享):
+  Q_head1 ───┐
+  Q_head2 ───┼──► Attention ──► Output
+  Q_head3 ───┤      (共用同一个 K_head)
+  Q_head4 ───┘
+              │
+  K_shared ───┘
+
+GQA (分组共享 - G=2):
+  Q_head1 ───┐
+  Q_head2 ───┼──► Attention (Group 1)
+              │       (共用 K_group1)
+  Q_head3 ───┼──► Attention (Group 2)
+  Q_head4 ───┘       (共用 K_group2)
+```
+
+## 常见考点
+1. **训练与推理一致性**：如果模型在训练时使用 MHA，推理时能否直接切换到 GQA/MQA？(不能，权重结构不同；需使用 Uptraining / Knowledge Distillation 进行对齐训练)。
+2. **性能瓶颈**：为什么减少 KV Cache 能提速？(解释 Compute-bound vs Memory-bound，大模型推理通常是 Memory-bound，减少访存量比减少计算量更关键)。
+3. **分组策略选择**：GQA 的分组数量 G 如何选取？(通常根据模型大小和 KV Cache 压缩率需求折中，如 40B 模型常用 G=8)。

@@ -46,6 +46,35 @@ follow_up:
 - **Repetition Penalty**：对已出现 token 降权，减少重复
 - **Frequency Penalty**：按出现次数惩罚
 
+**解码流程架构图：**
+```text
+      Input Prompt
+           │
+           ▼
+┌───────────────────────┐
+│   Model Forward Pass  │  ◄── Hidden States
+│   (计算 Logits)       │
+└───────────┬───────────┘
+            │
+            ▼
+┌───────────────────────┐
+│   Logits Processing   │
+│ 1. Temperature Scale  │
+│ 2. Repetition Penalty │
+└───────────┬───────────┘
+            │
+            ▼
+┌───────────────────────┐
+│   Sampling Strategy   │─────► Greedy / Beam / Top-K / Top-P
+└───────────┬───────────┘
+            │
+            ▼
+      Selected Token
+            │
+            ▼ (Append to Input)
+      Next Step ...
+```
+
 **实用建议：**
 - 代码/数学：T=0~0.3（确定性优先）
 - 创意写作：T=0.7~1.0（多样性优先）
@@ -54,3 +83,9 @@ follow_up:
 **进阶：**
 - **Speculative Decoding** — 小模型草拟+大模型验证，加速 2-3×
 - **Medusa** — 多头并行预测多个 token
+
+## 常见考点
+1. **Top-K 与 Top-P 的区别与联系**：为什么要结合使用（通常 Top-P 更灵活，K 是硬截断）？
+2. **Beam Search 的缺点**：为什么在开放式生成（如对话）中效果不如采样（容易导致重复生硬）？
+3. **Temperature 为 0 时的数值稳定性**：在代码实现中如何避免除零错误（通常取极小值如 1e-5）？
+4. **Speculative Decoding 的加速原理**：它是如何保证输出结果与原模型一致性的（接受率机制）？

@@ -50,3 +50,32 @@ follow_up:
 - 代码能不能跑通、数学题对不对——自动验证
 - DeepSeek-R1用GRPO+规则奖励实现RL，无需人工标注
 - DPO简化了RLHF流程（无需显式RM），成为快速对齐首选
+
+**SFT vs RLHF/DPO 流程对比：**
+```text
+SFT Pipeline:                    RLHF/DPO Pipeline:
+
+  Data (Q&A)                       Data (Prompts)
+     │                                 │
+     ▼                                 ▼
+[Loss Calc]                     ┌─────────────────┐
+(Predict Target)                │  Generate/Explore│
+     │                          └────────┬────────┘
+     ▼                                   │
+┌─────────┐                     ┌────────▼────────┐
+│ Update  │                     │ Reward Scoring  │
+│ Weights │                     │ (RM or Rule)    │
+└─────────┘                     └────────┬────────┘
+                                        │
+                                     ┌───▼────┐
+                                     │ Update │ (DPO/PPO)
+                                     │Weights │
+                                     └────────┘
+
+特点: 单步闭环，极快              特点: 双模型/多步交互，慢但细腻
+```
+
+## 常见考点
+1. **DPO原理**：为什么DPO不需要训练单独的Reward Model？（DPO直接利用偏好数据优化策略，将Reward隐式地消解在策略比对中，推导自RL的目标函数）
+2. **Reward Hacking**：在RLHF训练中，模型学会欺骗Reward Model得分高但输出质量差，怎么破？（使用混合Reward：模型评分 + 规则约束 + 人工抽检）
+3. **数据规模效应**：在SFT中，为什么有时候增加数据反而效果变差？（数据质量分布不均，低质量数据污染了模型原有的通用能力，需严格数据清洗和课程学习Curriculum Learning）

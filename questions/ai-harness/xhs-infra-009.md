@@ -25,27 +25,66 @@ follow_up:
 
 # Prefill-Decode分离（PD分离）是什么？为什么能提升推理效率？
 
-PD分离将推理的两个阶段分开调度到不同GPU上。
+PD分离将推理的两个阶段分开调度到不同GPU上，是当前解决大模型推理算力浪费和延迟波动的核心架构之一。
 
 ## 两个阶段的区别
 | | Prefill阶段 | Decode阶段 |
 |---|---|---|
 | 输入 | 整个prompt | 上一步生成的1个token |
-| 计算量 | 大（O(N^2)） | 小（O(N)）|
+| 计算量 | 大（O(N^2)） | 小（O(N)|
 | 特点 | 计算密集 | 内存密集 |
-| GPU利用率 | 高 | 低（memory-bound） |
+| GPU利用率 | 高（Compute-bound） | 低（Memory-bound） |
 
-## PD分离策略
-1. **Prefill节点**：用高算力GPU（如H100）快速处理prompt
-2. **Decode节点**：用多张低成本GPU（如L4）并行decode
-3. **KV Cache传输**：Prefill完成后将KV Cache传给Decode节点
+## PD分离架构流程图
+
+```text
+用户请求队列
+    │
+    ▼
+┌─────────────────┐
+│  调度器/路由器   │
+│  (Batching)     │
+└────────┬────────┘
+         │
+         ├──────────────────────┐
+         ▼                      ▼
+  ┌─────────────┐         ┌─────────────┐
+  │ Prefill GPU │         │ Decode GPU  │
+  │  (H100/A100) │         │  (L40S/L4)  │
+  │             │         │             │
+  │ 1. Attention│         │ 1. Attention│
+  │ 2. FFN      │         │ 2. FFN      │
+  │ 3. 生成KV   │         │ 3. 读取KV   │
+  └──────┬──────┘         └──────┬──────┘
+         │ KV Cache (RDMA)│     │
+         └────────────────>┘     │
+                            新Token生成
+```
+
+## 核心策略与细节
+1. **Prefill节点**：
+   - 使用高算力GPU（如H100）快速处理Prompt。
+   - **细节**：Prefill阶段主要受限于算力，HBM带宽往往不是瓶颈，因此高TFLOPS卡性价比最高。
+
+2. **Decode节点**：
+   - 使用多张低成本、高显存带宽GPU（如L4）并行Decode。
+   - **细节**：Decode阶段主要受限于显存带宽（Memory-bound），对单卡算力要求低。利用L4的高显存带宽优势可以显著降低TTFT（Time To First Token）后的Token生成延迟。
+
+3. **KV Cache传输**：
+   - Prefill完成后将KV Cache传给Decode节点。
+   - **关键细节**：这是架构的关键路径。通常使用 **RDMA (Remote Direct Memory Access)** 技术实现零拷贝网络传输，避免跨节点传输时的CPU中断和内存拷贝开销。若KV Cache很大（如长文本场景），需考虑分级传输或压缩。
 
 ## 优势
-- Prefill和Decode各自优化到最优
-- 资源利用率最大化
-- 支持更灵活的弹性调度
+- **硬件异构性利用**：Prefill和Decode各自利用最合适的硬件，降低TCO（总拥有成本）。
+- **资源利用率最大化**：避免了Decode阶段占用昂贵的高算力卡导致的资源闲置。
+- **隔离性**：Prefill的突发长请求不会挤占Decode节点的计算资源，从而稳定了端到端的延迟。
 
-## 挑战
-- KV Cache传输延迟（可通过RDMA缓解）
-- 负载均衡更复杂
-- 小红书/美团等场景：长上下文+高并发时效果显著
+## 挑战与边界条件
+- **KV Cache传输延迟**：跨节点传输带来的网络延迟可能抵消计算加速收益。**边界条件**：当Prompt长度非常短（如N<10）时，分离带来的网络开销可能超过计算收益，此时耦合架构可能更优。
+- **负载均衡更复杂**：需要动态调整Prefill和Decode集群的比例，否则会出现 Decode 队列积压 或 Prefill 节点空闲。
+- **一致性**：在连续批处理中，如何将完成Prefill的请求无缝插入到Decode节点的Batch中，需要复杂的调度器设计（如vLLM的Prefix Caching支持）。
+
+## 常见考点
+1. **追问**：在什么情况下 PD 分离反而会降低性能？（答：Prompt极短、网络带宽不足、KV Cache过大导致传输时间长于计算时间）。
+2. **追问**：如何解决 Prefill 和 Decode 节点之间的 KV Cache 传输延迟问题？（答：使用 RDMA/InfiniBand，或者计算-传输流水线重叠）。
+3. **追问**：除了分离 GPU，调度层面有什么优化？（答：Continuous Batching，也就是迭代级调度，将不同阶段的请求混合在一个 Batch 中处理）。

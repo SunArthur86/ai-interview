@@ -38,3 +38,29 @@ follow_up:
 - 标准prompt: 17.7%
 - Zero-shot CoT: 46.9%
 - Few-shot CoT: 56.9%
+
+- **内部计算流示意:**
+
+```text
+Input: "Roger has 5 balls. He buys 2 cans of 3 balls each..."
+
+Standard Prompt:
+Input -> Model -> Output (Direct Answer, often wrong)
+
+CoT Prompt:
+Input -> Model -> 
+  "Step 1: Start with 5 balls.
+   Step 2: 2 cans * 3 balls = 6 balls.
+   Step 3: 5 + 6 = 11 balls.
+   Answer: 11"
+```
+
+## 常见考点
+1. **CoT 的涌现现象是什么？**
+   - CoT 效果通常只在模型规模超过一定阈值（如约 100B 参数或 70B 参数，取决于模型）时才会显著出现。小模型增加 CoT 提示甚至可能降低性能。
+
+2. **Zero-shot CoT 为什么仅仅加一句话就有效？**
+   - 这句话激活了模型在预训练期间见过的「推理模式」样本空间，引导模型生成类似的逐步推理文本，从而自我纠错。
+
+3. **CoT 的缺点是什么？**
+   - 显著增加了推理延迟（生成更多 token）和成本；且对于知识回忆类问题帮助不大，甚至可能因为过度推理引入错误。
