@@ -1,27 +1,21 @@
 ---
-id: "misc-047"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "训练与微调"
+id: misc-047
+difficulty: L2
+category: ai-basics
+subcategory: 训练与微调
 tags:
-  - "IOC"
+- IOC
 feynman:
-  essence: "**知识蒸馏:** 用大模型(Teacher)的输出训练小模型(Student)."
-  analogy: "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。"
+  essence: 将大模型的“暗知识”（类间关系和推理过程）迁移给小模型。
+  analogy: 老师不只告诉你答案是A，还告诉你B错在哪、C差多少，让你学得更透彻。
+  first_principle: 如何保留大模型的知识精髓，同时实现小模型的高效部署？
   key_points:
-    - "知识蒸馏: 用大模型(Teacher)的输出训练小模型(Student)."
-    - "软标签 vs 硬标签:"
-    - "硬标签: one-hot向量 [0, 0, 1, 0] - 信息量少"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 软标签：包含各类概率的平滑分布，蕴含类间相似度信息。
+  - CoT蒸馏：直接学习大模型的思维链步骤，习得推理能力。
+  - 目的：在保持性能的前提下，大幅压缩模型参数和推理成本。
 follow_up:
-  - "蒸馏和量化的区别?"
-  - "如何选择Teacher模型?"
+- 蒸馏和量化的区别?
+- 如何选择Teacher模型?
 ---
 
 # 知识蒸馏在大模型中如何应用?软标签和硬标签的区别是什么

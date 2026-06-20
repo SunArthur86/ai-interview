@@ -1,33 +1,27 @@
 ---
-id: "zp-infra-007"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "推理优化"
+id: zp-infra-007
+difficulty: L3
+category: ai-harness
+subcategory: 推理优化
 tags:
-  - "智谱"
-  - "面经"
-  - "FlashAttention"
-  - "IO-aware"
-  - "内存优化"
+- 智谱
+- 面经
+- FlashAttention
+- IO-aware
+- 内存优化
 feynman:
-  essence: "FlashAttention = 不把 N×N 的注意力矩阵写到显存（太慢），而是拆成小块在 GPU 的快速缓存里算完。算得'步骤'没少，但'搬运数据'少了，所以快了。"
-  analogy: "算 1000×1000 矩阵——标准方法是全部写在白板上（HBM），算一下读一下。FlashAttention 是每次拿 32×32 的小块到脑子里算（SRAM），算完直接写结果。白板读写少了，所以快。"
+  essence: 利用分块计算避免HBM读写瓶颈，提升IO效率
+  analogy: 像做菜先备好小料（分块），在案板上（SRAM）切好，别总跑冰箱（HBM）拿东西
+  first_principle: 如何避免GPU显存带宽限制成为长序列计算的瓶颈？
   key_points:
-    - "核心：分块在 SRAM 计算，减少 HBM 读写"
-    - "Online softmax 实现分块注意力"
-    - "反向重计算，内存 O(N²)→O(N)"
-    - "v2优化分区，v3利用H100异步+FP8"
-first_principle:
-  problem: "Attention 的计算量是 O(N²d)，HBM 读写也是 O(N²)。但 GPU 算力远大于带宽，所以瓶颈是 IO（memory-bound）。如何减少 IO？"
-  axioms:
-    - "GPU SRAM 带宽 >> HBM 带宽（约 10x）"
-    - "Attention 需要全局 softmax → 似乎无法分块"
-    - "Online softmax 可以分块计算归一化"
-  rebuild: "从 IO 瓶颈出发：① 为什么慢（HBM 读写 O(N²)）？② 能否避免写 N×N 矩阵（分块计算）？③ softmax 怎么分块（online softmax）？④ 反向传播怎么办（重计算）？⑤ 硬件特性怎么利用（TMA/FP8）？"
+  - 将注意力矩阵分块在SRAM中计算
+  - 通过重计算策略大幅降低显存占用
+  - v2优化并行度，v3利用H100硬件特性加速
+  - 将算法从计算受限转为IO受限的优化
 follow_up:
-  - "为什么 FlashAttention 能加速？—— 不是算得更快，而是减少了 HBM 读写次数"
-  - "online softmax 怎么做的？—— 分块计算时维护 running max 和 running sum，逐步归一化"
-  - "FlashAttention 反向传播怎么工作？—— 不存 attention matrix，反向时用存的 softmax 统计量重算"
+- 为什么 FlashAttention 能加速？—— 不是算得更快，而是减少了 HBM 读写次数
+- online softmax 怎么做的？—— 分块计算时维护 running max 和 running sum，逐步归一化
+- FlashAttention 反向传播怎么工作？—— 不存 attention matrix，反向时用存的 softmax 统计量重算
 ---
 
 # 【智谱Infra面经】FlashAttention 的核心原理是什么？v1/v2/v3 各有什么改进？

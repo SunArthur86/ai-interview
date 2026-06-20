@@ -1,25 +1,19 @@
 ---
-id: "misc-042"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "评估与安全"
+id: misc-042
+difficulty: L2
+category: ai-basics
+subcategory: 评估与安全
 feynman:
-  essence: "C-Eval + GSM8K + HumanEval + MT-Bench + 真实用户A/B测试。"
-  analogy: "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。"
+  essence: 通过标准化数据集和指标量化模型的各项能力，衡量模型优劣。
+  analogy: 像“高考”一样统一出题，给学生打分，但高分未必代表能干好工作。
+  first_principle: 如何科学、客观地衡量大模型在特定任务或通用场景下的能力水平？
   key_points:
-    - "数据污染 - 训练数据可能包含测试题"
-    - "过拟合 - 针对benchmark优化"
-    - "覆盖面 - 无法覆盖真实使用场景"
-first_principle:
-  problem: "为什么需要 大模型的主流评估基准有哪些?各自评估什么能力?有什么局限性？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - MMLU考知识广度，GSM8K/HumanEval考逻辑
+  - MT-Bench侧重对话体验
+  - 警惕数据污染，需结合人工评测
 follow_up:
-  - "如何检测模型是否在benchmark上过拟合?"
-  - "LiveBench如何解决数据污染问题?"
+- 如何检测模型是否在benchmark上过拟合?
+- LiveBench如何解决数据污染问题?
 ---
 
 # 大模型的主流评估基准有哪些?各自评估什么能力?有什么局限性

@@ -1,27 +1,21 @@
 ---
-id: "misc-046"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-046
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 tags:
-  - "Elasticsearch"
+- Elasticsearch
 feynman:
-  essence: "- *o1的核心突破:** **传统模型：** 输入→输出(一步到位) **o1模型：** 输入→**长思维链推理**→输出 - *关键技术:** 1. **R"
-  analogy: "Chain of Thought 就像写解题过程——一步一步推导比直接写答案准确率高。"
+  essence: 利用强化学习让模型学会在输出前进行长链思考，而非直接给出答案。
+  analogy: 像解题时不直接写答案，而是草稿纸上反复推演验证，最后再给出结果。
+  first_principle: 如何让模型通过增加推理时的思考时间来换取更高的准确率？
   key_points:
-    - "RL训练推理 - 用强化学习训练模型「学会思考更久」"
-    - "测试时计算(Test-Time Compute) - 给更多推理时间→更好结果"
-    - "隐藏CoT - 推理过程对用户隐藏(商业机密)"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 核心区别：引入思维链，将计算开销从训练后移至推理时。
+  - 训练方法：使用RL（如GRPO）奖励正确推理过程，非仅监督学习。
+  - 能力涌现：模型能自发学会自我反思和错误验证。
 follow_up:
-  - "R1-Zero为什么不需要SFT冷启动?"
-  - "测试时计算scaling law如何?"
+- R1-Zero为什么不需要SFT冷启动?
+- 测试时计算scaling law如何?
 ---
 
 # OpenAI o1模型的推理能力和传统模型有什么本质区别?DeepSeek-R1是如何复现的

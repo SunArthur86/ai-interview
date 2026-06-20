@@ -1,33 +1,27 @@
 ---
-id: "zp-infra-009"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "推理优化"
+id: zp-infra-009
+difficulty: L3
+category: ai-harness
+subcategory: 推理优化
 tags:
-  - "智谱"
-  - "面经"
-  - "vLLM"
-  - "SGLang"
-  - "推理引擎"
+- 智谱
+- 面经
+- vLLM
+- SGLang
+- 推理引擎
 feynman:
-  essence: "vLLM 是'内存管理大师'（PagedAttention），SGLang 是'记忆+结构双修'（RadixAttention+结构化生成）。前者通用场景最强，后者多轮对话和 Agent 场景更强。"
-  analogy: "vLLM 像高效出租车调度（每辆车充分利用），SGLang 像有记忆的出租车+能按路线约束行驶（记住常客路线+只走指定道路）。"
+  essence: PagedAttention解决显存碎片，RadixAttention解决计算冗余
+  analogy: vLLM像高效图书馆管理员管理书架，SGLang像聪明的读书会自动识别共读章节
+  first_principle: 如何在高并发服务中同时兼顾显存效率和计算复用？
   key_points:
-    - "vLLM：PagedAttention + 连续批处理"
-    - "SGLang：RadixAttention + 结构化生成"
-    - "多轮/Agent → SGLang 更优"
-    - "通用 API → vLLM 更成熟"
-first_principle:
-  problem: "推理引擎的瓶颈在 KV Cache 管理和请求调度。不同场景（通用/多轮/结构化）的瓶颈不同，如何针对性优化？"
-  axioms:
-    - "KV Cache 是内存瓶颈 → 分页管理（vLLM）或前缀复用（SGLang）"
-    - "多轮对话/Agent 有大量前缀重复 → 自动复用收益大"
-    - "结构化输出需要约束 token 采样 → 原生支持比后处理高效"
-  rebuild: "从推理场景出发：① 通用场景的瓶颈（碎片/调度）→ vLLM 解决 ② 多轮/Agent 的特殊需求（前缀复用）→ SGLang RadixAttention ③ 结构化输出的需求（JSON约束）→ SGLang 原生支持 ④ 各自适用场景的 trade-off？"
+  - vLLM通过PagedAttention优化显存管理
+  - SGLang利用Radix Tree共享前缀计算
+  - SGLang原生支持结构化输出约束
+  - vLLM生态更成熟，SGLang在特定场景吞吐更高
 follow_up:
-  - "RadixAttention 和 PagedAttention 能一起用吗？—— 可以，SGLang 底层也用分页管理"
-  - "结构化生成怎么做？ — — 在 logits 上加 mask，只允许符合约束的 token"
-  - "TGI 和 TensorRT-LLM 呢？ — — TGI（HuggingFace）注重易用性，TensorRT-LLM（NVIDIA）注重极致性能"
+- RadixAttention 和 PagedAttention 能一起用吗？—— 可以，SGLang 底层也用分页管理
+- 结构化生成怎么做？ — — 在 logits 上加 mask，只允许符合约束的 token
+- TGI 和 TensorRT-LLM 呢？ — — TGI（HuggingFace）注重易用性，TensorRT-LLM（NVIDIA）注重极致性能
 ---
 
 # 【智谱Infra面经】vLLM 和 SGLang 有什么区别？各自的优势和适用场景？

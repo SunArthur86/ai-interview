@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-043"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI代码助手"
+id: ai-scen-043
+difficulty: L3
+category: ai-scenario
+subcategory: AI代码助手
 tags:
-  - "代码助手"
-  - "Copilot"
-  - "代码补全"
-  - "FIM"
-  - "Code LLM"
-  - "RAG for Code"
+- 代码助手
+- Copilot
+- 代码补全
+- FIM
+- Code LLM
+- RAG for Code
 feynman:
-  essence: "【场景分析】 AI代码助手（类GitHub Copilot）核心能力：代码补全、代码生成、Bug修复、代码解释、重构建议"
-  analogy: "向量就像一串数字坐标——把文字/图片的语义编码成数学表示，让机器能计算相似度。"
+  essence: 基于上下文感知的代码补全与生成，RAG解决长尾依赖。
+  analogy: 像坐在旁边的资深程序员，看着你写并实时提供建议。
+  first_principle: 如何让AI模型理解项目的完整上下文与意图？
   key_points:
-    - "当前文件：光标位置前后的代码"
-    - "跨文件上下文：同项目的相关文件（import关系）"
-    - "语义上下文：相似代码片段检索（向量化代码库）"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - FIM补全与Chat生成双模式
+  - RAG检索项目代码片段
+  - Plan-Execute处理多文件修改
+  - 本地推理保障代码隐私
 follow_up:
-  - "如何处理大型项目的上下文窗口限制？"
-  - "代码补全的延迟如何优化到200ms以内？"
-  - "如何确保生成的代码不含安全漏洞？"
+- 如何处理大型项目的上下文窗口限制？
+- 代码补全的延迟如何优化到200ms以内？
+- 如何确保生成的代码不含安全漏洞？
 ---
 
 # 如何设计一个AI代码助手（类似GitHub Copilot）？支持代码补全、生成、Bug修复。

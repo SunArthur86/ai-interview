@@ -1,24 +1,18 @@
 ---
-id: "ai-basics-s005"
-difficulty: "L1"
-category: "ai-basics"
-subcategory: "深度学习基础"
+id: ai-basics-s005
+difficulty: L1
+category: ai-basics
+subcategory: 深度学习基础
 images:
-  - "svg_attention.svg"
+- svg_attention.svg
 feynman:
-  essence: "注意力机制（Attention）让模型在处理一个元素时，'关注'其他相关元素，动态分配权重"
-  analogy: "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度。"
+  essence: 通过查询、键、值的交互动态聚合信息，解决长距离依赖并实现并行计算。
+  analogy: 读文章时，看到某句话会回头找相关的上下文来理解它。
+  first_principle: 如何让模型在处理序列时聚焦于最相关的信息？
   key_points:
-    - "Q（Query）：当前位置的查询"
-    - "K（Key）：其他位置的键"
-    - "V（Value）：其他位置的值"
-first_principle:
-  problem: "为什么需要 注意力机制？为什么在NLP中有效？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - QK相似度决定权重，加权聚合V得到输出
+  - 解决了RNN无法并行和长距离遗忘的问题
+  - 是Transformer架构的核心组件
 ---
 
 # 什么是注意力机制？为什么在NLP中有效？

@@ -1,27 +1,21 @@
 ---
-id: "misc-033"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "Prompt Engineering"
+id: misc-033
+difficulty: L2
+category: ai-basics
+subcategory: Prompt Engineering
 tags:
-  - "IOC"
+- IOC
 feynman:
-  essence: "- *ICL (In-Context Learning):** 模型从prompt中提供的示例学习模式,无需参数更新. - *示例选择策略:** 1. **随机"
-  analogy: "Prompt 就像给 AI 的工作指令——指令越清晰、示例越精准、推理步骤越明确（CoT），AI 完成质量越高。"
+  essence: 通过在提示词中给范例，让模型模仿完成任务，无需训练。
+  analogy: 像学书法，给字帖照着描红（给例子），描多了自然就会写了，不用改大脑结构。
+  first_principle: 如何在模型参数不变的情况下，利用提示工程让模型快速适应新的下游任务？
   key_points:
-    - "ICL (In-Context Learning): 模型从prompt中提供的示例学习模式,无需参数更新."
-    - "随机选择 - 基线,效果不稳定"
-    - "相似度选择 - 用embedding找与输入最相似的示例"
-first_principle:
-  problem: "剥离所有术语：In-Context Learning (ICL) 的原理?Few-shot示例如何选择 底层在做什么？为什么这样做是最优的？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 不需要梯度下降，仅靠上下文学习
+  - 示例的顺序、格式和内容影响巨大
+  - Self-Consistency通过多路径投票提升稳定性
 follow_up:
-  - "为什么示例顺序影响这么大?"
-  - "如何自动选择最优示例?"
+- 为什么示例顺序影响这么大?
+- 如何自动选择最优示例?
 ---
 
 # In-Context Learning (ICL) 的原理是什么?Few-shot示例如何选择

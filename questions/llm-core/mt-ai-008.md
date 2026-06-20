@@ -1,36 +1,29 @@
 ---
-id: "mt-ai-008"
-difficulty: "L3"
-category: "llm-core"
+id: mt-ai-008
+difficulty: L3
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "模型结构"
+- eng-practice
+- llm-core
+subcategory: 模型结构
 tags:
-  - "美团"
-  - "面经"
-  - "Qwen"
-  - "模型演进"
+- 美团
+- 面经
+- Qwen
+- 模型演进
 feynman:
-  essence: "Qwen 的核心贡献是'把每个已知最好的技术都用上 + 用更多数据 + 开源完整生态'，逐步逼近 GPT-4 水平。"
-  analogy: "Qwen 的策略像'集齐最强装备'的 RPG 玩家——GQA（加速）、RoPE（位置）、SwiGLU（激活）、YaRN（长上下文）、DPO（对齐）——每件都是当前版本最强，组合起来就是开源 SOTA。"
+  essence: 阿里通义千问系列的开源演进史，核心是架构标准化与数据规模扩展。
+  analogy: 像汽车迭代，从普通轿车（Qwen-1）升级到超跑（Qwen-2.5），引擎架构优化且燃料更多。
+  first_principle: 如何在保持开源领先的同时，平衡模型性能、长上下文能力与推理成本？
   key_points:
-    - "Qwen-1：开源基线，中英双语强"
-    - "Qwen-1.5：引入 GQA"
-    - "Qwen-2：128K + 多语言"
-    - "Qwen-2.5：18T 数据 + 垂直版本"
-    - "生态：Coder/Math/VL 全覆盖"
-first_principle:
-  problem: "如何在开源框架下，逐步缩小与闭源顶级模型（GPT-4）的差距？"
-  axioms:
-    - "Scaling Law：更多数据 + 更多参数 = 更强能力"
-    - "架构改进是渐进的——GQA/RoPE/SwiGLU 各贡献 5-10%"
-    - "数据质量和多样性比参数量更重要"
-  rebuild: "从'开源追赶闭源'角度出发：① 哪些架构改进可立即采用？② 数据规模和质量如何突破？③ 长上下文如何实现？④ 如何构建垂直版本（Coder/Math/VL）？"
+  - Qwen-1 奠定双语基础架构
+  - Qwen-1.5 引入 GQA 推理加速
+  - Qwen-2 实现长文本与多语言突破
+  - Qwen-2.5 数据堆至 18T 达到 SOTA
 follow_up:
-  - "Qwen 和 LLaMA 架构有什么区别？—— Qwen 用 GQA（1.5起），LLaMA-2 用 MHA，LLaMA-3 才用 GQA"
-  - "Qwen 的训练数据有多大？—— Qwen-2.5 约 18T tokens"
-  - "Qwen-VL 是怎么做多模态的？—— ViT 编码图像 + 适配层对齐到语言空间"
+- Qwen 和 LLaMA 架构有什么区别？—— Qwen 用 GQA（1.5起），LLaMA-2 用 MHA，LLaMA-3 才用 GQA
+- Qwen 的训练数据有多大？—— Qwen-2.5 约 18T tokens
+- Qwen-VL 是怎么做多模态的？—— ViT 编码图像 + 适配层对齐到语言空间
 ---
 
 # 【美团面经】串一下 Qwen 系列，几版模型都做了哪些贡献？

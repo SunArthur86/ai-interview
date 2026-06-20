@@ -1,33 +1,27 @@
 ---
-id: "zp-infra-010"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "工程化"
+id: zp-infra-010
+difficulty: L3
+category: ai-harness
+subcategory: 工程化
 tags:
-  - "智谱"
-  - "面经"
-  - "MFU"
-  - "性能诊断"
-  - "训练优化"
+- 智谱
+- 面经
+- MFU
+- 性能诊断
+- 训练优化
 feynman:
-  essence: "训练诊断 = 搞清楚'GPU 在等什么'。等内存（OOM）→ 减显存。等通信（低 MFU）→ overlap。等数据（hang）→ 修 IO。用 Profiler 看'时间花在哪'。"
-  analogy: "训练诊断像体检——Profiler 是 X 光（看内部耗时分布），Nsight 是 CT 扫描（时间线精细分析），NCCL log 是心电图（通信是否健康）。综合判断'哪里堵了'。"
+  essence: 定位MFU低效、OOM根源和死锁点以恢复训练
+  analogy: 像修车，看转速（MFU）、油箱（OOM）和塞车（Hang）分别修
+  first_principle: 为什么硬件资源没有充分利用或为什么进程停止响应？
   key_points:
-    - "低 MFU → Profiler + Nsight + NCCL → overlap"
-    - "OOM → 分析显存组成 → ZeRO/Checkpoint/Offload"
-    - "Hang → py-spy + NCCL_DEBUG + CUDA_LAUNCH_BLOCKING"
-    - "目标 MFU >50%（千卡）"
-first_principle:
-  problem: "万卡训练中 GPU 利用率低、显存不够、训练卡死是三大常见问题。如何系统性地定位根因？"
-  axioms:
-    - "GPU 性能 = 计算 × 利用率 → 利用率低说明有等待"
-    - "显存 = 权重+梯度+优化器+激活 → 可逐项分析"
-    - "Hang 通常由通信死锁/IO 卡住/CUDA 错误引起"
-  rebuild: "从 GPU 执行模型出发：① 时间花在哪（Profiler 时间线）？② 内存去哪了（显存公式逐项）？③ 为什么卡住（通信/IO/错误）？④ 怎么修复（overlap/分片/调参）？"
+  - 低MFU通常源于通信重叠不足或IO瓶颈
+  - OOM通过ZeRO、Checkpoint和混合精度解决
+  - Hang通常由NCCL死锁或数据加载卡顿引起
+  - 利用Profiler和NCCL日志是关键诊断手段
 follow_up:
-  - "MFU 怎么计算？ — — 实际 tokens/s × 每 token FLOPs(6N) / GPU 峰值 FLOPS"
-  - "Gradient Checkpoint 的重算开销？ — — 约 20-33%（多一次前向计算）"
-  - "NCCL All-Reduce 通信怎么调优？ — — 环形 vs 树形、NCCL_NET、overlap"
+- MFU 怎么计算？ — — 实际 tokens/s × 每 token FLOPs(6N) / GPU 峰值 FLOPS
+- Gradient Checkpoint 的重算开销？ — — 约 20-33%（多一次前向计算）
+- NCCL All-Reduce 通信怎么调优？ — — 环形 vs 树形、NCCL_NET、overlap
 ---
 
 # 【智谱Infra面经】大模型训练低 MFU / OOM / hang 如何诊断？用哪些工具和指标？

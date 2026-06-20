@@ -1,36 +1,29 @@
 ---
-id: "mt-ai-002"
-difficulty: "L4"
-category: "llm-core"
+id: mt-ai-002
+difficulty: L4
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "位置编码"
+- eng-practice
+- llm-core
+subcategory: 位置编码
 tags:
-  - "美团"
-  - "面经"
-  - "RoPE"
-  - "位置编码"
+- 美团
+- 面经
+- RoPE
+- 位置编码
 feynman:
-  essence: "RoPE 把每个位置想象成一个角度，把 Q/K 向量按这个角度旋转，这样两个位置的注意力计算自然包含了它们的相对角度差（相对位置）。"
-  analogy: "想象时钟上的指针——每个位置对应一个角度，两个位置的注意力大小取决于它们指针的夹角。距离近的角度差小（注意力大），距离远的角度差大（注意力小），天然实现了远程衰减。"
+  essence: 通过旋转向量将绝对位置转化为相对位置信息。
+  analogy: 像两个人在舞池旋转，他们的角度差（相对位置）决定了他们是否面对面，与他们在舞池的哪个角落无关。
+  first_principle: 如何让Transformer感知token间的顺序，同时具备处理未见长度的泛化能力？
   key_points:
-    - "绝对位置旋转编码 → 内积自动包含相对位置"
-    - "逐元素乘法，计算高效"
-    - "支持长度外推（配合 NTK/YaRN）"
-    - "只旋转 Q/K，不旋转 V"
-    - "远程衰减特性"
-first_principle:
-  problem: "Self-Attention 本身是排列不变的（permutation-invariant），需要位置编码来注入顺序信息。什么样的位置编码既高效又通用？"
-  axioms:
-    - "Attention = softmax(QK^T/√d)·V —— 位置信息必须通过 Q/K 或直接加在 score 上"
-    - "相对位置比绝对位置更本质 —— 语言中'第3个词和第5个词'比'第3个词'更有意义"
-    - "旋转保持向量范数不变 —— RoPE 只改方向不改大小，不破坏 Q·K 的尺度"
-  rebuild: "从 Attention 的排列不变性出发：① 位置信息可以在哪注入（输入嵌入、Q/K、Attention Score）？② 绝对 vs 相对位置哪个更本质？③ 如何让编码同时满足高效计算和长度泛化？④ 旋转操作为什么满足所有约束？"
+  - 原理：对Q/K向量进行旋转变换
+  - 优势：内积体现相对位置，支持长度外推
+  - 计算：逐元素乘法，计算效率高
+  - 地位：当前LLM主流位置编码方案
 follow_up:
-  - "RoPE 怎么做长度外推？—— NTK-aware / YaRN / Dynamic NTK 等方法调整旋转基座"
-  - "ALiBi 和 RoPE 对比？—— ALiBi 外推更简单但表达能力弱，RoPE 灵活但外推需技巧"
-  - "RoPE 为什么对 Q/K 旋转而不对 V？—— 因为 attention 只用 Q·K 算权重，位置信息只需在相似度计算中体现"
+- RoPE 怎么做长度外推？—— NTK-aware / YaRN / Dynamic NTK 等方法调整旋转基座
+- ALiBi 和 RoPE 对比？—— ALiBi 外推更简单但表达能力弱，RoPE 灵活但外推需技巧
+- RoPE 为什么对 Q/K 旋转而不对 V？—— 因为 attention 只用 Q·K 算权重，位置信息只需在相似度计算中体现
 ---
 
 # 【美团面经】说一说 RoPE 的原理，为什么现在 RoPE 更受欢迎？还了解其他位置编码吗？

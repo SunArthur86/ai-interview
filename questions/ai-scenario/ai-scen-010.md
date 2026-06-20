@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-010"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI Agent系统设计"
+id: ai-scen-010
+difficulty: L3
+category: ai-scenario
+subcategory: AI Agent系统设计
 tags:
-  - "Tool Calling"
-  - "Agent安全"
-  - "Prompt注入"
-  - "权限控制"
-  - "Human-in-the-Loop"
-  - "审计"
+- Tool Calling
+- Agent安全
+- Prompt注入
+- 权限控制
+- Human-in-the-Loop
+- 审计
 feynman:
-  essence: "【场景分析】 Tool Calling风险：Agent可能被Prompt注入诱导执行未授权操作、调用错误的工具、传递危险参数。"
-  analogy: "工具调用就像给 AI 配了瑞士军刀——根据任务需要灵活选择搜索、计算、代码执行等工具，LLM 决定何时用、怎么用。"
+  essence: 构建多层防御网，在工具注册、参数校验、执行检查和人机确认四个环节严格管控。
+  analogy: 像操作系统的权限控制，普通用户不能删库，高危操作必须输入管理员密码确认。
+  first_principle: 如何在赋予Agent能力的同时，确保其不执行越界或危险的操作？
   key_points:
-    - "白名单机制：Agent只能调用注册过的工具"
-    - "分级权限：只读工具（查询）/ 写入工具（创建修改）/ 危险工具（删除/转账）"
-    - "租户隔离：不同租户可用的工具集合不同"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 工具必须白名单注册，分级管理权限。
+  - 参数需通过Schema校验和注入检测。
+  - 高风险操作必须经过人工确认。
+  - 全链路审计日志记录，异常行为熔断。
 follow_up:
-  - "如何在不影响用户体验的前提下实现安全审批？"
-  - "Agent被注入后调用了未授权工具，如何事后追溯？"
-  - "如何平衡Agent的自主性和安全性？"
+- 如何在不影响用户体验的前提下实现安全审批？
+- Agent被注入后调用了未授权工具，如何事后追溯？
+- 如何平衡Agent的自主性和安全性？
 ---
 
 # 如何设计AI Agent的工具调用（Tool Calling）安全边界？防止Agent执行危险操作。

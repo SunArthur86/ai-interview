@@ -1,27 +1,21 @@
 ---
-id: "misc-013"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "训练与微调"
+id: misc-013
+difficulty: L2
+category: ai-basics
+subcategory: 训练与微调
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "- *GRPO (Group Relative Policy Optimization):** PPO需要一个Critic模型估计baseline,GRPO用*"
-  analogy: "RLHF 就像给 AI 请人类老师——先让人类给 AI 回答打分排序，训练奖励模型，再用强化学习让 AI 越来越懂事。"
+  essence: 用组内采样的相对优势替代Critic模型估计,大幅降低显存。
+  analogy: PPO找裁判打分,GRPO让几个人互相比,不用裁判,看谁相对更好就给谁加分。
+  first_principle: 如何在去除Critic模型的情况下准确估计策略优势?
   key_points:
-    - "GRPO (Group Relative Policy Optimization):"
-    - "对同一个问题x,采样G个回答"
-    - "组内归一化:advantage_i = (r_i - mean(r)) / std(r)"
-first_principle:
-  problem: "从第一性原理看：DeepSeek提出的GRPO算法?相比PPO有什么优势 的根本优势/劣势来源于什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 去掉了PPO中的Critic(Value)模型
+  - 优势值来自同组输出的归一化分数
+  - 显存减半,训练更快,适合强化学习推理
 follow_up:
-  - "GRPO的组大小G如何选择?"
-  - "GRPO为什么能涌现长链推理?"
+- GRPO的组大小G如何选择?
+- GRPO为什么能涌现长链推理?
 ---
 
 # DeepSeek提出的GRPO算法是什么?相比PPO有什么优势

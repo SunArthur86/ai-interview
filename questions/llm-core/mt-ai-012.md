@@ -1,35 +1,30 @@
 ---
-id: "mt-ai-012"
-difficulty: "L4"
-category: "llm-core"
+id: mt-ai-012
+difficulty: L4
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "企业面试问答"
+- eng-practice
+- llm-core
+subcategory: 企业面试问答
 tags:
-  - "美团"
-  - "面经"
-  - "论文阅读"
-  - "技术深度"
+- 美团
+- 面经
+- 论文阅读
+- 技术深度
 feynman:
-  essence: "面试官问这个问题，是在考察你是否有'深度学习'的习惯——不是泛泛浏览，而是反复精读、批判思考、工程转化。"
-  analogy: "就像厨师试菜——吃一口知道好不好吃（第一遍），研究配料和做法（第二遍），自己改良做出更好的菜（第三遍+实践）。"
+  essence: 通过精读经典论文掌握技术本质，并具备工程化落地的转化能力。
+  analogy: 像练武功要练马步一样，Transformer、LoRA 是基础内功，练好了才能学新招式。
+  first_principle: 如何从海量文献中提取核心原理，并将其转化为解决实际工程问题的工具？
   key_points:
-    - "三遍法：快速浏览→精读方法→批判思考"
-    - "必读：Transformer/RoPE/LoRA/DPO/DeepSeek"
-    - "联系项目实践是加分项"
-    - "能说局限和改进方向"
-first_principle:
-  problem: "论文阅读的目的不是'读过'，而是建立从理论到工程的转化能力。面试官想看你如何把论文变成生产力。"
-  axioms:
-    - "深度 > 广度——精读 3 篇比泛读 30 篇更有价值"
-    - "理论→实践的转化能力是稀缺的"
-    - "批判性思维——能说局限比能复述更有价值"
-  rebuild: "从'论文的价值'出发：① 为什么有些论文值得读 3 遍（底层原理 vs 小改进）？② 每遍读的目标不同（了解→理解→批判）？③ 怎么从论文中提取工程价值？④ 怎么在面试中高效展示这种能力？"
+  - Transformer 是大模型的基石
+  - LoRA 是高效微调的必修课
+  - DPO 是当前对齐的主流方案
+  - 不仅要读，还要复现和批判思考
+  - 能将论文原理应用到实际工程中
 follow_up:
-  - "论文那么多怎么选？—— 关注 NeurIPS/ICML/ACL/ICLR + arXiv 热门 + Hugging Face 趋势"
-  - "怎么高效读论文？—— 第一遍只读 Abstract+Intro+Conclusion+Figure，值得深入再精读"
-  - "要不要复现论文？—— 核心论文建议复现关键实验，加深理解"
+- 论文那么多怎么选？—— 关注 NeurIPS/ICML/ACL/ICLR + arXiv 热门 + Hugging Face 趋势
+- 怎么高效读论文？—— 第一遍只读 Abstract+Intro+Conclusion+Figure，值得深入再精读
+- 要不要复现论文？—— 核心论文建议复现关键实验，加深理解
 ---
 
 # 【美团面经】近一年读过什么 AI 论文/技术报告两次以上？对你有什么帮助？

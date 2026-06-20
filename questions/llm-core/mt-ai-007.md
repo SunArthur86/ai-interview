@@ -1,35 +1,29 @@
 ---
-id: "mt-ai-007"
-difficulty: "L2"
-category: "llm-core"
+id: mt-ai-007
+difficulty: L2
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "推理优化"
+- eng-practice
+- llm-core
+subcategory: 推理优化
 tags:
-  - "美团"
-  - "面经"
-  - "解码策略"
-  - "采样"
+- 美团
+- 面经
+- 解码策略
+- 采样
 feynman:
-  essence: "解码策略就是在'确定性'和'创造性'之间找平衡——Greedy 太死板（重复），纯随机太混乱（跑题），Temperature/Top-K/Top-P 是各种'有控制的随机'。"
-  analogy: "写作文时——Greedy = 只用最常用的词（无聊）；纯随机 = 闭眼翻词典（胡言乱语）；Top-P = 从最贴切的几个词里随机选（自然又有变化）。"
+  essence: 从概率分布中选择token的策略，平衡确定性与多样性。
+  analogy: 像写作文，是每次只选最顺口的词（Greedy），还是在候选词里随机抽（Sampling），取决于你想要标准答案还是创意。
+  first_principle: 如何将模型输出的概率分布转化为高质量的文本序列？
   key_points:
-    - "Greedy：确定性但易重复"
-    - "Top-P/Nucleus：动态截断，最自然"
-    - "Temperature 控制随机性强度"
-    - "Speculative Decoding 加速推理"
-first_principle:
-  problem: "大模型输出的是整个词表的概率分布。如何从分布中选出一个 token，既保证质量又保证多样性？"
-  axioms:
-    - "概率分布的熵反映不确定性——高熵=不确定=应该多样"
-    - "尾部低概率 token 通常是噪声——截断提升质量"
-    - "不同任务对确定性 vs 多样性的需求不同"
-  rebuild: "从概率分布出发：① 直接取 argmax 有什么问题（重复/模式坍塌）？② 纯采样有什么问题（不连贯）？③ 如何截断分布去掉噪声？④ 如何控制截断的激进程度？"
+  - Greedy：最稳但死板，适合做题
+  - Sampling：引入随机性，适合创作
+  - Top-K/Top-P：过滤掉低概率的胡言乱语
+  - Temperature：控制随机程度的旋钮
 follow_up:
-  - "Top-K 和 Top-P 怎么选？—— Top-P 更自适应，通常优先"
-  - "为什么 Temperature=0 时结果不一定完全一致？—— 浮点精度 + batch padding 影响"
-  - "Speculative Decoding 怎么加速？—— 小模型快速生成候选，大模型批量验证"
+- Top-K 和 Top-P 怎么选？—— Top-P 更自适应，通常优先
+- 为什么 Temperature=0 时结果不一定完全一致？—— 浮点精度 + batch padding 影响
+- Speculative Decoding 怎么加速？—— 小模型快速生成候选，大模型批量验证
 ---
 
 # 【美团面经】了解大模型的解码策略吗？简要说一说

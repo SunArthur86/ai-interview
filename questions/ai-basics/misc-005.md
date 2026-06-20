@@ -1,27 +1,21 @@
 ---
-id: "misc-005"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-005
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "MQA/GQA/MLA 都是 Key/Value 在不同 head 间的共享策略：MQA 所有 head 共享一组 KV（最快、质量略降），GQA 每 N 个 head 共享一组（折中），MLA 用低秩投影压缩 KV（DeepSeek 方案，质量高且省 KV Cache）。"
-  analogy: "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。"
+  essence: 通过多头共享K/V矩阵,大幅缩减显存占用并提升推理速度。
+  analogy: 多个人(Q)共用同一套参考书(K/V),不用每人买一套,省钱又省地方。
+  first_principle: 如何在保持注意力表达能力的前提下,极大压缩KV Cache显存?
   key_points:
-    - "核心权衡: K/V头越少→KV Cache越小→推理越快,但质量可能下降"
-    - "GQA (Grouped Query Attention):"
-    - "将Q头分为G组,每组共享一对K/V"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - MHA:独立KV,质量好但慢
+  - MQA:所有头共用一个KV,极快但伤质量
+  - GQA:分组共享,兼顾速度与质量
 follow_up:
-  - "GQA的分组数如何选择?"
-  - "MQA在什么场景下值得质量折中?"
+- GQA的分组数如何选择?
+- MQA在什么场景下值得质量折中?
 ---
 
 # MHA、MQA、GQA三者有什么区别?为什么大模型倾向用GQA

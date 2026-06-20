@@ -1,28 +1,28 @@
 ---
-id: "xhs-infra-005"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "推理与部署"
+id: xhs-infra-005
+difficulty: L4
+category: ai-harness
+subcategory: 推理与部署
 tags:
-  - "量化"
-  - "GPTQ"
-  - "AWQ"
-  - "FP8"
-  - "INT4"
-  - "小红书"
+- 量化
+- GPTQ
+- AWQ
+- FP8
+- INT4
+- 小红书
 feynman:
-  essence: "量化的本质是用更少的bit表示模型权重和激活值——从FP16(16bit)降到INT4(4bit)，模型体积和内存带宽需求减少4倍。难点在于：不是所有权重都同样重要，粗暴截断会导致精度损失。不同方法的核心区别在于「如何聪明地分配精度」。"
-  analogy: "压缩照片：JPEG把不重要的细节丢弃（高频信息），保留重要轮廓。量化也一样——GPTQ用数学方法找最优压缩方式，AWQ保护「重要区域」（对输出影响大的权重），SmoothQuant先做变换让数据分布更均匀再压缩。"
-first_principle:
-  problem: "为什么大模型可以被量化到4bit而不崩溃？量化的根本约束是什么？"
-  axioms:
-    - "大模型参数呈正态分布，大部分集中在0附近——低位宽足以覆盖"
-    - "少数异常值（outlier）是精度损失的主要原因"
-    - "量化误差=原始值-量化值，目标是让总误差对输出影响最小"
+  essence: 将模型参数从高精度压缩到低精度，减少显存和计算开销。
+  analogy: 把高清照片压缩成标清，虽然细节少一点，但省空间且传得快。
+  first_principle: 如何在保持模型精度的前提下，极小化参数的存储位宽？
+  key_points:
+  - GPTQ基于Hessian二阶信息进行权重量化
+  - AWQ基于激活值保留1%重要权重不被量化
+  - SmoothQuant把激活值的难量化特征迁移到权重上
+  - FP8依赖特定硬件（如H100）支持，精度损失最小
 follow_up:
-  - "INT4量化对生成质量影响有多大？"
-  - "AWQ如何确定哪些权重是「重要」的？"
-  - "QAT和PTQ在实际中如何选择？"
+- INT4量化对生成质量影响有多大？
+- AWQ如何确定哪些权重是「重要」的？
+- QAT和PTQ在实际中如何选择？
 ---
 
 # 模型量化方法对比：GPTQ vs AWQ vs FP8 vs SmoothQuant，各有什么优缺点？

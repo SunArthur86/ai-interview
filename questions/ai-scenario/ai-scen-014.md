@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-014"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI Agent系统设计"
+id: ai-scen-014
+difficulty: L3
+category: ai-scenario
+subcategory: AI Agent系统设计
 tags:
-  - "错误恢复"
-  - "重试机制"
-  - "Checkpoint"
-  - "降级策略"
-  - "Agent健壮性"
-  - "异常处理"
+- 错误恢复
+- 重试机制
+- Checkpoint
+- 降级策略
+- Agent健壮性
+- 异常处理
 feynman:
-  essence: "【场景分析】 Agent失败类型多样：工具调用失败、LLM输出格式错误、上下文超限、逻辑死循环、外部服务不可用。"
-  analogy: "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整。"
+  essence: 构建分类分级容错机制，自动检测异常并执行重试、回滚或降级操作。
+  analogy: 像程序的try-catch块，遇到bug不是直接崩，而是记录日志、尝试重连或提示用户。
+  first_principle: 如何在不可靠的环境中，保证Agent系统的稳定性和连续性？
   key_points:
-    - "瞬态错误（Transient）："
-    - "网络超时、API限流、临时不可用"
-    - "策略：指数退避重试（3次，间隔1s/2s/4s）"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 区分瞬态错误和硬错误，分别制定重试和降级策略。
+  - 设置检查点保存进度，支持断点续传。
+  - 检测死循环和幻觉，强制跳出或重规划。
+  - 多层降级兜底，确保服务不中断。
 follow_up:
-  - "如何设计Agent的Checkpoint频率？"
-  - "Agent死循环检测有哪些实用算法？"
-  - "如何在不影响用户体验的情况下实现降级？"
+- 如何设计Agent的Checkpoint频率？
+- Agent死循环检测有哪些实用算法？
+- 如何在不影响用户体验的情况下实现降级？
 ---
 
 # 如何设计AI Agent的错误恢复机制？当Agent执行任务中途失败时，如何优雅地处理和恢复。

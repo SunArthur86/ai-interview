@@ -1,42 +1,22 @@
 ---
-id: "agmu-019"
-difficulty: "L2"
-category: "ai-agent"
-subcategory: "多智能体系统"
+id: agmu-019
+difficulty: L2
+category: ai-agent
+subcategory: 多智能体系统
 tags:
-  - "IO"
-  - "IOC"
+- IO
+- IOC
 feynman:
-  essence: "若只需 统一策略 调不同 API,单 Agent + 工具即可;若需要 角色隔离、并行、对抗评"
-  analogy: "工具调用就像给 AI 配了瑞士军刀——根据任务需要灵活选择搜索、计算、代码执行等工具，LLM 决定何时用、怎么用。"
+  essence: 单 Agent 是工具调度器，多 Agent 是协作组织。
+  analogy: 单 Agent 是瑞士军刀，多 Agent 是专家组。
+  first_principle: 如何根据任务复杂度选择系统架构模式？
   key_points:
-    - "若只需 统一策略 调不同 API,单 Agent + 工具即可"
-    - "若需要 角色隔离、并行、对抗评 审、组织流程,多 Agent 更合适. 本篇小结(背调清单) 为何多 Agent:拆上下文、专业化、并行、隔离失败"
-    - "单 Agent 有注意力与能力边界问题. **三种协作：** Boss-Worker、Pipeline、Joint Discussion -- 各有瓶颈(Boss 单点、Pipeline 难回溯、讨论"
-first_principle:
-  problem: "为什么需要 多 Agent 与「单 Agent + 多个工具」取舍？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 单Agent：统一策略，简单工具调用
+  - 多Agent：角色隔离、并行、对抗
+  - 选择：任务简单用单Agent
+  - 复杂：需组织流程用多Agent
 ---
 
 # 多 Agent 与「单 Agent + 多个工具」取舍
 
-若只需 统一策略 调不同 API,单 Agent + 工具即可;若需要 角色隔离、并行、对抗评
-审、组织流程,多 Agent 更合适.
-本篇小结(背调清单)
-为何多 Agent:拆上下文、专业化、并行、隔离失败;单 Agent 有注意力与能力边界问题.
-**三种协作：** Boss-Worker、Pipeline、Joint Discussion -- 各有瓶颈(Boss 单点、Pipeline
-难回溯、讨论易空转).
-**通信：** 直连、黑板、Pub-Sub、队列 -- 解耦度与复杂度不同.
-**分配：** 能力/负载/动态/竞拍 -- 匹配度与治理成本之间的权衡.
-**冲突：** 投票、优先级、主席、证据 -- 防「假独立」与集体偏误.
-**状态：** 全局真相 + 状态机 + 事件驱动.
-**框架：** AutoGen、CrewAI、MetaGPT、ChatDev、LangGraph -- 理解抽象差异与工程补齐
-点.
-**生产：** 钱、慢、死循环、错、看不清 -- 都要有 硬约束与可观测.
-**文档版本：** 面向入门系统梳理;框架 API 以官方文档为准.
-
-07 大模型基础(面试八股文)
-**面向零基础读者的系统梳理：** 每个知识点尽量包含「概念解释、原理详解、面试问答、追问
+若只需统一策略调不同 API，单 Agent + 工具即可；若需要角色隔离、并行、对抗评审、组织流程，多 Agent 更合适。

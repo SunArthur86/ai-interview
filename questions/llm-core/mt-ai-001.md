@@ -1,36 +1,29 @@
 ---
-id: "mt-ai-001"
-difficulty: "L3"
-category: "llm-core"
+id: mt-ai-001
+difficulty: L3
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "企业面试问答"
+- eng-practice
+- llm-core
+subcategory: 企业面试问答
 tags:
-  - "美团"
-  - "面经"
-  - "LLaMA"
-  - "架构"
+- 美团
+- 面经
+- LLaMA
+- 架构
 feynman:
-  essence: "LLaMA 的贡献是用 RoPE + RMSNorm + SwiGLU + Pre-Norm 四个架构优化，加上\"小模型大数据\"策略，证明了 7B 参数也能媲美 13B+ 模型。"
-  analogy: "就像造跑车——不靠堆排量（参数量），而是靠更轻的车身（去bias）、更好的空气动力学（RoPE）、更高效的引擎（SwiGLU），用更少燃料跑出同样速度。"
+  essence: 移除冗余设计，用更优架构和更多数据提升小模型性能。
+  analogy: 像给赛车减重（去Bias）并换高标号汽油（更多数据），让小排量引擎跑赢大排量。
+  first_principle: 如何通过架构优化和数据配比，突破模型性能与参数规模的线性关系？
   key_points:
-    - "RMSNorm 替代 LayerNorm，Pre-Norm 布局"
-    - "RoPE 旋转位置编码替代绝对编码"
-    - "SwiGLU 激活函数提升 FFN 效果"
-    - "去掉所有 bias 减参数"
-    - "核心思想：小模型 + 大数据 = 高效率"
-first_principle:
-  problem: "为什么 LLaMA 用更少参数能超越更大的模型？架构上哪些改进是必要的？"
-  axioms:
-    - "Chinchilla Law：最优训练需要 ~20 tokens/参数，数据量比参数量更重要"
-    - "Pre-Norm 梯度流更直接 → 深层网络训练更稳定"
-    - "RoPE 的旋转不变性 → 自然支持相对位置 + 长度外推"
-  rebuild: "从 Scaling Law 出发：① 参数 vs 数据的最优配比是什么？② 哪些架构组件可以提升参数效率？③ 推理时哪些计算可以省去（bias/均值）？④ 位置编码如何同时满足训练效率和泛化？"
+  - 架构：RMSNorm、RoPE、SwiGLU、去Bias
+  - 策略：增加数据量胜过增加参数量
+  - 影响：确立了现代开源LLM的标准架构
+  - 训练：验证了Chinchilla缩放定律
 follow_up:
-  - "RMSNorm 和 LayerNorm 的区别是什么？—— RMSNorm 去掉了均值中心化，只做方差归一化，计算量更少"
-  - "SwiGLU 为什么比 GeLU 好？—— 门控机制让 FFN 有选择性传递信息，表达能力更强"
-  - "Pre-Norm 和 Post-Norm 哪个训练更稳定？—— Pre-Norm 更稳定，但理论上 Post-Norm 上限更高"
+- RMSNorm 和 LayerNorm 的区别是什么？—— RMSNorm 去掉了均值中心化，只做方差归一化，计算量更少
+- SwiGLU 为什么比 GeLU 好？—— 门控机制让 FFN 有选择性传递信息，表达能力更强
+- Pre-Norm 和 Post-Norm 哪个训练更稳定？—— Pre-Norm 更稳定，但理论上 Post-Norm 上限更高
 ---
 
 # 【美团面经】说一下 LLaMA 的结构吧，它在结构和训练上都做了哪些贡献？

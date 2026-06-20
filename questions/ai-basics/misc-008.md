@@ -1,27 +1,21 @@
 ---
-id: "misc-008"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-008
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 tags:
-  - "Elasticsearch"
+- Elasticsearch
 feynman:
-  essence: "- *涌现能力:** 模型规模超过某个阈值后突然出现的能力(小模型完全没有) - *典型涌现能力:** - 算术推理(多位数加法) - 符号推理(不规则模式匹配"
-  analogy: "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。"
+  essence: 模型规模突破临界阈值后,小模型不具备的能力突然显现。
+  analogy: 水加热到100度突然沸腾,量变引起质变,不到这个度就只是温水。
+  first_principle: 模型性能与规模及数据量之间的函数关系是什么?
   key_points:
-    - "涌现能力: 模型规模超过某个阈值后突然出现的能力(小模型完全没有)"
-    - "算术推理(多位数加法)"
-    - "符号推理(不规则模式匹配)"
-first_principle:
-  problem: "为什么需要 大模型的涌现能力(Emergent Abilities)?Scaling Law如何指导模型训练？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - Scaling Law指导:模型越大,性能越好,但有性价比最优解
+  - 涌现往往在10B参数以上出现
+  - Chinchilla定律:参数量与训练token数约1:20时最优
 follow_up:
-  - "Chinchilla最优比例对数据准备有什么指导?"
-  - "涌现能力是真实的还是评估假象?"
+- Chinchilla最优比例对数据准备有什么指导?
+- 涌现能力是真实的还是评估假象?
 ---
 
 # 大模型的涌现能力(Emergent Abilities)是什么?Scaling Law如何指导模型训练

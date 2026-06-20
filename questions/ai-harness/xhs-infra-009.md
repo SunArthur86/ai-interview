@@ -1,26 +1,26 @@
 ---
-id: "xhs-infra-009"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "推理与部署"
+id: xhs-infra-009
+difficulty: L4
+category: ai-harness
+subcategory: 推理与部署
 tags:
-  - "PD分离"
-  - "Prefill-Decode"
-  - "vLLM"
-  - "小红书"
+- PD分离
+- Prefill-Decode
+- vLLM
+- 小红书
 feynman:
-  essence: "推理的Prefill（读prompt）和Decode（生成token）阶段特性完全不同——前者计算密集后者内存密集。把它们拆到不同GPU上各自优化，比在一个GPU上串行做两件事效率高得多。"
-  analogy: "餐厅厨房分工：备菜（Prefill，需要大灶猛火快速搞定）和摆盘上菜（Decode，需要精细操作但不费火力）分开——备菜组用大炒锅，上菜组用小炖锅，各司其职效率最高。"
-first_principle:
-  problem: "为什么Prefill和Decode阶段的GPU利用率差异巨大？"
-  axioms:
-    - "Prefill处理N个token做N^2次attention——计算密集"
-    - "Decode每次只生成1个token但需读取全部KV Cache——内存密集"
-    - "两种阶段的计算/内存比例相差10x+——不适合在同一硬件上最优运行"
+  essence: 将Prefill（计算密集）和Decode（内存密集）拆分到不同资源。
+  analogy: 像流水线一样，有人专门负责备料（Prefill），有人专门负责打包。
+  first_principle: 如何解决Prefill与Decode阶段资源需求差异导致的整体利用率瓶颈？
+  key_points:
+  - Prefill阶段计算量大、延迟高，需高算力GPU
+  - Decode阶段读显存多、计算小，可用低成本显卡
+  - 分离后可针对各自特性独立优化硬件和调度
+  - 挑战在于KV Cache在节点间的传输开销
 follow_up:
-  - "PD分离的KV Cache传输如何优化？"
-  - "什么场景下PD分离收益最大？"
-  - "PD分离和Speculative Decoding能组合吗？"
+- PD分离的KV Cache传输如何优化？
+- 什么场景下PD分离收益最大？
+- PD分离和Speculative Decoding能组合吗？
 ---
 
 # Prefill-Decode分离（PD分离）是什么？为什么能提升推理效率？

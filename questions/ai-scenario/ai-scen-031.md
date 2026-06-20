@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-031"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI安全与治理"
+id: ai-scen-031
+difficulty: L3
+category: ai-scenario
+subcategory: AI安全与治理
 tags:
-  - "AI审计"
-  - "Trace回放"
-  - "合规"
-  - "可追溯"
-  - "欧盟AI Act"
-  - "OpenTelemetry"
+- AI审计
+- Trace回放
+- 合规
+- 可追溯
+- 欧盟AI Act
+- OpenTelemetry
 feynman:
-  essence: "【场景分析】 AI审计系统核心需求：全链路可追溯、输出可解释、合规可证明"
-  analogy: "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。"
+  essence: 记录从输入到输出的全链路黑盒过程，实现可追溯与可解释。
+  analogy: 给AI装个黑匣子，出事后能完整回放当时的所有思考细节。
+  first_principle: 如何为不可解释的黑盒模型提供可审计、可信赖的决策证据？
   key_points:
-    - "用户ID、时间戳、IP地址"
-    - "完整Prompt（含系统Prompt、历史、检索内容）"
-    - "模型版本、Prompt模板版本、参数配置"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 全链路：记录请求、推理、工具、结果全过程
+  - 可回放：基于Trace复现现场，用于Debug和举证
+  - 标准对接：适配AI Act、金融/医疗合规要求
+  - 防篡改：独立权限存储，保障日志真实有效
 follow_up:
-  - "审计日志的存储成本如何控制？"
-  - "Trace回放如何保证与原始推理完全一致？"
-  - "如何向非技术人员解释AI的决策过程？"
+- 审计日志的存储成本如何控制？
+- Trace回放如何保证与原始推理完全一致？
+- 如何向非技术人员解释AI的决策过程？
 ---
 
 # 如何设计AI审计与合规系统？记录AI系统的完整决策链路，满足监管要求。

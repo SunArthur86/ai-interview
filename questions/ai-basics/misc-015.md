@@ -1,27 +1,22 @@
 ---
-id: "misc-015"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "训练与微调"
+id: misc-015
+difficulty: L2
+category: ai-basics
+subcategory: 训练与微调
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "ZeRO-3 (Add Parameter Partitioning)。"
-  analogy: "分布式系统就像连锁店——一家变多家，需要统一菜单（一致性）、协调库存（分布式事务）、处理网络问题。"
+  essence: 通过切分优化器状态、梯度和参数，打破显存墙，训练超大模型。
+  analogy: 多人合伙买房，每人只出一份钱，共同拥有整套房子。
+  first_principle: 如何在有限显存下训练参数量远超单卡容量的模型？
   key_points:
-    - "ZeRO分布式训练优化:"
-    - "ZeRO-3 (Add Parameter Partitioning):"
-    - "模型参数也切分,每张卡只存1/N"
-first_principle:
-  problem: "从第一性原理看：ZeRO (Zero Redundancy Optimizer)的三级优化分别?如何选择 的根本优势/劣势来源于什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - Stage 1切优化器，Stage 2切梯度
+  - Stage 3切参数，支持最大模型
+  - 通信代价随级别递增
+  - 大模型首选ZeRO-3
 follow_up:
-  - "ZeRO-3的通信开销如何估算?"
-  - "Tensor Parallelism和ZeRO能否同时使用?"
+- ZeRO-3的通信开销如何估算?
+- Tensor Parallelism和ZeRO能否同时使用?
 ---
 
 # ZeRO (Zero Redundancy Optimizer)的三级优化分别是什么?如何选择

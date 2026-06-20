@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-035"
-difficulty: "L2"
-category: "ai-scenario"
-subcategory: "AI评测与监控"
+id: ai-scen-035
+difficulty: L2
+category: ai-scenario
+subcategory: AI评测与监控
 tags:
-  - "质量门禁"
-  - "CI/CD"
-  - "自动评测"
-  - "Diff分析"
-  - "回归检测"
-  - "发布阻断"
+- 质量门禁
+- CI/CD
+- 自动评测
+- Diff分析
+- 回归检测
+- 发布阻断
 feynman:
-  essence: "【场景分析】 AI应用的质量门禁（Quality Gate）是CI/CD中的关键环节：自动检测Prompt/模型变更是否引入质量退化。"
-  analogy: "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。"
+  essence: 在CI流程中自动运行评测集，阻断劣化代码上线。
+  analogy: 像红绿灯，考试不达标就不许发布，防止带病上线。
+  first_principle: 如何在自动化流程中客观判断AI改动是优化还是退化？
   key_points:
-    - "模型版本变更（新模型/新量化版本）"
-    - "检索参数调整（chunk_size、top_k、rerank阈值）"
-    - "系统配置变更（temperature、max_tokens）"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 触发：Prompt或模型变更是自动触发条件
+  - 基准：对比新版本与Baseline的各项指标
+  - 策略：通过、警告、失败三级判定
+  - 报告：自动生成Diff报告，指出退化案例
 follow_up:
-  - "CI中的评测时间如何压缩？"
-  - "如何处理「警告」级别的变更？"
-  - "增量评测如何确定受影响的场景？"
+- CI中的评测时间如何压缩？
+- 如何处理「警告」级别的变更？
+- 增量评测如何确定受影响的场景？
 ---
 
 # 如何设计CI中的AI质量门禁？在代码提交和发布前自动检测质量退化。

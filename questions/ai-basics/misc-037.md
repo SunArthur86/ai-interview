@@ -1,28 +1,22 @@
 ---
-id: "misc-037"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "Prompt Engineering"
+id: misc-037
+difficulty: L2
+category: ai-basics
+subcategory: Prompt Engineering
 tags:
-  - "IO"
-  - "Elasticsearch"
+- IO
+- Elasticsearch
 feynman:
-  essence: "- *DSPy核心:** 用声明式编程替代手写prompt,让框架自动搜索最优prompt. - *传统方式:** 手写prompt → 人工调优 → 效果不稳"
-  analogy: "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。"
+  essence: 将Prompt Engineering转变为编程问题，通过算法自动优化提示词。
+  analogy: 像写代码定义接口，让编译器自动优化底层实现，而不是手写汇编。
+  first_principle: 如何解决手工调试Prompt效率低、难复现且难以规模化的问题？
   key_points:
-    - "DSPy核心: 用声明式编程替代手写prompt,让框架自动搜索最优prompt."
-    - "传统方式: 手写prompt → 人工调优 → 效果不稳定"
-    - "DSPy方式: 定义输入输出 → 选择模块 → 自动优化 → 验证效果"
-first_principle:
-  problem: "从第一性原理看：DSPy框架的核心思想?它如何自动优化Prompt 的根本优势/劣势来源于什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 用Signature声明输入输出接口
+  - 用Teleprompter自动寻找最优示例
+  - 程序化替代手工调试Prompt
 follow_up:
-  - "DSPy的BootstrapFewShot如何选择示例?"
-  - "DSPy和LangChain有什么本质区别?"
+- DSPy的BootstrapFewShot如何选择示例?
+- DSPy和LangChain有什么本质区别?
 ---
 
 # DSPy框架的核心思想是什么?它如何自动优化Prompt

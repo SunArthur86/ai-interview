@@ -1,27 +1,27 @@
 ---
-id: "xhs-infra-003"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "训练框架"
+id: xhs-infra-003
+difficulty: L4
+category: ai-harness
+subcategory: 训练框架
 tags:
-  - "DeepSpeed"
-  - "ZeRO"
-  - "分布式训练"
-  - "3D Parallelism"
-  - "小红书"
+- DeepSpeed
+- ZeRO
+- 分布式训练
+- 3D Parallelism
+- 小红书
 feynman:
-  essence: "ZeRO的思路是：传统DP中每张卡都存完整副本（参数+梯度+优化器状态），太浪费了。ZeRO逐步把这些都切片分散到各卡上，需要时再All-Gather收集——用更多通信换更少内存，ZeRO-3最极端（全分片），适合超大模型。"
-  analogy: "一个团队10人每人各买一套百科全书太贵。ZeRO方案：每人只买其中几卷，需要查时互相借阅——全集加起来还是一套，但每个人桌上只放1/10，省钱（内存）但借阅（通信）变多了。"
-first_principle:
-  problem: "分布式训练中的内存冗余从哪来？为什么数据并行会浪费内存？"
-  axioms:
-    - "DP本质是数据并行——每张卡跑不同batch，但模型副本完全相同"
-    - "优化器状态（Adam: 2x params）+ 梯度 + 参数 = 大量重复存储"
-    - "切分冗余→增加通信，本质是memory vs communication的tradeoff"
+  essence: 将模型状态（优化器、梯度、参数）切片分散存储，消除冗余。
+  analogy: 把大百科全书拆成几卷，每人只保管一部分，用的时候再互相借阅。
+  first_principle: 如何在数据并行中突破单卡显存限制以训练超大模型？
+  key_points:
+  - ZeRO-1切分优化器状态，ZeRO-2切分梯度，ZeRO-3切分参数
+  - ZeRO-3通信量最大，需配合Offload或3D并行
+  - 通过通信与计算重叠掩盖通信延迟
+  - 代价是增加了参数获取时的All-Gather通信
 follow_up:
-  - "ZeRO-3和FSDP有什么区别？"
-  - "3D Parallelism中DP/TP/PP如何配比？"
-  - "如何诊断训练中的通信瓶颈？"
+- ZeRO-3和FSDP有什么区别？
+- 3D Parallelism中DP/TP/PP如何配比？
+- 如何诊断训练中的通信瓶颈？
 ---
 
 # DeepSpeed ZeRO-1/2/3的区别是什么？ZeRO-3的通信瓶颈如何缓解？

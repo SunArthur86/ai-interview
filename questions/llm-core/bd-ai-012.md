@@ -1,37 +1,31 @@
 ---
-id: "bd-ai-012"
-difficulty: "L3"
-category: "llm-core"
+id: bd-ai-012
+difficulty: L3
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "Prompt工程"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: Prompt工程
 tags:
-  - "字节"
-  - "面经"
-  - "Function Calling"
-  - "RAG"
-  - "Embedding"
+- 字节
+- 面经
+- Function Calling
+- RAG
+- Embedding
 feynman:
-  essence: "Function Calling=让AI去做（调API执行操作），RAG=让AI去查（检索文档补充知识）。两者互补不互斥。"
-  analogy: "FC像报警台（实时接警+派警执行），RAG像图书馆（查阅资料获取背景）。复杂任务=先去图书馆查资料，再报警执行。"
+  essence: Function Calling获取实时结构化数据，RAG检索离线非结构化知识。
+  analogy: Function Calling是打电话问实时信息，RAG是去图书馆翻阅历史档案。
+  first_principle: 如何将外部世界的实时数据与静态知识高效注入模型上下文？
   key_points:
-    - "FC:实时+结构化+可执行"
-    - "RAG:离线+非结构化+只读"
-    - "Embedding=语义翻译官"
-    - "实际项目:两者结合"
-first_principle:
-  problem: "LLM知识有截止日期且无执行能力。如何获取实时信息？如何使用私有知识？"
-  axioms:
-    - "模型知识有截止日期→需要外部数据源"
-    - "模型无执行能力→需要FC"
-    - "私有知识不在训练集中→需要RAG"
-  rebuild: "从模型局限出发：实时数据怎么获取（FC调API）？私有知识怎么补充（RAG向量检索）？两者如何配合（Agent自主决策）？检索质量怎么保证（混合检索+Rerank）？"
+  - Function Calling适合实时交互和工具执行
+  - RAG适合私有知识库和文档问答
+  - 向量检索基于语义而非关键词匹配
+  - 常用混合检索与重排序提升精度
 follow_up:
-  - "Function Calling和RAG能同时用吗？——可以，Agent自主决定调哪个"
-  - "RAG的检索效果怎么评估？——Recall@K + MRR + 人工标注准确率"
-  - "向量数据库选型？——Milvus(大规模)/Qdrant(轻量)/Pinecone(托管)"
+- Function Calling和RAG能同时用吗？——可以，Agent自主决定调哪个
+- RAG的检索效果怎么评估？——Recall@K + MRR + 人工标注准确率
+- 向量数据库选型？——Milvus(大规模)/Qdrant(轻量)/Pinecone(托管)
 ---
 
 # 【字节面经】Function Calling与RAG的区别和联系是什么？什么时候用Function Calling，什么时候用RAG？

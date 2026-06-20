@@ -1,37 +1,30 @@
 ---
-id: "mt-ai-005"
-difficulty: "L3"
-category: "llm-core"
+id: mt-ai-005
+difficulty: L3
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "训练与微调"
+- eng-practice
+- llm-core
+subcategory: 训练与微调
 tags:
-  - "美团"
-  - "面经"
-  - "SFT"
-  - "RLHF"
-  - "后训练"
+- 美团
+- 面经
+- SFT
+- RLHF
+- 后训练
 feynman:
-  essence: "后训练 = 让预训练的'博学但不会对话'的模型变成'博学且有用无害'的助手。先教它听指令（SFT），再用人类偏好调教（RLHF/DPO），最后加安全护栏。"
-  analogy: "预训练模型像刚毕业的大学生（知识丰富但不会沟通）→ SFT = 职场礼仪培训 → RLHF = 导师根据表现给反馈持续改进 → 安全对齐 = 合规培训。"
+  essence: 从“读书”到“做题”再到“讲规矩”的过程。
+  analogy: SFT是教学生做题格式，RLHF是给回答打分纠偏，最后变成懂礼貌的优等生。
+  first_principle: 如何让一个博学但不懂礼貌的基座模型，变成符合人类价值观的助手？
   key_points:
-    - "SFT → 学会指令跟随和格式输出"
-    - "RM → 学习人类偏好打分"
-    - "RLHF/DPO → 对齐优化"
-    - "安全对齐 → 防有害输出"
-    - "质量 > 数量，数据是关键"
-first_principle:
-  problem: "预训练模型有知识但不会对话。如何用最少的标注数据，让模型变得有用（helpful）、诚实（honest）、无害（harmless）？"
-  axioms:
-    - "预训练模型已具备知识——后训练只需调整行为而非注入知识"
-    - "人类偏好是稀疏且主观的——需要 RM 或直接偏好优化"
-    - "对齐三目标（HHH）之间可能冲突——需要权衡"
-  rebuild: "从'行为调整'角度出发：① 最小化行为调整需要什么数据（指令跟随）？② 如何高效利用偏好数据（RLHF vs DPO）？③ 安全边界怎么定义和执行？④ 如何避免灾难性遗忘？"
+  - SFT：学会遵循指令和格式
+  - RM：训练打分员判断回答好坏
+  - RLHF/DPO：基于人类偏好优化对齐
+  - 趋势：DPO因无需显式RM逐渐普及
 follow_up:
-  - "DPO 和 PPO 的区别？—— DPO 无需 RM、无需在线采样，直接离线优化偏好"
-  - "SFT 数据怎么构建？—— 人工标注 + 强模型蒸馏 + Self-Instruct"
-  - "为什么需要安全对齐？—— 防止越狱攻击、有害内容、隐私泄露"
+- DPO 和 PPO 的区别？—— DPO 无需 RM、无需在线采样，直接离线优化偏好
+- SFT 数据怎么构建？—— 人工标注 + 强模型蒸馏 + Self-Instruct
+- 为什么需要安全对齐？—— 防止越狱攻击、有害内容、隐私泄露
 ---
 
 # 【美团面经】说一说大模型后训练（Post-training）的流程？

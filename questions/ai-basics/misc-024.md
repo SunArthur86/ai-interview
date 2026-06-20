@@ -1,27 +1,21 @@
 ---
-id: "misc-024"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "推理优化"
+id: misc-024
+difficulty: L2
+category: ai-basics
+subcategory: 推理优化
 images:
-  - "svg_beam_search.svg"
+- svg_beam_search.svg
 feynman:
-  essence: "score = p(x) - beta * max_sim(x, history)。"
-  analogy: "解码策略就像选路——Greedy 是每步选最近的（快但可能错过全局最优），Beam Search 是同时探索 K 条路（更优但更慢），Contrastive 是避免和已生成内容重复。"
+  essence: 平衡模型置信度与生成多样性，避免重复退化。
+  analogy: 像写作文，既要写得通顺（听老师的话），又不能一直重复同一句（要有新词）。
+  first_principle: 如何在保持语义连贯的同时，避免生成的文本陷入死循环和重复？
   key_points:
-    - "Contrastive Search核心:"
-    - "在选下一个token时,惩罚与已生成token太相似的候选"
-    - "公式:score = p(x) - beta * max_sim(x, history)"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - Greedy贪心最快但无随机性
+  - Beam Search保留多条路径质量高
+  - Contrastive Search惩罚重复，通用性强
 follow_up:
-  - "Beam Search为什么在开放对话中效果不好?"
-  - "do_sample=True和False的区别?"
+- Beam Search为什么在开放对话中效果不好?
+- do_sample=True和False的区别?
 ---
 
 # 对比常见解码策略:Greedy/Beam Search/Contrastive Search各自的优缺点

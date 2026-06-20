@@ -1,26 +1,26 @@
 ---
-id: "xhs-infra-004"
-difficulty: "L5"
-category: "ai-harness"
-subcategory: "训练框架"
+id: xhs-infra-004
+difficulty: L5
+category: ai-harness
+subcategory: 训练框架
 tags:
-  - "FlashAttention"
-  - "CUDA"
-  - "IO优化"
-  - "小红书"
+- FlashAttention
+- CUDA
+- IO优化
+- 小红书
 feynman:
-  essence: "FlashAttention的洞察是：Attention慢不是因为计算量大，而是因为内存读写量大。通过把QKV切成小块放进GPU的快速SRAM里计算（而不是反复读写慢速显存），并用在线Softmax避免存储N×N中间矩阵，将内存复杂度从O(N²)降到O(N)。"
-  analogy: "你有一本1000页的书要做笔记。传统做法：每页都翻一遍再回去查——翻来翻去很慢。FlashAttention：每次撕下10页放桌上快速看完做笔记，看完换下一批——减少翻书次数（内存访问），速度快几倍。"
-first_principle:
-  problem: "为什么Attention的计算瓶颈是IO而非计算？"
-  axioms:
-    - "GPU的算力(TFLOPS)远超显存带宽(TB/s)——计算单元在等数据"
-    - "标准Attention需要多次读写N×N矩阵到HBM"
-    - "SRAM(共享内存)带宽远高于HBM但容量有限（~200KB vs 80GB）"
+  essence: 通过Tiling分块利用高速SRAM，减少对慢速HBM的读写访问。
+  analogy: 做心算时把数字记在草稿纸上，而不是每次都去翻书（HBM），快得多。
+  first_principle: 如何通过优化内存访问模式（IO-aware）来加速Attention计算？
+  key_points:
+  - 将大矩阵切分成适合SRAM大小的Tile
+  - 在SRAM中完成Softmax计算，仅读写HBM各一次
+  - 使用Online Softmax避免存储完整的N²矩阵
+  - v2优化并行度，v3利用H100 FP8和TMA硬件特性
 follow_up:
-  - "FlashAttention如何处理causal mask？"
-  - "v3的异步加载为什么能提升性能？"
-  - "在MoE模型中FlashAttention有什么特殊优化？"
+- FlashAttention如何处理causal mask？
+- v3的异步加载为什么能提升性能？
+- 在MoE模型中FlashAttention有什么特殊优化？
 ---
 
 # FlashAttention v1/v2/v3的核心改进分别是什么？为什么能减少内存访问？

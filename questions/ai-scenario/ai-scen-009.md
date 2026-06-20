@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-009"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI Agent系统设计"
+id: ai-scen-009
+difficulty: L3
+category: ai-scenario
+subcategory: AI Agent系统设计
 tags:
-  - "多Agent"
-  - "Agent协作"
-  - "任务编排"
-  - "LangGraph"
-  - "CrewAI"
-  - "DAG"
+- 多Agent
+- Agent协作
+- 任务编排
+- LangGraph
+- CrewAI
+- DAG
 feynman:
-  essence: "【场景分析】 多Agent协作核心挑战：任务分解、Agent间通信、结果聚合、错误传播控制、死锁检测"
-  analogy: "多 Agent 协作就像项目团队——每个 Agent 扮演不同角色（PM/开发/测试），通过消息传递协作，Boss-Worker 是中心调度，Pipeline 是流水线接力。"
+  essence: 通过角色分工和协作机制，让多个AI Agent像团队一样协同完成复杂任务。
+  analogy: 像公司项目组，有PM分配任务，有程序员写代码，有测试找Bug，最后大家一起交付。
+  first_principle: 如何让多个独立智能体高效协作，共同解决单一智能体无法完成的复杂问题？
   key_points:
-    - "Orchestrator（编排者）：接收任务 → 分解子任务 → 分配 → 聚合结果"
-    - "Researcher（研究员）：收集数据、查询数据库、调用API"
-    - "Analyst（分析师）：数据清洗、统计分析、生成图表"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 明确角色分工，编排者负责任务分解与分发。
+  - 采用黑板或消息传递模式处理通信。
+  - 使用DAG图管理任务依赖和并行执行。
+  - 设置超时和最大轮次防止死循环。
 follow_up:
-  - "多Agent之间的上下文如何高效共享而不爆炸？"
-  - "如果某个Agent给出错误结果，如何防止错误传播？"
-  - "如何评测多Agent系统的端到端效果？"
+- 多Agent之间的上下文如何高效共享而不爆炸？
+- 如果某个Agent给出错误结果，如何防止错误传播？
+- 如何评测多Agent系统的端到端效果？
 ---
 
 # 如何设计一个多Agent协作系统？例如多个AI Agent协同完成一个复杂的数据分析报告。

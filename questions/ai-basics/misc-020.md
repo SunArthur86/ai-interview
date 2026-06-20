@@ -1,27 +1,22 @@
 ---
-id: "misc-020"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "推理优化"
+id: misc-020
+difficulty: L2
+category: ai-basics
+subcategory: 推理优化
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "- *vLLM三大核心创新:** - *1. PagedAttention(KV Cache管理)** - 类操作系统的虚拟内存分页管理 - 将KV Cache"
-  analogy: "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。"
+  essence: 引入操作系统分页管理与连续批处理，极致优化显存与吞吐。
+  analogy: 像餐厅服务员根据客人用餐节奏动态拼桌，不让空座位浪费。
+  first_principle: 如何解决LLM推理中显存浪费严重且无法动态批处理的性能瓶颈？
   key_points:
-    - "vLLM三大核心创新:"
-    - "1. PagedAttention(KV Cache管理)"
-    - "类操作系统的虚拟内存分页管理"
-first_principle:
-  problem: "为什么需要 vLLM的核心技术创新?为什么比HuggingFace推理快10倍？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - PagedAttention消除显存碎片
+  - Continuous Batching动态调度
+  - 前缀缓存复用计算结果
+  - 推理速度相比HF提升10倍
 follow_up:
-  - "PagedAttention如何处理变长序列?"
-  - "Prefix Caching在什么场景下效果最好?"
+- PagedAttention如何处理变长序列?
+- Prefix Caching在什么场景下效果最好?
 ---
 
 # vLLM的核心技术创新是什么?为什么比HuggingFace推理快10倍

@@ -1,28 +1,22 @@
 ---
-id: "misc-034"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "Prompt Engineering"
+id: misc-034
+difficulty: L2
+category: ai-basics
+subcategory: Prompt Engineering
 tags:
-  - "IO"
-  - "Elasticsearch"
+- IO
+- Elasticsearch
 feynman:
-  essence: "Function Calling / Tool Use(最可靠)。"
-  analogy: "Prompt 就像给 AI 的工作指令——指令越清晰、示例越精准、推理步骤越明确（CoT），AI 完成质量越高。"
+  essence: 通过格式约束与结构化定义引导模型输出标准JSON数据。
+  analogy: 像填表一样给模型空格子，并告诉他不要在格子外写字。
+  first_principle: 如何解决非结构化文本输出难以被程序解析和集成的问题？
   key_points:
-    - "结构化JSON输出的方法:"
-    - "方法1:Function Calling / Tool Use(最可靠)"
-    - "方法2:JSON Mode(OpenAI/Anthropic原生支持)"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 优先使用Function Calling或原生JSON Mode
+  - 提供JSON Schema和Few-shot示例
+  - 设置低温度并配合后处理校验
 follow_up:
-  - "Function Calling和JSON Mode有什么区别?"
-  - "如何处理模型输出不合法JSON的情况?"
+- Function Calling和JSON Mode有什么区别?
+- 如何处理模型输出不合法JSON的情况?
 ---
 
 # 如何设计结构化Prompt确保LLM稳定输出JSON?有哪些最佳实践

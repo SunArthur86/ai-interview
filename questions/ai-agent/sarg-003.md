@@ -1,24 +1,19 @@
 ---
-id: "sarg-003"
-difficulty: "L2"
-category: "ai-agent"
-subcategory: "RAG技术"
+id: sarg-003
+difficulty: L2
+category: ai-agent
+subcategory: RAG技术
 images:
-  - "svg_rag.svg"
+- svg_rag.svg
 feynman:
-  essence: "Embedding模型是RAG系统的基础，选择考虑因素： 1. 多语言支持：中文场景选择支持中文的模型 - BAAI/bge-large-zh-v1.5（中文最"
-  analogy: "Embedding 就像把词语放到语义地图上——意思相近的词距离近，无关的词距离远，让机器能计算「相似度」。"
+  essence: 选择能精准捕捉语义且匹配场景需求的高质量向量化模型。
+  analogy: 像选翻译，既要懂语言（中文），又要懂专业（领域）。
+  first_principle: 如何将文本转化为能准确表达语义且高效的向量表示？
   key_points:
-    - "多语言支持：中文场景选择支持中文的模型"
-    - "BAAI/bge-large-zh-v1.5（中文最佳）"
-    - "BAAI/bge-m3（多语言）"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚"
-    - "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠"
-    - "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
-  rebuild: "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
+  - 优先考虑语言支持和MTEB排名
+  - 权衡维度大小与存储/检索成本
+  - 根据算力选择API或本地部署
+  - 长文档场景注意Context Window长度
 ---
 
 # 如何选择Embedding模型？

@@ -1,34 +1,28 @@
 ---
-id: "zp-infra-008"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "推理优化"
+id: zp-infra-008
+difficulty: L4
+category: ai-harness
+subcategory: 推理优化
 tags:
-  - "智谱"
-  - "面经"
-  - "CUDA"
-  - "Kernel"
-  - "Roofline"
-  - "Nsight"
+- 智谱
+- 面经
+- CUDA
+- Kernel
+- Roofline
+- Nsight
 feynman:
-  essence: "评估 Kernel = 看'算力利用率'和'带宽利用率'哪个先到天花板。就像评估一条流水线——是工人手速慢（compute bound）还是传送带送料慢（memory bound）？"
-  analogy: "Roofline 图就像'天花板图'——横轴是每个 byte 能做多少计算（AI），纵轴是实际性能。曲线下方是能达到的，曲线上方是做不到的。你的 Kernel 在哪，就知道被什么限制了。"
+  essence: 利用Roofline模型和Nsight工具定位Kernel瓶颈
+  analogy: 像体检看心率（计算）和供血（内存），哪边慢治哪边
+  first_principle: 是计算能力不足还是数据传输太慢限制了Kernel性能？
   key_points:
-    - "Roofline: AI < 转折点 = memory bound"
-    - "Nsight: occupancy + throughput + stall"
-    - "Memory bound → tiling/coalescing"
-    - "Compute bound → Tensor Core/流水线"
-first_principle:
-  problem: "GPU 有峰值算力和峰值带宽两个上限。Kernel 的实际性能受限于哪个？如何判断？如何优化？"
-  axioms:
-    - "性能 = min(算力上限, 带宽上限 × 算术强度)"
-    - "算术强度 = FLOPs / Bytes —— 每搬运一个 byte 做多少计算"
-    - "GPU 通过 warp 并行隐藏延迟 —— occupancy 决定隐藏能力"
-  rebuild: "从 GPU 执行模型出发：① Kernel 的算术强度是多少（分析 FLOPs/Bytes）？② 落在 Roofline 哪段（compute/memory bound）？③ 具体瓶颈在哪（Nsight stall/conflict/throughput）？④ 怎么优化（tiling/Tensor Core/prefetch）？"
+  - 计算算术强度AI判断受限于计算还是显存
+  - Nsight Compute分析Occupancy和Stall原因
+  - Memory Bound优化合并读写，Compute Bound用Tensor Core
+  - 通过Tiling减少全局内存访问
 follow_up:
-  - "Occupancy 是越高越好吗？—— 不一定，高 occupancy 可能意味着低 per-thread 资源"
-  - "怎么判断 Kernel 是否已经最优？—— 与 cuBLAS/cuDNN 对比，看差距"
-  - "FlashAttention 的 Kernel 为什么快？—— 减少了 global memory 读写，在 SRAM 内完成分块计算"
+- Occupancy 是越高越好吗？—— 不一定，高 occupancy 可能意味着低 per-thread 资源
+- 怎么判断 Kernel 是否已经最优？—— 与 cuBLAS/cuDNN 对比，看差距
+- FlashAttention 的 Kernel 为什么快？—— 减少了 global memory 读写，在 SRAM 内完成分块计算
 ---
 
 # 【智谱Infra面经】如何评估一个 CUDA Kernel 的优化空间？怎么判断它是计算 bound 还是内存 bound？
@@ -68,7 +62,7 @@ Arithmetic Intensity (AI) = FLOPs / Bytes
 | **Memory Bound** | Coalesced access、shared mem tiling、减少冗余读写 |
 | **Compute Bound** | Tensor Core (WMMA/MMA)、指令流水线、减少非 matmul 计算 |
 | **Latency Bound** | 增加并行度（更多 warp/block）、prefetch |
-| **Bank Conflict** | 调整 shared mem 布局（padding）、改变访问模式 |
+| **Bank Conflict** | 调整 shared mem 布局、改变访问模式 |
 
 **4. GEMM Kernel 优化示例**
 ```

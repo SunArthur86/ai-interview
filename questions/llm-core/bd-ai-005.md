@@ -1,39 +1,32 @@
 ---
-id: "bd-ai-005"
-difficulty: "L3"
-category: "llm-core"
+id: bd-ai-005
+difficulty: L3
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "AI编程"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: AI编程
 tags:
-  - "字节跳动"
-  - "面经"
-  - "AI编程"
-  - "最佳实践"
-  - "踩坑"
+- 字节跳动
+- 面经
+- AI编程
+- 最佳实践
+- 踩坑
 feynman:
-  essence: "AI编程的核心坑是\"把AI当成全知全能的自动写代码机器\"，而实际上AI是一个需要明确约束、持续验证、人工审查的高效助手。"
-  analogy: "AI编程像带一个聪明但没有经验的实习生——他学得快、产出多，但你需要给他明确的需求文档、代码规范、以及严格的Code Review。放任不管必定出事。"
+  essence: 不盲信，强约束，重测试，防幻觉，守安全。
+  analogy: 像带实习生：指令要写死，代码要复查，权限要管好。
+  first_principle: 如何在利用AI效率的同时保障代码质量与安全？
   key_points:
-    - "过度信任：AI代码必须测试验证"
-    - "上下文不足：用@引用和.cursorrules补充"
-    - "风格不一致：用规范文件+格式化工具统一"
-    - "长对话遗忘：关键约束写进持久化配置"
-    - "黄金法则：AI是副驾驶，人负责决策"
-first_principle:
-  problem: "AI编程为什么会踩这些坑？根因是什么？"
-  axioms:
-    - "LLM是概率模型——生成的代码是\"最可能的\"而非\"最正确的\""
-    - "训练数据有时效性和覆盖盲区——最新API和非主流库容易出错"
-    - "上下文窗口有限——长任务中早期约束不可避免地会被遗忘"
-    - "AI没有业务上下文——它不知道你的业务逻辑什么是对的"
-  rebuild: "从LLM的本质出发：① 代码生成是概率行为（→需要测试验证）② 知识有盲区（→需要补充上下文）③ 记忆有限（→需要持久化约束）④ 缺乏业务理解（→需要人工确认需求）。每个坑都对应LLM的一个根本局限，最佳实践就是针对性地弥补这些局限。"
+  - AI生成的代码必须人工Review和测试
+  - 用.cursorrules固化代码规范与约束
+  - 提供准确文档上下文防止幻觉
+  - 严禁AI处理硬编码密钥
+  - 先确认业务理解再写代码
 follow_up:
-  - "如何评估AI生成代码的质量？—— 用Code Coverage + 静态分析 + Code Review三重保障"
-  - ".cursorrules怎么写最有效？—— 分模块写：技术栈/命名规范/架构模式/禁止事项"
-  - "团队中如何推广AI编程最佳实践？—— 建立AI代码Review Checklist + 定期分享踩坑案例"
+- 如何评估AI生成代码的质量？—— 用Code Coverage + 静态分析 + Code Review三重保障
+- .cursorrules怎么写最有效？—— 分模块写：技术栈/命名规范/架构模式/禁止事项
+- 团队中如何推广AI编程最佳实践？—— 建立AI代码Review Checklist + 定期分享踩坑案例
 ---
 
 # 【字节面经】AI编程中有哪些踩坑经验？分享你的最佳实践。

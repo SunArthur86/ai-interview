@@ -1,27 +1,21 @@
 ---
-id: "misc-041"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "评估与安全"
+id: misc-041
+difficulty: L2
+category: ai-basics
+subcategory: 评估与安全
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "- *幻觉类型:** 1. **事实性幻觉** - 编造不存在的事实(如虚假引用) 2. **忠实性幻觉** - 输出与输入/上下文矛盾 3. **推理幻觉**"
-  analogy: "控制幻觉就像给 AI 装事实核查员——通过 RAG 引用来源、设置置信度阈值、多路验证，减少一本正经的胡说八道。"
+  essence: 模型生成不真实或无依据内容的现象，需通过外挂知识抑制。
+  analogy: 像学生没复习却硬要答题，只能瞎编；给他开卷（RAG）就能准点。
+  first_principle: 如何解决生成式模型在不具备确切知识时依然自信输出错误内容的问题？
   key_points:
-    - "事实性幻觉 - 编造不存在的事实(如虚假引用)"
-    - "忠实性幻觉 - 输出与输入/上下文矛盾"
-    - "推理幻觉 - 推理链条中出现逻辑错误"
-first_principle:
-  problem: "为什么需要 大模型幻觉(Hallucination)的成因?如何缓解？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 根源在于概率生成机制和数据缺陷
+  - RAG提供外部事实依据
+  - RLHF引导模型诚实输出
 follow_up:
-  - "如何检测幻觉?"
-  - "RLHF为什么能减少幻觉?"
+- 如何检测幻觉?
+- RLHF为什么能减少幻觉?
 ---
 
 # 大模型幻觉(Hallucination)的成因是什么?如何缓解

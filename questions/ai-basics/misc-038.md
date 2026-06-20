@@ -1,25 +1,19 @@
 ---
-id: "misc-038"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "多模态"
+id: misc-038
+difficulty: L2
+category: ai-basics
+subcategory: 多模态
 feynman:
-  essence: "- *CLIP (Contrastive Language-Image Pre-training):** - *核心思想:** 用对比学习将图像和文本对齐到同一"
-  analogy: "Transformer 就像高效的读书小组——每个人（注意力头）同时读不同段落，然后交流关键信息，不像 RNN 逐字读。"
+  essence: 通过对比学习打通图像与文本的语义空间，实现跨模态理解。
+  analogy: 像训练翻译官，把“猫”的图片和“猫”这个词拉进同一个房间，把“狗”赶出去。
+  first_principle: 如何让计算机理解图像内容并关联自然语言的语义概念？
   key_points:
-    - "CLIP (Contrastive Language-Image Pre-training):"
-    - "核心思想: 用对比学习将图像和文本对齐到同一向量空间."
-    - "图像编码器(ViT)+ 文本编码器(Transformer)"
-first_principle:
-  problem: "剥离所有术语：CLIP的原理?为什么它能实现零样本图像分类 底层在做什么？为什么这样做是最优的？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 双塔架构分别编码图像和文本
+  - 使用对比损失对齐正样本
+  - 通过文本描述实现零样本分类
 follow_up:
-  - "CLIP的文本编码器和图像编码器维度如何对齐?"
-  - "SigLIP相比CLIP有什么改进?"
+- CLIP的文本编码器和图像编码器维度如何对齐?
+- SigLIP相比CLIP有什么改进?
 ---
 
 # CLIP的原理是什么?为什么它能实现零样本图像分类

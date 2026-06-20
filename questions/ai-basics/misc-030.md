@@ -1,27 +1,21 @@
 ---
-id: "misc-030"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "RAG与向量检索"
+id: misc-030
+difficulty: L2
+category: ai-basics
+subcategory: RAG与向量检索
 tags:
-  - "IOC"
+- IOC
 feynman:
-  essence: "- *GraphRAG核心思想:** **传统RAG：** 文档→chunks→embedding→检索 **GraphRAG：** 文档→**知识图谱**→社"
-  analogy: "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。"
+  essence: 利用知识图谱结构化信息，解决全局理解和复杂推理问题。
+  analogy: 从零散的碎纸片（向量RAG）拼成了一张结构清晰的地图（GraphRAG），既能看局部也能看全貌。
+  first_principle: 如何让RAG系统不仅回答局部事实，还能理解数据集的全局结构和潜在联系？
   key_points:
-    - "GraphRAG核心思想:"
-    - "实体抽取 - LLM从文档中抽取实体和关系"
-    - "图谱构建 - 构建实体-关系图"
-first_principle:
-  problem: "从第一性原理看：GraphRAG(微软提出)?相比传统向量RAG有什么优势 的根本优势/劣势来源于什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 构建实体关系图谱，进行社区归纳
+  - Local Search查点，Global Search查面
+  - 擅长多跳推理和全局综述
 follow_up:
-  - "GraphRAG的图谱构建成本如何控制?"
-  - "社区检测算法如何选择?"
+- GraphRAG的图谱构建成本如何控制?
+- 社区检测算法如何选择?
 ---
 
 # GraphRAG(微软提出)是什么?相比传统向量RAG有什么优势

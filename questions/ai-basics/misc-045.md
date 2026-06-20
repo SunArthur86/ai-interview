@@ -1,27 +1,21 @@
 ---
-id: "misc-045"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-045
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 images:
-  - "svg_normalization.svg"
+- svg_normalization.svg
 feynman:
-  essence: "- *RMSNorm vs LayerNorm:** - *LayerNorm:** y = gamma * (x - mean) / √(var + e"
-  analogy: "归一化就像统一度量衡——把不同量级的数据拉到同一尺度，训练更稳定。"
+  essence: RMSNorm简化了LayerNorm去掉了均值减法，Pre-Norm解决了深层训练梯度消失。
+  analogy: RMSNorm是省略了「平均分」计算的标准化；Pre-Norm是先清理再干活，避免越干越乱。
+  first_principle: 如何在保证模型稳定训练的前提下，最大化计算效率并支持更深网络？
   key_points:
-    - "RMSNorm vs LayerNorm:"
-    - "LayerNorm: y = gamma * (x - mean) / √(var + eps) + beta"
-    - "RMSNorm: y = gamma * x / √(mean(x²) + eps)"
-first_principle:
-  problem: "追根溯源：为什么LLaMA用RMSNorm而不是LayerNorm?Pre-Norm和Post-Norm有什么区别 的根本原因是什么？背后的设计哲学是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - RMSNorm移去中心化减法，仅保留方差缩放，计算效率高。
+  - Pre-Norm将LayerNorm置于残差连接之前，保证梯度顺畅传播。
+  - 现代大模型标配：Pre-Norm结构配合RMSNorm归一化。
 follow_up:
-  - "DeepNorm如何解决Post-Norm的稳定性问题?"
-  - "为什么Post-Norm在浅层模型中效果更好?"
+- DeepNorm如何解决Post-Norm的稳定性问题?
+- 为什么Post-Norm在浅层模型中效果更好?
 ---
 
 # 为什么LLaMA用RMSNorm而不是LayerNorm?Pre-Norm和Post-Norm有什么区别

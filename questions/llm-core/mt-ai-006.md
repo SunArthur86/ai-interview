@@ -1,35 +1,29 @@
 ---
-id: "mt-ai-006"
-difficulty: "L4"
-category: "llm-core"
+id: mt-ai-006
+difficulty: L4
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "位置编码"
+- eng-practice
+- llm-core
+subcategory: 位置编码
 tags:
-  - "美团"
-  - "面经"
-  - "Qwen"
-  - "长度外推"
+- 美团
+- 面经
+- Qwen
+- 长度外推
 feynman:
-  essence: "长度外推 = 让只见过 8K 序列的模型能处理 128K。核心是修改 RoPE 的频率，让'近距离的精细刻度'不变（保精度），'远距离的粗略刻度'压缩（保安全）。"
-  analogy: "就像地图缩放——放大看街道（高频/近距离不缩放），缩小看省界（低频/远距离压缩），这样同一张地图能覆盖更大范围而不失真。"
+  essence: 利用YaRN等插值技术，动态调整RoPE频率以适应更长文本。
+  analogy: 像拉伸皮筋，不同部位拉伸力度不同（频率相关），保证拉长后不断裂也不变形。
+  first_principle: 如何让基于短文本训练的位置编码，平滑地扩展到长文本而不产生崩塌？
   key_points:
-    - "YaRN：分频段插值（高频不缩放，低频线性缩放）"
-    - "DCA：chunk 内/间注意力分离"
-    - "Qwen2.5：原生支持 128K"
-    - "核心矛盾：外推长度 vs 召回精度"
-first_principle:
-  problem: "RoPE 的旋转基座 θ 是基于训练长度设计的。超出训练长度后，模型遇到没见过的角度组合，注意力质量下降。如何修改 θ 使其在更长序列上仍有效？"
-  axioms:
-    - "高频维度编码局部位置 → 必须保留精度（不缩放）"
-    - "低频维度编码全局位置 → 可以安全插值（缩放）"
-    - "Attention 复杂度 O(n²) → 训练长序列成本极高"
-  rebuild: "从 RoPE 频率谱出发：① 哪些维度对短距离敏感（高频）？② 哪些维度对长距离敏感（低频）？③ 如何在不重训的情况下修改频率？④ 怎么在精度和外推范围间取得平衡？"
+  - 早期：NTK-aware RoPE 插值
+  - Qwen2：引入YaRN，分频率插值
+  - Qwen2.5：直接增加长文本训练数据
+  - 核心：平衡高频局部信息和低频全局信息
 follow_up:
-  - "NTK-aware 和 YaRN 的区别？—— NTK 统一缩放所有维度，YaRN 分频段处理"
-  - "长度外推会损失质量吗？—— 会，特别是长序列的精确召回任务（如 needle-in-haystack）"
-  - "为什么不直接训练更长的序列？—— 训练成本随序列长度平方增长（Attention 复杂度）"
+- NTK-aware 和 YaRN 的区别？—— NTK 统一缩放所有维度，YaRN 分频段处理
+- 长度外推会损失质量吗？—— 会，特别是长序列的精确召回任务（如 needle-in-haystack）
+- 为什么不直接训练更长的序列？—— 训练成本随序列长度平方增长（Attention 复杂度）
 ---
 
 # 【美团面经】Qwen 是怎么做长度外推的？

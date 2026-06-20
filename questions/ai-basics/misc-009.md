@@ -1,25 +1,19 @@
 ---
-id: "misc-009"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "训练与微调"
+id: misc-009
+difficulty: L2
+category: ai-basics
+subcategory: 训练与微调
 feynman:
-  essence: "- *RLHF (Reinforcement Learning from Human Feedback) 三阶段:** 1. **SFT (Supervised"
-  analogy: "微调就像给通才毕业生做岗前培训——已有基础能力（预训练），再针对具体岗位做专项训练（指令/偏好对齐）。"
+  essence: 利用人类反馈训练奖励模型,再通过强化学习对齐模型偏好。
+  analogy: 像训狗,预训练让它学认字,SFT教它握手,RLHF给它奖励或惩罚让它懂礼貌。
+  first_principle: 如何让模型的输出分布与人类的偏好分布对齐?
   key_points:
-    - "RLHF (Reinforcement Learning from Human Feedback) 三阶段:"
-    - "SFT (Supervised Fine-Tuning) - 人类标注高质量问答对"
-    - "奖励模型训练 - 人类对模型输出排序,训练RM预测人类偏好"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 三步走:SFT学形式 -> RM打分 -> RL学价值观
+  - DPO不用显式训练奖励模型,更稳更简单
+  - 解决的是模型输出是否"对人类友好"的问题
 follow_up:
-  - "GRPO和PPO有什么区别?"
-  - "RLHF可能引入什么偏见?"
+- GRPO和PPO有什么区别?
+- RLHF可能引入什么偏见?
 ---
 
 # RLHF的完整流程是什么?为什么需要它?PPO和DPO有什么区别

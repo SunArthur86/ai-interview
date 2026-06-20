@@ -1,33 +1,27 @@
 ---
-id: "zp-infra-012"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "工程化"
+id: zp-infra-012
+difficulty: L3
+category: ai-harness
+subcategory: 工程化
 tags:
-  - "智谱"
-  - "面经"
-  - "AI Infra"
-  - "求职准备"
-  - "学习路线"
+- 智谱
+- 面经
+- AI Infra
+- 求职准备
+- 学习路线
 feynman:
-  essence: "AI Infra 岗位的核心竞争力 = 系统级思维 + 工程实战 + 量化成果。不是'知道多少算法'，而是'能把模型跑多快、多省、多稳'。"
-  analogy: "AI Infra 工程师是'修高速公路的人'——算法岗研究'造什么车'（模型），Infra 岗研究'怎么让车跑得更快更省油'（训练/推理优化）。路修得好不好，看吞吐（车流量）和延迟（车速）。"
+  essence: 掌握从Transformer架构到分布式训练落地的全栈优化技术。
+  analogy: 像赛车队，既要懂引擎原理（Transformer），也要懂赛道调优（CUDA/Infra）。
+  first_principle: 如何以最低的成本和延迟，最大化大模型的训练与推理效率？
   key_points:
-    - "4 大模块：Transformer + 推理 + 训练 + CUDA"
-    - "必读：FlashAttention / ZeRO / PagedAttention / 量化"
-    - "项目深挖占 40% — — 必须有量化指标"
-    - "6-8 周准备：基础→论文→源码→模拟"
-first_principle:
-  problem: "AI Infra 是一个高度实践导向的岗位。面试官想看的是：你能否把'纸上的原理'变成'跑得快的系统'。"
-  axioms:
-    - "Infra 岗重工程实战 > 论文复现"
-    - "量化成果（MFU/吞吐/延迟）是通用语言"
-    - "系统设计能力是高级岗分水岭"
-  rebuild: "从面试官视角出发：① 他需要什么能力（工程/系统/性能优化）？② 怎么证明你有（量化项目 + 开源贡献）？③ 怎么高效准备（论文→源码→实验→总结）？④ 怎么展示（STAR 结构 + trade-off 讨论）？"
+  - 四大核心：架构、推理、训练、CUDA
+  - 必读源码：vLLM、DeepSpeed、FlashAttention
+  - 面试重点：项目量化、原理深究
+  - 实战导向：不做理论派，重工程落地
 follow_up:
-  - "没有 Infra 实习经验怎么办？ — — 自己复现 vLLM/DeepSpeed 实验，做 benchmark 对比"
-  - "CUDA 编程零基础怎么入门？ — — NVIDIA 官方教程 + 简单 GEMM/softmax kernel 练习"
-  - "Infra 和算法岗的区别？ — — Infra 重工程/系统/性能优化，算法重模型/训练/数据"
+- 没有 Infra 实习经验怎么办？ — — 自己复现 vLLM/DeepSpeed 实验，做 benchmark 对比
+- CUDA 编程零基础怎么入门？ — — NVIDIA 官方教程 + 简单 GEMM/softmax kernel 练习
+- Infra 和算法岗的区别？ — — Infra 重工程/系统/性能优化，算法重模型/训练/数据
 ---
 
 # 【智谱面经】大模型 Infra 岗位怎么准备？必看资料有哪些？面试考察重点是什么？

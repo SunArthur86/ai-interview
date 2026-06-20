@@ -1,27 +1,21 @@
 ---
-id: "misc-026"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "RAG与向量检索"
+id: misc-026
+difficulty: L2
+category: ai-basics
+subcategory: RAG与向量检索
 tags:
-  - "IOC"
+- IOC
 feynman:
-  essence: "RAG 分块（Chunking）策略：固定长度（按 token 数切，简单但可能切断语义）、按结构（段落/标题/Markdown 层级，保留语义）、递归分块（先按大结构再细分）、语义分块（按 embedding 相似度在语义断点切）、重叠分块（相邻块重叠几十 token 防边界丢失）。选型：结构化文档用按结构，长文用语义，追求简单用固定长度+重叠。"
-  analogy: "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。"
+  essence: 将长文档切碎，以便向量检索能精准定位，同时保留上下文语义。
+  analogy: 把百科全书撕成小卡片，每张卡片写上索引，方便快速抽取，并附上所属章节以便理解。
+  first_principle: 如何将长文本切分，使得检索时最精准，生成时上下文最完整？
   key_points:
-    - "chunk_size: 256-1024 tokens(常用512)"
-    - "overlap: chunk_size的10-20%"
-    - "最佳实践 - Parent-Child Chunking:"
-first_principle:
-  problem: "从第一性原理看：RAG中的文档分块(Chunking)有哪些策略?如何选择最优策略 的根本优势/劣势来源于什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 固定窗口最简单，语义分块效果最好
+  - 父子索引法兼顾检索精度与生成完整性
+  - 重叠窗口防止语义切断
 follow_up:
-  - "语义分块如何实现?"
-  - "Markdown文档如何结构化分块?"
+- 语义分块如何实现?
+- Markdown文档如何结构化分块?
 ---
 
 # RAG中的文档分块(Chunking)有哪些策略?如何选择最优策略

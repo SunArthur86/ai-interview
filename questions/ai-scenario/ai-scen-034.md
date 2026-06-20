@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-034"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI评测与监控"
+id: ai-scen-034
+difficulty: L3
+category: ai-scenario
+subcategory: AI评测与监控
 tags:
-  - "可观测性"
-  - "OpenTelemetry"
-  - "Trace追踪"
-  - "Grafana"
-  - "质量看板"
-  - "告警体系"
+- 可观测性
+- OpenTelemetry
+- Trace追踪
+- Grafana
+- 质量看板
+- 告警体系
 feynman:
-  essence: "【场景分析】 AI系统可观测性比传统系统更复杂：不仅要监控基础设施，还要监控模型行为、输出质量、成本。"
-  analogy: "Agent 可观测性就像飞机的黑匣子——记录每一次思考（Thought）、行动（Action）、观察（Observation），出问题时能回放完整链路定位根因。"
+  essence: 监控基建、模型行为和业务质量，全链路洞察系统健康度。
+  analogy: 不仅看服务器有没有挂，还要看AI是不是在胡说八道，以及用户满不满意。
+  first_principle: 如何透过黑盒模型，全面感知系统的实时状态和用户体验？
   key_points:
-    - "基础设施层（Infra）："
-    - "GPU利用率、显存占用、温度"
-    - "请求QPS、延迟分布（P50/P95/P99）"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 三层监控：基础设施+模型行为+业务质量
+  - 全链路：用OpenTelemetry追踪每一步耗时
+  - 分级告警：P0到P3区分故障和体验下降
+  - 质量看板：实时展示核心指标和Bad Case
 follow_up:
-  - "如何平衡Trace详细程度和存储成本？"
-  - "模型行为监控与基础设施监控如何整合？"
-  - "如何设计有效的Bad Case分析流程？"
+- 如何平衡Trace详细程度和存储成本？
+- 模型行为监控与基础设施监控如何整合？
+- 如何设计有效的Bad Case分析流程？
 ---
 
 # 如何设计AI系统的可观测性方案？监控模型行为、输出质量和用户体验。

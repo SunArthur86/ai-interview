@@ -1,24 +1,19 @@
 ---
-id: "ai-harness-s001"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "推理优化"
+id: ai-harness-s001
+difficulty: L3
+category: ai-harness
+subcategory: 推理优化
 images:
-  - "svg_kvcache.svg"
+- svg_kvcache.svg
 feynman:
-  essence: "vLLM是当前最流行的开源LLM推理框架，核心优化： 1. PagedAttention： - 将KV Cache分块管理（类似OS虚拟内存分页） - 消除显存"
-  analogy: "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。"
+  essence: PagedAttention管理显存碎片，Continuous Batching动态调度计算。
+  analogy: 像把仓库格子化管理货物，且送货员走完一单立刻接下一单，不空跑。
+  first_principle: 如何突破显存浪费和计算空闲两大瓶颈，实现LLM的高吞吐推理？
   key_points:
-    - "PagedAttention："
-    - "将KV Cache分块管理（类似OS虚拟内存分页）"
-    - "消除显存碎片，显存利用率从60%提升到96%+"
-first_principle:
-  problem: "从第一性原理看：vLLM的核心优化技术有哪些 的根本优势/劣势来源于什么？"
-  axioms:
-    - "Harness Engineering 的核心是工程化——把 LLM 的潜力通过系统设计转化为可靠的生产力"
-    - "评测驱动开发——没有 Golden Set 和持续评测，AI 系统就是黑盒"
-    - "LLM 应用的可靠性 = 提示工程 + 错误处理 + 降级策略 + 可观测性"
-  rebuild: "从工程化出发：① 为什么 LLM 应用需要 Harness？② 可观测性的核心指标？③ 如何做评测和回归？④ 理想的 AI 工程平台是什么样？"
+  - PagedAttention将KV Cache分块，极大提高显存利用率
+  - Continuous Batching让变长请求在同批次高效流转
+  - 支持张量并行等分布式推理技术
+  - 引入前缀缓存和投机采样进一步加速
 ---
 
 # vLLM的核心优化技术有哪些？

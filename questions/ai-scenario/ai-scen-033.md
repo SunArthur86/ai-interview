@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-033"
-difficulty: "L2"
-category: "ai-scenario"
-subcategory: "AI评测与监控"
+id: ai-scen-033
+difficulty: L2
+category: ai-scenario
+subcategory: AI评测与监控
 tags:
-  - "LLM-as-Judge"
-  - "自动评测"
-  - "偏差校准"
-  - "Pairwise"
-  - "Cohen's Kappa"
-  - "评分标准"
+- LLM-as-Judge
+- 自动评测
+- 偏差校准
+- Pairwise
+- Cohen's Kappa
+- 评分标准
 feynman:
-  essence: "【场景分析】 LLM-as-Judge是用大模型自动评测其他模型输出的方法，可大幅提升评测效率，但有固有偏差"
-  analogy: "AI 评测体系就像学校的考试系统——Golden Set 是标准试题，LLM-as-Judge 是 AI 老师自动阅卷，持续监测模型质量。"
+  essence: 用强模型评估弱模型，通过校准偏差实现高效自动化评测。
+  analogy: 请资深老师阅卷，但要注意老师偏心，要定期核对他的标准。
+  first_principle: 如何用低成本、高效率的方式替代人工进行大规模质量评估？
   key_points:
-    - "单答案评分（Single Answer Scoring）："
-    - "输入：问题 + 答案 + 评分标准"
-    - "输出：1-5分 + 评分理由"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 模式：单题打分、AB对比、参考答案三种模式
+  - 纠偏：位置互换、不同模型、人工抽检
+  - 指标：用Kappa系数衡量与人工的一致性
+  - 成本：CI用小模型，正式测评用大模型
 follow_up:
-  - "如何选择合适的Judge模型？"
-  - "LLM-as-Judge的评分如何与人工评分对齐？"
-  - "在什么场景下LLM-as-Judge不可靠？"
+- 如何选择合适的Judge模型？
+- LLM-as-Judge的评分如何与人工评分对齐？
+- 在什么场景下LLM-as-Judge不可靠？
 ---
 
 # 如何设计LLM-as-Judge评测管道？用大模型自动评测其他模型的输出质量。

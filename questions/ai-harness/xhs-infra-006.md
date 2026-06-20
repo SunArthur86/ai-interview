@@ -1,27 +1,27 @@
 ---
-id: "xhs-infra-006"
-difficulty: "L5"
-category: "ai-harness"
-subcategory: "推理与部署"
+id: xhs-infra-006
+difficulty: L5
+category: ai-harness
+subcategory: 推理与部署
 tags:
-  - "CUDA"
-  - "Kernel"
-  - "GEMM"
-  - "Tensor Core"
-  - "小红书"
+- CUDA
+- Kernel
+- GEMM
+- Tensor Core
+- 小红书
 feynman:
-  essence: "GPU计算矩阵乘法的瓶颈不是运算单元（算力充足），而是把数据从显存搬到计算单元的速度。优化的核心是：用分块（tiling）让数据在快速的shared memory中复用，用Tensor Core做硬件加速的矩阵乘，并消除bank conflict让内存访问并行化。"
-  analogy: "厨房做菜：厨师（计算单元）速度很快，但食材（数据）存在远处的仓库（全局内存）。优化就是：1）在灶台旁放小冰箱（shared memory）放常用食材；2）用大锅（Tensor Core）一次炒多人份；3）规划取菜路线让助手们不撞车（消除bank conflict）。"
-first_principle:
-  problem: "为什么GPU矩阵乘法的瓶颈是数据搬运而非计算？"
-  axioms:
-    - "GPU TFLOPS >> HBM带宽(TB/s)——计算速度远超数据供给速度"
-    - "矩阵乘法中每个数据被多次复用——搬运一次算多次"
-    - "SRAM带宽远高于HBM但容量极小（~200KB vs 80GB）"
+  essence: 利用Shared Memory分块和Tensor Core硬件加速矩阵乘法。
+  analogy: 像搬砖一样，先把砖（数据）搬到脚手架，再快速砌墙，减少来回跑。
+  first_principle: 如何最大化利用GPU内存层级和专用计算单元（Tensor Core）？
+  key_points:
+  - 利用Tiling将数据块加载到Shared Memory复用
+  - 合并访存以最大化利用显存带宽
+  - 避免Bank Conflict保证Shared Memory并发效率
+  - 调用Tensor Core（WMMA API）进行矩阵运算加速
 follow_up:
-  - "如何判断一个Kernel是memory-bound还是compute-bound？"
-  - "shared memory tiling的大小如何选择？"
-  - "MoE模型的router kernel有什么特殊优化？"
+- 如何判断一个Kernel是memory-bound还是compute-bound？
+- shared memory tiling的大小如何选择？
+- MoE模型的router kernel有什么特殊优化？
 ---
 
 # CUDA Kernel优化：如何写一个高效的GEMM（矩阵乘法）？bank conflict和Tensor Core如何优化？

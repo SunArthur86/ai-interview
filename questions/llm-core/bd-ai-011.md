@@ -1,37 +1,31 @@
 ---
-id: "bd-ai-011"
-difficulty: "L3"
-category: "llm-core"
+id: bd-ai-011
+difficulty: L3
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "Prompt工程"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: Prompt工程
 tags:
-  - "字节"
-  - "面经"
-  - "幻觉"
-  - "Hallucination"
-  - "RAG"
+- 字节
+- 面经
+- 幻觉
+- Hallucination
+- RAG
 feynman:
-  essence: "幻觉=模型在'猜'而不是在'查'。减轻幻觉=减少猜测空间（给事实/给工具/约束格式/允许说不知道）。"
-  analogy: "模型幻觉像学生考试瞎蒙——RAG=开卷考试（可以查资料），Function Calling=允许用计算器（可以算），Structured Output=只填选择题（不能自由发挥）。"
+  essence: 利用外部事实约束和格式限制，降低模型概率生成的随机性。
+  analogy: 开卷考试（RAG）+只能填空（Structured Output），逼着它只写有依据的内容。
+  first_principle: 如何让基于概率生成的模型产生符合事实的确定性输出？
   key_points:
-    - "本质=概率预测不是事实检索"
-    - "RAG+FC+SO+Prompt组合拳"
-    - "不能消除只能减轻"
-    - "多轮验证双重保险"
-first_principle:
-  problem: "LLM的训练目标是预测下一个Token，不是检索事实。如何在不改变模型本质的情况下减少事实错误？"
-  axioms:
-    - "LLM=概率生成器不是知识库"
-    - "减少自由度=减少幻觉空间"
-    - "外部验证>内部约束"
-  rebuild: "从概率生成出发：为什么会幻觉（预测而非检索）？怎么减少猜测空间（给事实/给工具/约束格式）？怎么验证（多轮检查/fact-check）？"
+  - 模型本质是概率预测，天然易生幻觉
+  - RAG提供事实上下文，Function Calling获取真数据
+  - 约束输出格式和范围
+  - 设置“不知道”的安全指令
 follow_up:
-  - "幻觉能完全消除吗？——不能，只能减轻，因为LLM本质是概率生成"
-  - "RAG为什么能减轻幻觉？——给了模型事实依据，概率分布集中在正确答案上"
-  - "怎么评估幻觉率？——人工标注 + LLM-as-Judge + Factual Consistency Score"
+- 幻觉能完全消除吗？——不能，只能减轻，因为LLM本质是概率生成
+- RAG为什么能减轻幻觉？——给了模型事实依据，概率分布集中在正确答案上
+- 怎么评估幻觉率？——人工标注 + LLM-as-Judge + Factual Consistency Score
 ---
 
 # 【字节面经】幻觉是怎么产生的？你有哪些方法可以减轻模型幻觉？

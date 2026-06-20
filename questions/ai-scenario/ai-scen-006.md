@@ -1,34 +1,30 @@
 ---
-id: "ai-scen-006"
-difficulty: "L2"
-category: "ai-scenario"
-subcategory: "RAG系统设计"
+id: ai-scen-006
+difficulty: L2
+category: ai-scenario
+subcategory: RAG系统设计
 tags:
-  - "混合检索"
-  - "BM25"
-  - "Dense检索"
-  - "RRF融合"
-  - "Rerank"
-  - "Query路由"
+- 混合检索
+- BM25
+- Dense检索
+- RRF融合
+- Rerank
+- Query路由
 images:
-  - "svg_rag_pipeline.svg"
+- svg_rag_pipeline.svg
 feynman:
-  essence: "【场景分析】 纯向量检索擅长语义匹配但弱于精确关键词（产品名、错误码）；纯BM25擅长精确匹配但不懂同义改写"
-  analogy: "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。"
+  essence: 结合关键词精确匹配与向量语义理解，通过Rerank提升召回质量。
+  analogy: 像“查字典+懂语境”，BM25负责精准找词，向量负责理解意思。
+  first_principle: 如何同时兼顾关键词的精确匹配能力和语义的泛化理解能力？
   key_points:
-    - "【场景分析】 纯向量检索擅长语义匹配但弱于精确关键词（产品名、错误码）"
-    - "【双路检索架构】 1. Sparse路径（BM25）： - Elasticsearch/OpenSearch全文本索引 - 分词器：IK中文分词 + 标准英文分词 - 优势：精确匹配、缩写、专有名词、"
-    - "语义型查询 → Dense权重↑ - 混合型：动态调整权重 - 短查询（<3词）倾向BM25，长查询倾向Dense 【Rerank精排】 - 融合后Top-50 → Cross-encoder Rer"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 双路召回：BM25（精确）+ Dense（语义）
+  - 融合策略：RRF或加权融合
+  - Rerank精排：Cross-encoder提升Top-K准确性
+  - 意图路由：根据查询类型动态调整权重
 follow_up:
-  - "RRF的k参数如何调优？"
-  - "如果向量库和ES数据不一致怎么办？"
-  - "如何在不增加延迟的情况下提升混合检索效果？"
+- RRF的k参数如何调优？
+- 如果向量库和ES数据不一致怎么办？
+- 如何在不增加延迟的情况下提升混合检索效果？
 ---
 
 # 如何设计RAG系统的混合检索方案？结合BM25关键词检索和Dense向量检索的优势。

@@ -1,40 +1,33 @@
 ---
-id: "bd-ai-004"
-difficulty: "L4"
-category: "llm-core"
+id: bd-ai-004
+difficulty: L4
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "AI编程"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: AI编程
 tags:
-  - "字节跳动"
-  - "面经"
-  - "Agent框架"
-  - "OpenClaw"
-  - "Hermes"
-  - "Claude Code"
-  - "上下文管理"
+- 字节跳动
+- 面经
+- Agent框架
+- OpenClaw
+- Hermes
+- Claude Code
+- 上下文管理
 feynman:
-  essence: "Agent框架的核心挑战是\"在有限的上下文窗口内，管理无限的任务历史和工具能力\"。不同框架用不同策略平衡记忆、工具、上下文三个维度。"
-  analogy: "就像不同类型的助手：Claude Code像有个好记性的秘书（自动记住重要的事），Hermes像有个笔记本的工程师（随时翻阅笔记），OpenClaw像有全程录像的团队（可以回放每个决策）。"
+  essence: Claude Code重集成易用，Hermes重技能封装，OpenClaw重可定制审计。
+  analogy: 像办公软件：Claude是Mac（生态好开箱用），Hermes是瑞士军刀（功能全），OpenClaw是工作站（可折腾）。
+  first_principle: 如何在有限的上下文窗口内高效管理记忆与工具？
   key_points:
-    - "记忆：Claude Code自动摘要 vs Hermes结构化 vs OpenClaw事件溯源"
-    - "工具：MCP标准化是趋势，Claude Code集成最深"
-    - "上下文：自动压缩 vs 智能裁剪 vs 可配置管理"
-    - "选型核心：日常用Claude Code，持久记忆用Hermes"
-    - "无完美框架，场景驱动选型"
-first_principle:
-  problem: "Agent框架为什么需要在记忆、工具、上下文三个维度做不同的设计取舍？"
-  axioms:
-    - "LLM上下文窗口是有限的物理约束——必须做信息筛选和压缩"
-    - "工具数量增长与LLM选择准确率呈反比——需要分层管理和按需注入"
-    - "不同任务对记忆持久性的需求不同——编程任务vs个人助理"
-  rebuild: "从Agent的本质（LLM + 工具 + 记忆 + 规划）出发：① 记忆怎么存？（对话内/文件/数据库）② 工具怎么管？（静态声明/动态发现/协议标准化）③ 上下文怎么分配？（自动压缩/智能裁剪/结构化注入）每个选择都是效率和准确性的trade-off。"
+  - Claude Code：自动压缩上下文，MCP集成最深
+  - Hermes：结构化记忆与Skill能力包
+  - OpenClaw：事件溯源，Plugin灵活
+  - 编程选Claude，复杂业务流程选Hermes
 follow_up:
-  - "Agent的上下文压缩会丢失信息，怎么缓解？—— 用结构化记忆（如Hermes的memories/）保存关键事实，不依赖对话窗口"
-  - "多Agent系统如何共享记忆？—— 用共享Memory Store（如向量数据库）或MCP Memory Server"
-  - "Claude Code的自动摘要质量如何保证？—— 用专门的summarization prompt + 保留关键代码块和决策点"
+- Agent的上下文压缩会丢失信息，怎么缓解？—— 用结构化记忆（如Hermes的memories/）保存关键事实，不依赖对话窗口
+- 多Agent系统如何共享记忆？—— 用共享Memory Store（如向量数据库）或MCP Memory Server
+- Claude Code的自动摘要质量如何保证？—— 用专门的summarization prompt + 保留关键代码块和决策点
 ---
 
 # 【字节面经】对比OpenClaw/Hermes/Claude Code等Agent框架，从记忆机制、工具调用、上下文管理三个维度分析。

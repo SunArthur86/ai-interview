@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-038"
-difficulty: "L2"
-category: "ai-scenario"
-subcategory: "多模态AI系统"
+id: ai-scen-038
+difficulty: L2
+category: ai-scenario
+subcategory: 多模态AI系统
 tags:
-  - "文生图"
-  - "Stable Diffusion"
-  - "ControlNet"
-  - "LoRA"
-  - "Prompt工程"
-  - "扩散模型"
+- 文生图
+- Stable Diffusion
+- ControlNet
+- LoRA
+- Prompt工程
+- 扩散模型
 feynman:
-  essence: "【场景分析】 AI文生图系统需求：文字描述生成高质量图片、支持多种风格、可控生成、批量生产"
-  analogy: "Diffusion 就像从噪点中雕刻图片——先撒满噪点再逐步去噪，慢慢浮现目标图像。"
+  essence: 利用扩散模型与Prompt工程，实现从文本到可控图像的生成。
+  analogy: 像神笔马良，你说什么它画什么，还能控制姿势和风格。
+  first_principle: 如何将抽象的文本描述精确转化为符合审美的视觉内容？
   key_points:
-    - "扩散模型：Stable Diffusion 3 / Flux / DALL-E 3"
-    - "自回归： Parti / Muse（token-based生成）"
-    - "关键能力：文生图、图生图、图片编辑、风格迁移"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 模型：扩散模型为主，兼顾质量和速度
+  - 控制：ControlNet和LoRA实现精准可控
+  - 工程：异步队列+GPU加速应对高并发
+  - 后处理：超分修复和安全过滤保证产出质量
 follow_up:
-  - "如何控制生成图片的一致性（如同一角色不同场景）？"
-  - "文生图的版权风险如何规避？"
-  - "如何评估生成图片的质量？"
+- 如何控制生成图片的一致性（如同一角色不同场景）？
+- 文生图的版权风险如何规避？
+- 如何评估生成图片的质量？
 ---
 
 # 如何设计一个AI文生图系统？支持文字描述生成高质量图片、可控生成、批量生产。

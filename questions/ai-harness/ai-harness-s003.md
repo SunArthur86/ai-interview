@@ -1,24 +1,19 @@
 ---
-id: "ai-harness-s003"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "推理优化"
+id: ai-harness-s003
+difficulty: L3
+category: ai-harness
+subcategory: 推理优化
 images:
-  - "svg_transformer.svg"
+- svg_transformer.svg
 feynman:
-  essence: "大模型超过单GPU显存时需要并行： 1. 张量并行（Tensor Parallelism, TP）： - 将每一层的权重矩阵按行/列切分到多GPU - 每层需要"
-  analogy: "Harness Engineering 就像给 AI 搭建完整的施工脚手架——不只是调 LLM API，而是构建提示词管理、工具编排、错误处理、监控的完整工程框架。"
+  essence: 通过拆分模型层、权重矩阵或数据序列，突破单卡显存限制。
+  analogy: 大象装冰箱：把象切开分装(层并行)，或几个人一起抬(张量并行)，或多冰箱放不同象(数据并行)。
+  first_principle: 如何将一个巨大的模型拆解，使其能分布式地运行在多个有限的硬件资源上？
   key_points:
-    - "张量并行（Tensor Parallelism, TP）："
-    - "将每一层的权重矩阵按行/列切分到多GPU"
-    - "每层需要All-Reduce通信"
-first_principle:
-  problem: "为什么需要 模型并行有哪些方案？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Harness Engineering 的核心是工程化——把 LLM 的潜力通过系统设计转化为可靠的生产力"
-    - "评测驱动开发——没有 Golden Set 和持续评测，AI 系统就是黑盒"
-    - "LLM 应用的可靠性 = 提示工程 + 错误处理 + 降级策略 + 可观测性"
-  rebuild: "从工程化出发：① 为什么 LLM 应用需要 Harness？② 可观测性的核心指标？③ 如何做评测和回归？④ 理想的 AI 工程平台是什么样？"
+  - TP切分层内权重，通信频繁适合单机内互联
+  - PP切分层间堆叠，减少通信气泡适合跨机
+  - DP处理不同数据配合ZeRO节省显存
+  - SP和EP分别针对长序列和MoE架构优化
 ---
 
 # 模型并行有哪些方案？

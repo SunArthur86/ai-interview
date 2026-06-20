@@ -1,27 +1,27 @@
 ---
-id: "xhs-infra-008"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "推理与部署"
+id: xhs-infra-008
+difficulty: L4
+category: ai-harness
+subcategory: 推理与部署
 tags:
-  - "系统设计"
-  - "Serving"
-  - "推荐系统"
-  - "LLM"
-  - "小红书"
+- 系统设计
+- Serving
+- 推荐系统
+- LLM
+- 小红书
 feynman:
-  essence: "百万QPS的大模型Serving核心挑战是：在保证延迟的前提下最大化吞吐、最小化成本。解法是分层——用智能路由把请求分配给最合适的GPU，用连续批处理填满GPU，用缓存和投机解码减少冗余计算，用异构GPU池匹配不同复杂度的请求。"
-  analogy: "像医院分诊系统：普通感冒→社区医院（小模型），疑难杂症→三甲医院（大模型）；急诊（低延迟请求）→绿色通道；预约挂号（可批处理）→集中安排。关键是把对的病人送到对的医院，不让大专家看感冒。"
-first_principle:
-  problem: "为什么大模型推理Serving比传统API服务更难？核心约束是什么？"
-  axioms:
-    - "大模型推理是GPU密集型+内存密集型——资源消耗远超传统服务"
-    - "延迟和吞吐天然矛盾——批处理提升吞吐但增加单请求延迟"
-    - "成本=GPU数量x时间——优化目标是每次推理使用最少的GPUx时间"
+  essence: 分级调度与弹性异构资源组合，平衡高并发与成本。
+  analogy: 像餐厅运营，大厨（大模型）做难菜，帮厨（小模型）做快餐，合理排队。
+  first_principle: 如何在保证低延迟和高吞吐的前提下，最小化推理服务成本？
+  key_points:
+  - 动态批处理（Continuous Batching）提升吞吐
+  - 请求路由实现大小模型分级处理
+  - 会话亲和性复用KV Cache降低延迟
+  - 利用混合异构GPU和Spot实例降低成本
 follow_up:
-  - "模型路由器如何决策用大模型还是小模型？"
-  - "KV Cache在多轮对话中如何管理？"
-  - "推荐场景的冷启动如何用LLM优化？"
+- 模型路由器如何决策用大模型还是小模型？
+- KV Cache在多轮对话中如何管理？
+- 推荐场景的冷启动如何用LLM优化？
 ---
 
 # 设计一个支持百万QPS的大模型Serving系统（结合推荐场景）。如何做负载均衡和成本优化？

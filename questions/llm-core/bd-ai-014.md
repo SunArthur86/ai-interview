@@ -1,37 +1,31 @@
 ---
-id: "bd-ai-014"
-difficulty: "L4"
-category: "llm-core"
+id: bd-ai-014
+difficulty: L4
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "训练与微调"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: 训练与微调
 tags:
-  - "字节"
-  - "面经"
-  - "SFT"
-  - "RLHF"
-  - "DPO"
+- 字节
+- 面经
+- SFT
+- RLHF
+- DPO
 feynman:
-  essence: "SFT=教模型模仿（快），RLHF=教模型判断好坏（慢但质量高）。基模变强后，SFT拼数据质量，RLHF拼自动反馈。"
-  analogy: "SFT=背范文（快但只是模仿），RLHF=老师批改作文（慢但学会判断好坏）。搜索引擎时代背范文没用，判断力才重要。"
+  essence: SFT靠优质数据快速成型，RLHF靠反馈奖励对齐偏好，正向自动化发展。
+  analogy: SFT像照着模范书练习（有样学样），RLHF像老师根据表现打分（纠正偏差）。
+  first_principle: 如何高效地将基础模型能力转化为符合人类价值观的高质量智能？
   key_points:
-    - "SFT快:几小时出结果"
-    - "RLHF慢但对齐人类偏好"
-    - "SFT破局=数据质量"
-    - "RLHF破局=自动验证奖励"
-first_principle:
-  problem: "后训练的目标是让预训练模型变得有用/诚实/无害。SFT和RLHF各自能解决什么？基模变强后哪些价值降低了？"
-  axioms:
-    - "SFT学到模式→适合行为模仿"
-    - "RLHF学到偏好→适合质量对齐"
-    - "基模变强→知识注入的价值降低，行为对齐的价值上升"
-  rebuild: "从后训练目标出发：模型缺什么（模式/偏好）？怎么补（SFT/RLHF/DPO）？基模变强后什么变重要（数据质量/自动反馈）？怎么降低成本（DPO/GRPO）？"
+  - SFT迭代快，适合注入知识能力；RLHF效果上限高，适合对齐
+  - 基模强时，SFT核心是数据质量而非数量
+  - RLHF趋向自动验证（如代码运行结果）替代人工打分
+  - DPO简化RL流程，成为新主流
 follow_up:
-  - "DPO和PPO的区别？——DPO无需RM、无需在线采样，直接离线优化偏好"
-  - "RLHF的Reward Model怎么训？——用人类偏好对（chosen/rejected）做排序学习"
-  - "基模强了还需要微调吗？——需要，但重点从知识注入转向行为对齐"
+- DPO和PPO的区别？——DPO无需RM、无需在线采样，直接离线优化偏好
+- RLHF的Reward Model怎么训？——用人类偏好对（chosen/rejected）做排序学习
+- 基模强了还需要微调吗？——需要，但重点从知识注入转向行为对齐
 ---
 
 # 【字节面经】SFT和RLHF哪个更适合快速迭代？在基模能力越来越强的情况下，这两者的破局点是什么？

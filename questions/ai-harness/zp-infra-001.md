@@ -1,34 +1,28 @@
 ---
-id: "zp-infra-001"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "推理优化"
+id: zp-infra-001
+difficulty: L4
+category: ai-harness
+subcategory: 推理优化
 tags:
-  - "智谱"
-  - "面经"
-  - "量化"
-  - "SmoothQuant"
-  - "AWQ"
-  - "GPTQ"
+- 智谱
+- 面经
+- 量化
+- SmoothQuant
+- AWQ
+- GPTQ
 feynman:
-  essence: "量化 = 把浮点权重压缩成低精度整数。难点是少数'异常值'会拉大量化范围导致精度损失。三个算法用不同策略应对：SmoothQuant 把异常值从激活搬到权重、AWQ 保护重要权重、GPTQ 用二阶信息补偿误差。"
-  analogy: "量化像压缩照片——SmoothQuant 是先调整亮度让画面更均匀再压缩；AWQ 是保护人脸区域（重要权重）高质量压缩背景；GPTQ 是逐像素压缩后用周围像素信息补偿误差。"
+  essence: 通过数学变换或优化算法减少权重量化误差
+  analogy: 像把行李里的重物（激活值）均匀分摊到各个箱子（权重）里，方便搬运
+  first_principle: 如何在极低比特（4bit/8bit）下保持模型推理精度？
   key_points:
-    - "SmoothQuant：per-channel，激活平滑迁移"
-    - "AWQ：per-group，保护显著权重"
-    - "GPTQ：per-column，Hessian补偿"
-    - "粒度排序：group > channel > tensor"
-first_principle:
-  problem: "大模型权重分布有长尾（少数 outlier），直接线性量化会导致大部分正常值精度损失。如何选择量化策略和粒度？"
-  axioms:
-    - "量化误差 ∝ (max - min) / 2^n —— 范围越大误差越大"
-    - "激活异常值集中在少数 channel —— 可通过缩放因子迁移"
-    - "不同权重列对输出的敏感度不同 —— Hessian 信息可量化敏感度"
-  rebuild: "从量化误差来源出发：① 误差怎么产生（outlier 拉大范围）？② 怎么减小范围（分粒度/迁移异常值）？③ 怎么补偿误差（二阶信息/激活感知）？④ 不同粒度的精度-效率 trade-off？"
+  - SmoothQuant通过缩放平衡激活与权重分布
+  - AWQ保留重要权重精度，仅量化次要部分
+  - GPTQ利用Hessian二阶信息逐列补偿量化误差
+  - 三者目标均为降低W4量化带来的精度损失
 follow_up:
-  - "SmoothQuant 为什么能平滑？—— 激活异常值集中在少数 channel，通过缩放因子 s 把激活的异常值'转移'到权重端"
-  - "AWQ 和 GPTQ 哪个精度更好？—— 通常 AWQ 略优，因为考虑了激活信息；GPTQ 纯权重补偿更通用"
-  - "per-tensor/channel/group 哪个最细？—— group 最细（如 group_size=128），channel 次之，tensor 最粗"
+- SmoothQuant 为什么能平滑？—— 激活异常值集中在少数 channel，通过缩放因子 s 把激活的异常值'转移'到权重端
+- AWQ 和 GPTQ 哪个精度更好？—— 通常 AWQ 略优，因为考虑了激活信息；GPTQ 纯权重补偿更通用
+- per-tensor/channel/group 哪个最细？—— group 最细（如 group_size=128），channel 次之，tensor 最粗
 ---
 
 # 【智谱Infra面经】按照量化粒度说明一下 SmoothQuant、AWQ、GPTQ 分别是什么粒度的？它们的作用流程是什么？

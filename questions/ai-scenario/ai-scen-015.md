@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-015"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI Agent系统设计"
+id: ai-scen-015
+difficulty: L3
+category: ai-scenario
+subcategory: AI Agent系统设计
 tags:
-  - "私有化部署"
-  - "vLLM"
-  - "开源LLM"
-  - "Agent框架"
-  - "量化部署"
-  - "数据安全"
+- 私有化部署
+- vLLM
+- 开源LLM
+- Agent框架
+- 量化部署
+- 数据安全
 feynman:
-  essence: "【场景分析】 私有化部署Agent的核心约束：数据不出域、硬件资源有限、需要自主可控的模型和工具链"
-  analogy: "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。"
+  essence: 基于开源模型和本地推理引擎，在受限硬件资源下构建安全可控的私有AI系统。
+  analogy: 像自建机房，不租阿里云，用自己的服务器和开源软件搭建内部系统，数据绝对安全。
+  first_principle: 如何在脱离外部API依赖的前提下，利用有限算力构建高性能的AI服务？
   key_points:
-    - "开源LLM：Qwen2.5-72B / Llama3-70B / DeepSeek-V3"
-    - "推理引擎：vLLM（高吞吐）/ TGI / llama.cpp（CPU部署）"
-    - "Embedding：BGE-large-zh / bge-m3（中英双语）"
-first_principle:
-  problem: "为什么需要 设计一个Self-hosted的Agent框架。公司要求完全私有化部署，不依赖外部LLM API。？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 选择高性能开源LLM（如Qwen、Llama）和推理引擎（如vLLM）。
+  - 通过量化和批处理优化资源利用率。
+  - 使用本地向量库和内网隔离确保数据安全。
+  - 设计多租户隔离和审计机制满足合规。
 follow_up:
-  - "开源72B模型与GPT-4的效果差距如何弥补？"
-  - "如何在有限GPU资源下最大化并发？"
-  - "私有化部署的Agent如何持续迭代？"
+- 开源72B模型与GPT-4的效果差距如何弥补？
+- 如何在有限GPU资源下最大化并发？
+- 私有化部署的Agent如何持续迭代？
 ---
 
 # 设计一个Self-hosted的Agent框架。公司要求完全私有化部署，不依赖外部LLM API。

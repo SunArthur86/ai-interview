@@ -1,24 +1,19 @@
 ---
-id: "ai-harness-s004"
-difficulty: "L2"
-category: "ai-harness"
-subcategory: "推理优化"
+id: ai-harness-s004
+difficulty: L2
+category: ai-harness
+subcategory: 推理优化
 images:
-  - "svg_quantization.svg"
+- svg_quantization.svg
 feynman:
-  essence: "按使用场景选择部署方案： 1. 云端GPU部署： - vLLM：最高吞吐量，支持PagedAttention - TGI（Text Generation Inf"
-  analogy: "Agent 发布就像新药临床试验——先小范围试用（金丝雀），没问题再全量推广（蓝绿切换），随时准备回滚（紧急叫停）。"
+  essence: 根据吞吐、延迟和硬件资源匹配最优推理框架。
+  analogy: 跑车拉货选卡车(TensorRT)，买菜选代步车，不想买车就打车。
+  first_principle: 如何在不同的硬件环境和业务需求下，选择成本最低且体验最好的模型运行方式？
   key_points:
-    - "vLLM：最高吞吐量，支持PagedAttention"
-    - "TGI（Text Generation Inference）：HuggingFace出品"
-    - "TensorRT-LLM：NVIDIA出品，极致性能"
-first_principle:
-  problem: "为什么需要 大模型部署有哪些方案？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Harness Engineering 的核心是工程化——把 LLM 的潜力通过系统设计转化为可靠的生产力"
-    - "评测驱动开发——没有 Golden Set 和持续评测，AI 系统就是黑盒"
-    - "LLM 应用的可靠性 = 提示工程 + 错误处理 + 降级策略 + 可观测性"
-  rebuild: "从工程化出发：① 为什么 LLM 应用需要 Harness？② 可观测性的核心指标？③ 如何做评测和回归？④ 理想的 AI 工程平台是什么样？"
+  - 生产环境高吞吐首选vLLM，追求极致性能选TensorRT-LLM
+  - 个人和边缘设备轻量化部署推荐Ollama或llama.cpp
+  - API方案适合无算力需求的快速接入
+  - 部署需权衡显存容量、并发量和响应延迟
 ---
 
 # 大模型部署有哪些方案？

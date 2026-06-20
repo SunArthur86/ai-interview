@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-032"
-difficulty: "L2"
-category: "ai-scenario"
-subcategory: "AI评测与监控"
+id: ai-scen-032
+difficulty: L2
+category: ai-scenario
+subcategory: AI评测与监控
 tags:
-  - "Golden Set"
-  - "评测集"
-  - "CI/CD"
-  - "人工标注"
-  - "回归测试"
-  - "质量门禁"
+- Golden Set
+- 评测集
+- CI/CD
+- 人工标注
+- 回归测试
+- 质量门禁
 feynman:
-  essence: "【场景分析】 Golden Set是AI应用质量保障的基础：没有评测集就无法量化迭代效果，也无法阻断质量退化。"
-  analogy: "CAS（比较并交换）就像抢红包——大家同时看到金额，只有第一个抢到的人成功，其他人重试。"
+  essence: 构建分层标准测试集，通过自动化评测守护模型质量。
+  analogy: 像考试题库，每次改代码后都考一遍，防止考分倒退。
+  first_principle: 如何在快速迭代中量化AI能力，确保不发生退化？
   key_points:
-    - "线上真实日志：选取有代表性的用户交互"
-    - "人工构造：覆盖特定场景和边界条件"
-    - "对抗样本：红队测试生成的攻击样本"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 构建：融合真实日志、人工构造和Bad Case
+  - 分层：核心集CI快测，全集发布前深测
+  - 执行：规则+LLM自动判分，人工双盲抽检
+  - 门禁：分数下降即阻断发布，守住质量底线
 follow_up:
-  - "如何保持Golden Set的时效性？"
-  - "标注一致性如何保证？"
-  - "Core Set和Full Set的分配比例如何确定？"
+- 如何保持Golden Set的时效性？
+- 标注一致性如何保证？
+- Core Set和Full Set的分配比例如何确定？
 ---
 
 # 如何设计AI应用的Golden Set评测系统？构建高质量评测集，保障每次迭代不退化。

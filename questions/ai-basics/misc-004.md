@@ -1,28 +1,22 @@
 ---
-id: "misc-004"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-004
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 tags:
-  - "IO"
-  - "IOC"
+- IO
+- IOC
 feynman:
-  essence: "KV Cache缓存已计算token的Key和Value矩阵,避免重复计算. - *原理:** 生成第t个token时,前t-1个token的K/V不变(因为S"
-  analogy: "语义缓存就像客服知识库——相似的问题不用每次重新查（LLM推理），直接从历史回答中找最相似的复用，省钱又快。"
+  essence: 缓存历史K/V矩阵,将生成复杂度从平方级降为线性级。
+  analogy: 做算术题,已经算过的步骤直接抄答案,不用每次都从头重算。
+  first_principle: 如何消除自回归生成中重复计算历史信息的冗余?
   key_points:
-    - "无缓存:O(n²) 次矩阵乘法"
-    - "有缓存:O(n) 次矩阵乘法"
-    - "显存占用: KV Cache大小 = 2 × n_layers × seq_len × hidden_dim × dtype_size"
-first_principle:
-  problem: "为什么需要 KV Cache?它为什么能加速自回归生成?有什么代价？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 显存换时间:用空间存KV换取生成速度
+  - 动态增长:每生成一个新词存一次KV
+  - 长颈瓶:KV显存占满是提升batch的主要障碍
 follow_up:
-  - "PagedAttention如何减少显存碎片?"
-  - "GQA为什么能减少KV Cache大小?"
+- PagedAttention如何减少显存碎片?
+- GQA为什么能减少KV Cache大小?
 ---
 
 # 什么是KV Cache?它为什么能加速自回归生成?有什么代价

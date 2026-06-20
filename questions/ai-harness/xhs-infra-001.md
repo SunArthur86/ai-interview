@@ -1,27 +1,27 @@
 ---
-id: "xhs-infra-001"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "推理与部署"
+id: xhs-infra-001
+difficulty: L4
+category: ai-harness
+subcategory: 推理与部署
 tags:
-  - "vLLM"
-  - "PagedAttention"
-  - "KV Cache"
-  - "推理优化"
-  - "小红书"
+- vLLM
+- PagedAttention
+- KV Cache
+- 推理优化
+- 小红书
 feynman:
-  essence: "PagedAttention像OS虚拟内存一样管理KV Cache——把KV Cache分成固定大小的块（block），用块表记录每个序列的块在哪个物理位置，支持非连续存储、动态分配/释放，消除内存碎片和预分配浪费，配合连续批处理让GPU利用率接近100%。"
-  analogy: "想象停车场管理：传统方式给每辆车预留最大车位，大量浪费。PagedAttention是划标准小车位，车来分配、走释放，用登记簿记录位置——空间利用率从30%→95%。"
-first_principle:
-  problem: "大模型推理的核心瓶颈是什么？为什么KV Cache成为主要瓶颈？"
-  axioms:
-    - "推理时KV Cache随序列长度线性增长，是显存主要消耗者"
-    - "传统预分配方式内存利用率仅~30%，碎片化严重"
-    - "GPU计算能力远超内存带宽——推理是memory-bound"
+  essence: 借鉴操作系统虚拟内存分页管理KV Cache，解决显存碎片问题。
+  analogy: 像电脑管理内存一样，把KV Cache切成固定页，哪里有空位放哪里。
+  first_principle: 如何解决变长序列KV Cache存储导致的显存碎片和浪费问题？
+  key_points:
+  - 将KV Cache切块（Block）非连续存储，消除显存碎片
+  - 通过Block Table管理逻辑到物理的映射
+  - 结合Continuous Batching实现动态批处理
+  - 支持前缀复用（Radix Tree）共享计算结果
 follow_up:
-  - "PagedAttention的block大小如何选择？"
-  - "连续批处理和静态批处理有什么本质区别？"
-  - "Radix Tree如何实现多轮对话前缀复用？"
+- PagedAttention的block大小如何选择？
+- 连续批处理和静态批处理有什么本质区别？
+- Radix Tree如何实现多轮对话前缀复用？
 ---
 
 # 为什么vLLM能加快大模型推理速度？PagedAttention的核心原理是什么？

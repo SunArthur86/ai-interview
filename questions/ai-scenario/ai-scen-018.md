@@ -1,33 +1,29 @@
 ---
-id: "ai-scen-018"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI对话系统设计"
+id: ai-scen-018
+difficulty: L3
+category: ai-scenario
+subcategory: AI对话系统设计
 tags:
-  - "语音Agent"
-  - "ASR"
-  - "TTS"
-  - "VAD"
-  - "实时对话"
-  - "打断处理"
-  - "端云协同"
+- 语音Agent
+- ASR
+- TTS
+- VAD
+- 实时对话
+- 打断处理
+- 端云协同
 feynman:
-  essence: "【场景分析】 实时语音Agent是最具挑战的AI系统之一：多模态链路（ASR->LLM->TTS）、低延迟要求、打断处理、状态管理"
-  analogy: "AI Agent 就像有自主行动能力的实习生——能理解任务、拆解步骤、使用工具、根据反馈调整。"
+  essence: 构建全链路流式语音处理管道，通过ASR/LLM/TTS并行和状态机管理实现毫秒级响应。
+  analogy: 像同声传译，耳朵听进去的同时脑子在转，嘴巴马上说出来，还能随时被打断。
+  first_principle: 如何在处理听、想、说三个串行步骤时，将端到端延迟压缩到人类可接受的范围？
   key_points:
-    - "音频采集：WebSocket传输音频流（16kHz PCM/Opus）"
-    - "VAD（语音活动检测）：Silero VAD检测说话开始/结束"
-    - "流式ASR：Whisper-streaming / Paraformer流式版"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 采用流式ASR和流式TTS，配合LLM流式生成。
+  - 使用VAD检测语音活动，设计状态机管理交互。
+  - 打断时立即停止TTS和LLM，保留上下文。
+  - 端云协同优化延迟，简单指令端侧执行。
 follow_up:
-  - "如何处理嘈杂环境下的语音识别？"
-  - "端侧部署ASR/TTS有哪些技术选型？"
-  - "语音Agent如何管理多轮对话的上下文？"
+- 如何处理嘈杂环境下的语音识别？
+- 端侧部署ASR/TTS有哪些技术选型？
+- 语音Agent如何管理多轮对话的上下文？
 ---
 
 # 如何设计一个实时语音AI助手？支持语音输入、实时对话、语音输出，延迟控制在1秒以内。

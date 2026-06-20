@@ -1,24 +1,19 @@
 ---
-id: "ai-harness-s005"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "推理优化"
+id: ai-harness-s005
+difficulty: L3
+category: ai-harness
+subcategory: 推理优化
 images:
-  - "svg_kvcache.svg"
+- svg_kvcache.svg
 feynman:
-  essence: "KV Cache是LLM推理的主要显存开销（可达总显存的80%+）： 1. PagedAttention（vLLM）： - 分块管理KV Cache - 消除内"
-  analogy: "语义缓存就像客服知识库——相似的问题不用每次重新查（LLM推理），直接从历史回答中找最相似的复用，省钱又快。"
+  essence: 通过分块、量化、共享和裁剪手段压缩KV Cache显存占用。
+  analogy: 做笔记：只记重点(GQA)、用缩写(量化)、撕掉旧页、共用开头。
+  first_principle: 如何在不显著影响模型效果的前提下，最大程度减少推理过程中的显存占用？
   key_points:
-    - "PagedAttention（vLLM）："
-    - "分块管理KV Cache"
-    - "MQA极端减少（1个KV头）"
-first_principle:
-  problem: "从第一性原理看：LLM中的KV Cache如何优化 的根本优势/劣势来源于什么？"
-  axioms:
-    - "Harness Engineering 的核心是工程化——把 LLM 的潜力通过系统设计转化为可靠的生产力"
-    - "评测驱动开发——没有 Golden Set 和持续评测，AI 系统就是黑盒"
-    - "LLM 应用的可靠性 = 提示工程 + 错误处理 + 降级策略 + 可观测性"
-  rebuild: "从工程化出发：① 为什么 LLM 应用需要 Harness？② 可观测性的核心指标？③ 如何做评测和回归？④ 理想的 AI 工程平台是什么样？"
+  - PagedAttention解决显存碎片和浪费问题
+  - GQA/MQA通过减少KV头数大幅降低显存占用
+  - 量化将FP16降至INT8/4，显著节省内存
+  - 滑动窗口和Offloading进一步处理长序列低频数据
 ---
 
 # LLM中的KV Cache如何优化？

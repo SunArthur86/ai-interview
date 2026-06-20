@@ -1,24 +1,19 @@
 ---
-id: "sarg-002"
-difficulty: "L2"
-category: "ai-agent"
-subcategory: "RAG技术"
+id: sarg-002
+difficulty: L2
+category: ai-agent
+subcategory: RAG技术
 images:
-  - "svg_rag.svg"
+- svg_rag.svg
 feynman:
-  essence: "先按段落(\\n\\n)，再按句子(\\n)，最后按字符。保持语义完整性。LangChain默认。。"
-  analogy: "RAG 就像开卷考试——先翻书找到相关段落（检索），再结合理解写出答案（生成），不靠死记硬背（模型参数），知识可随时更新。"
+  essence: 将长文档合理切分为语义完整的片段，以提升检索匹配度。
+  analogy: 像切肉，顺着纹理切，肉片才完整且好找。
+  first_principle: 如何在保留语义完整性的同时，最大化检索的匹配效率？
   key_points:
-    - "常见策略： 1. 固定长度：按字符数切分（如500字），简单但可能切断语义 2. 递归分割：先按段落( )，再按句子( )，最后按字符"
-    - "3. 语义切分（Semantic Chunking）：用embedding计算相邻句子相似度，相似度低于阈值时切分"
-    - "4. 文档结构感知：根据文档结构（标题、章节、页码）切分"
-first_principle:
-  problem: "为什么需要 RAG的Chunking策略有哪些？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Agent = LLM + 规划 + 记忆 + 工具——LLM 是大脑，其余是手脚"
-    - "ReAct 的本质是「思考-行动-观察」循环——显式推理比隐式更可靠"
-    - "Agent 的上限不取决于 LLM 能力，而取决于工具集和记忆系统的设计"
-  rebuild: "从 Agent 架构出发：① Agent 为什么比纯 LLM 强？② 规划/记忆/工具各自解决什么问题？③ 如何评估 Agent 效果？④ 理想的 Agent 架构是什么样？"
+  - 固定长度简单但易切断语义
+  - 递归分割和语义切分保持完整性
+  - 父子索引兼顾检索精度和上下文
+  - 设置Overlap防止边界信息丢失
 ---
 
 # RAG的Chunking策略有哪些？

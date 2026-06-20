@@ -1,37 +1,31 @@
 ---
-id: "bd-ai-013"
-difficulty: "L3"
-category: "llm-core"
+id: bd-ai-013
+difficulty: L3
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "训练与微调"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: 训练与微调
 tags:
-  - "字节"
-  - "面经"
-  - "微调"
-  - "Fine-tuning"
-  - "RAG"
+- 字节
+- 面经
+- 微调
+- Fine-tuning
+- RAG
 feynman:
-  essence: "RAG=给模型一本参考书（临时查阅），微调=让模型上了个培训班（永久改变行为）。知识用RAG，能力用微调。"
-  analogy: "RAG像开卷考试（带参考资料），微调像上了补习班（内化了知识/技能）。开卷考试适合考记忆，补习班适合考能力。"
+  essence: RAG外挂知识库解决“不知道”，微调内化技能解决“不会做”。
+  analogy: RAG是开卷考试带参考资料，微调是考前特训掌握新技能。
+  first_principle: 如何低成本且高效地让模型掌握新知识或习得新能力？
   key_points:
-    - "RAG:补知识/低成本/实时"
-    - "微调:改行为/高成本/持久"
-    - "RAG优先原则"
-    - "特定格式/风格/推理必须微调"
-first_principle:
-  problem: "LLM需要适配特定领域。是改变模型的知识（RAG）还是改变模型的行为（微调）？"
-  axioms:
-    - "知识是数据——RAG可实时更新"
-    - "行为是参数——微调才能改变"
-    - "成本不对称——RAG<<微调"
-  rebuild: "从适配需求出发：是知识不够（RAG）还是能力不够（微调）？成本约束允许哪个？时间要求多急（RAG快微调慢）？能否组合使用（微调+RAG）？"
+  - RAG低成本更新知识，微调改变模型行为模式
+  - 新知识优先RAG，新风格/新逻辑必须微调
+  - 微调成本高且周期长
+  - 追求低延迟可考虑微调内化知识
 follow_up:
-  - "微调和RAG能结合吗？——可以，微调改变行为模式+RAG补充实时知识"
-  - "微调需要多少数据？——SFT几百到几千条高质量数据就有效果"
-  - "LoRA微调和全量微调怎么选？——资源有限用LoRA，效果要求高用全量"
+- 微调和RAG能结合吗？——可以，微调改变行为模式+RAG补充实时知识
+- 微调需要多少数据？——SFT几百到几千条高质量数据就有效果
+- LoRA微调和全量微调怎么选？——资源有限用LoRA，效果要求高用全量
 ---
 
 # 【字节面经】微调（Fine-tuning）和RAG的使用场景有什么区别？什么场景必须微调？

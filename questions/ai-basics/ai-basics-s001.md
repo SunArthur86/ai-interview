@@ -1,24 +1,17 @@
 ---
-id: "ai-basics-s001"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "深度学习基础"
+id: ai-basics-s001
+difficulty: L2
+category: ai-basics
+subcategory: 深度学习基础
 images:
-  - "svg_training.svg"
+- svg_training.svg
 feynman:
-  essence: "梯度消失：深层网络中梯度通过反向传播逐层衰减，接近输入层的梯度几乎为0，导致参数无法更新"
-  analogy: "梯度消失和爆炸就像传话游戏——每经过一个人（网络层）声音乘以一个系数：系数小于 1 声音越来越小到最后听不见（梯度消失），大于 1 则越来越响直到失真（梯度爆炸）。残差连接和 ReLU 就是'直接传话'绕过中间人。"
+  analogy: 传声筒游戏中，声音传得太远就听不见（消失）或变刺耳（爆炸）。
+  first_principle: 如何在深层网络中保证有效信号反向传播？
   key_points:
-    - "梯度消失：深层网络中梯度通过反向传播逐层衰减，接近输入层的梯度几乎为0，导致参数无法更新"
-    - "梯度爆炸：梯度逐层放大，导致参数更新过大，模型不收敛"
-    - "解决方案： 1. 激活函数：用ReLU（梯度为1）替代Sigmoid（最大梯度0.25） 2. 残差连接（ResNet）：梯度可以直接跳过层传播，解决深层梯度消失 3. BatchNorm/Layer"
-first_principle:
-  problem: "为什么需要 梯度消失和梯度爆炸的原因和解决方案？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 链式法则连乘导致梯度指数级变化
+  - ReLU缓解消失，残差连接提供直通通路
+  - 梯度裁剪是解决爆炸的有效手段
 ---
 
 # 梯度消失和梯度爆炸的原因和解决方案？

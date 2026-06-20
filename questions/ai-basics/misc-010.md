@@ -1,27 +1,21 @@
 ---
-id: "misc-010"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "训练与微调"
+id: misc-010
+difficulty: L2
+category: ai-basics
+subcategory: 训练与微调
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "- *LoRA (Low-Rank Adaptation):** 冻结原始权重W,在旁路添加低秩矩阵ΔA和ΔB: h = Wx + ΔA·ΔB·x 其中 ΔA∈"
-  analogy: "微调就像给通才毕业生做岗前培训——已有基础能力（预训练），再针对具体岗位做专项训练（指令/偏好对齐）。"
+  essence: 冻结主干,通过低秩矩阵旁路更新,实现高效参数微调。
+  analogy: 给大衣打补丁,不用重做整件衣服,只需缝几块小布料就能改样式。
+  first_principle: 如何在极小显存开销下实现大模型的高效适配?
   key_points:
-    - "LoRA (Low-Rank Adaptation):"
-    - "核心思想: 模型适配的权重更新ΔW是低秩的"
-    - "全量微调: d×d 参数"
-first_principle:
-  problem: "剥离所有术语：LoRA的原理?rank r 如何选择?QLoRA做了什么改进 底层在做什么？为什么这样做是最优的？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 只训练新增的低秩矩阵,大幅降低显存需求
+  - 秩r越大,表达能力越强
+  - QLoRA将基座量化至4bit,进一步降低门槛
 follow_up:
-  - "LoRA为什么用零初始化的高斯初始化?"
-  - "QLoRA的NF4量化为什么比INT4好?"
+- LoRA为什么用零初始化的高斯初始化?
+- QLoRA的NF4量化为什么比INT4好?
 ---
 
 # LoRA的原理是什么?rank r 如何选择?QLoRA做了什么改进

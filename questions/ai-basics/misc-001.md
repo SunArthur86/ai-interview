@@ -1,27 +1,21 @@
 ---
-id: "misc-001"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-001
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "Self-Attention 让序列中每个 token 直接「看到」所有其他 token 并加权汇总信息，公式是 softmax(QKᵀ/√d_k)·V；因为所有位置可并行计算、任意两 token 距离为 O(1)，所以比必须串行处理的 RNN 高效得多。"
-  analogy: "注意力机制就像在聚会上听人说话——自动聚焦到感兴趣的声音，给不同人不同关注度，数学上就是加权的加权求和。"
+  essence: 序列内元素通过QK计算相关性并加权聚合V，实现全局并行信息交互。
+  analogy: 每个人同时看一眼全场，决定听谁的；RNN像传声筒一个个传。
+  first_principle: 如何打破序列计算的串行限制并捕捉全局上下文？
   key_points:
-    - "Q/K/V的来源: 输入X分别乘以三个权重矩阵Wq/Wk/Wv"
-    - "并行计算 - RNN必须串行处理,Self-Attention可并行"
-    - "长距离依赖 - 任意两个token间距离为O(1),RNN为O(n)"
-first_principle:
-  problem: "为什么需要 Transformer中的Self-Attention机制?为什么比RNN更高效？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - Q、K、V由输入线性变换得到
+  - 计算复杂度随序列长度平方增长
+  - 相比RNN能直接捕捉长距离依赖
 follow_up:
-  - "为什么除以√d_k?--防止点积过大导致softmax梯度消失"
-  - "Multi-Head Attention的作用?--不同head学习不同子空间的注意力模式"
+- 为什么除以√d_k?--防止点积过大导致softmax梯度消失
+- Multi-Head Attention的作用?--不同head学习不同子空间的注意力模式
 ---
 
 # Transformer中的Self-Attention机制是什么?为什么比RNN更高效

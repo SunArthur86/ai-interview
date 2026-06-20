@@ -1,27 +1,21 @@
 ---
-id: "misc-044"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "评估与安全"
+id: misc-044
+difficulty: L2
+category: ai-basics
+subcategory: 评估与安全
 tags:
-  - "IO"
+- IO
 feynman:
-  essence: "- *Constitutional AI (Anthropic提出):** - *核心思想:** 用一组「宪法原则」(不要有害/要诚实/要公平等)指导模型自我修"
-  analogy: "RLHF 就像给 AI 请人类老师——人类给回答打分排序，训练奖励模型，再用强化学习让 AI 越来越符合人类偏好。"
+  essence: 让模型依据「宪法」原则自我修正，摆脱对人工标注的依赖。
+  analogy: 像给学生一本《行为守则》让他自评自改，而不是老师逐题打分。
+  first_principle: 如何让模型在无人工干预下，自动习得并遵循人类价值观？
   key_points:
-    - "Constitutional AI (Anthropic提出):"
-    - "核心思想: 用一组「宪法原则」(不要有害/要诚实/要公平等)指导模型自我修正,减少对人工标注的依赖."
-    - "监督学习阶段 (SL-CAI):"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - SL-CAI阶段：根据原则自我批评并修正，生成监督数据。
+  - RL-CAI阶段：AI模型充当判别器生成偏好数据进行强化学习。
+  - 相比RLHF，成本低、一致性强、价值观显式定义。
 follow_up:
-  - "宪法原则如何设计?"
-  - "CAI会不会引入AI偏见?"
+- 宪法原则如何设计?
+- CAI会不会引入AI偏见?
 ---
 
 # Constitutional AI (CAI)是什么?它和RLHF有什么区别

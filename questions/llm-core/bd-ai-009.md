@@ -1,37 +1,31 @@
 ---
-id: "bd-ai-009"
-difficulty: "L4"
-category: "llm-core"
+id: bd-ai-009
+difficulty: L4
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "Agent核心框架"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: Agent核心框架
 tags:
-  - "字节"
-  - "面经"
-  - "Skill管理"
-  - "能力复用"
-  - "可扩展性"
+- 字节
+- 面经
+- Skill管理
+- 能力复用
+- 可扩展性
 feynman:
-  essence: "Skill管理 = 把Agent能力模块化、标准化、可组合。新Agent不用从零开发，组合现有Skill即可。"
-  analogy: "Skill系统像App Store——每个Skill是一个App（独立功能），Agent是手机（按需安装/卸载），注册表是应用商店（搜索发现），版本管理是更新提示。"
+  essence: 标准化封装能力并集中管理，实现模块化组合与动态扩展。
+  analogy: 像手机应用商店，统一标准、动态下载、即插即用，互不干扰。
+  first_principle: 如何构建一个高内聚、低耦合、可动态扩展的智能体能力系统？
   key_points:
-    - "四要素定义：功能+输入+输出+依赖"
-    - "注册表自动发现"
-    - "组合>继承"
-    - "权限隔离+热插拔"
-first_principle:
-  problem: "Agent能力不断增长，如何避免硬编码每个功能，实现能力的复用、组合和独立演进？"
-  axioms:
-    - "单一职责——每个Skill只做一件事"
-    - "组合优于继承——复杂=简单组合"
-    - "接口稳定——版本管理+向后兼容"
-  rebuild: "从软件工程原则出发：怎么标准化能力定义（Schema）？怎么发现和复用（注册表）？怎么组合（编排引擎）？怎么独立演进（版本管理+热插拔）？"
+  - 定义标准四要素（功能、输入、输出、依赖）
+  - 注册表实现自动发现与调用
+  - 版本控制保证向后兼容
+  - 权限隔离与热插拔提升稳定性
 follow_up:
-  - "Skill和插件有什么区别？——Skill是AI原生的（理解自然语言），插件是传统的（API调用）"
-  - "怎么评估Skill质量？——调用成功率+执行时间+用户满意度+错误率"
-  - "Skill之间有依赖怎么办？——声明依赖关系，加载时拓扑排序"
+- Skill和插件有什么区别？——Skill是AI原生的（理解自然语言），插件是传统的（API调用）
+- 怎么评估Skill质量？——调用成功率+执行时间+用户满意度+错误率
+- Skill之间有依赖怎么办？——声明依赖关系，加载时拓扑排序
 ---
 
 # 【字节面经】Agent系统如何设计能力复用和Skill管理，保证可扩展性？

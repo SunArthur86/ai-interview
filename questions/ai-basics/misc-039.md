@@ -1,28 +1,22 @@
 ---
-id: "misc-039"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "多模态"
+id: misc-039
+difficulty: L2
+category: ai-basics
+subcategory: 多模态
 tags:
-  - "IO"
-  - "IOC"
+- IO
+- IOC
 feynman:
-  essence: "LLaVA 的架构：视觉编码器（CLIP ViT-L/14）把图片编码成 patch token → 一个可训练的投影层（MLP）把视觉 token 对齐到 LLM 的词嵌入空间 → 拼接到文本 token 后喂给 LLM（Vicuna/LLaMA）做理解与生成；训练分两阶段：特征对齐预训练 + 指令微调。"
-  analogy: "大语言模型就像读过整个互联网的学者——通过预测「下一个词」生成文本，积累了海量语言模式和知识。"
+  essence: 通过简单的投影层将视觉特征对齐到语言模型的词向量空间。
+  analogy: 像给只有文字界面的电脑接个“显卡转接头”，让它能看懂图片。
+  first_principle: 如何赋予纯语言大模型“看懂”图像并生成语言描述的能力？
   key_points:
-    - "视觉编码器 - CLIP ViT-L/14,输出576个patch token"
-    - "投影层 - 线性层/MLP,将视觉特征映射到LLM的embedding空间"
-    - "LLM - LLaMA/Vicuna,处理文本+视觉token"
-first_principle:
-  problem: "为什么需要 LLaVA的架构?它是如何将视觉信息接入LLM的？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - CLIP提取图像特征
+  - 投影层映射特征到词嵌入空间
+  - 两阶段训练：特征对齐+指令微调
 follow_up:
-  - "Projection Layer用线性层还是MLP好?"
-  - "BLIP-2的Q-Former和LLaVA的Projection有什么区别?"
+- Projection Layer用线性层还是MLP好?
+- BLIP-2的Q-Former和LLaVA的Projection有什么区别?
 ---
 
 # LLaVA的架构是什么?它是如何将视觉信息接入LLM的

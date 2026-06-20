@@ -1,35 +1,29 @@
 ---
-id: "mt-ai-004"
-difficulty: "L4"
-category: "llm-core"
+id: mt-ai-004
+difficulty: L4
+category: llm-core
 categories:
-  - "eng-practice"
-  - "llm-core"
-subcategory: "推理优化"
+- eng-practice
+- llm-core
+subcategory: 推理优化
 tags:
-  - "美团"
-  - "面经"
-  - "KV Cache"
-  - "推理优化"
+- 美团
+- 面经
+- KV Cache
+- 推理优化
 feynman:
-  essence: "GQA/MQA 是'多个头共用一份笔记'（粗暴共享），MLA 是'把多份笔记压缩成摘要再恢复'（智能压缩），压缩率更高且信息损失更小。"
-  analogy: "GQA 像 4 个人共用 1 把钥匙（安全但不方便）；MLA 像 4 个人各有一把钥匙，但这把钥匙是从一把'主钥匙'按各自密码推导出来的（既独立又节省空间）。"
+  essence: MLA通过低秩分解压缩KV，比单纯共享头更高效。
+  analogy: MQA/GQA是多人硬挤一张桌子，MLA是把桌子折叠成背包，背着走，更省空间且结构完整。
+  first_principle: 除了简单的头共享，是否有一种数学上更优的方式来减少KV Cache的存储冗余？
   key_points:
-    - "GQA/MQA = 离散共享（硬共享 K/V）"
-    - "MLA = 连续压缩（低秩分解）"
-    - "MLA 压缩率 4-16×，质量接近 MHA"
-    - "矩阵吸收技术避免推理时显式恢复"
-first_principle:
-  problem: "多头的 K/V 之间存在冗余。如何最优地消除冗余而不损失注意力质量？"
-  axioms:
-    - "MHA 中不同头的 K/V 存在低秩相关性（经验证据）"
-    - "离散共享（GQA/MQA）损失信息但简单"
-    - "连续压缩（MLA）保留更多信息但计算更复杂"
-  rebuild: "从 KV Cache 的瓶颈出发：① 冗余在哪（跨头相关性）？② 粗暴共享 vs 智能压缩的 trade-off？③ 推理时如何避免恢复开销？④ 压缩率和质量的帕累托前沿在哪？"
+  - MQA/GQA：离散共享KV头，牺牲部分质量
+  - MLA：低秩分解压缩KV，损失极小
+  - 优势：压缩率更高，性能接近MHA
+  - 核心：矩阵吸收技术加速恢复
 follow_up:
-  - "GQA 的分组数怎么选？—— 通常选 n_heads/4 到 n_heads/8 之间"
-  - "MLA 的训练代价是什么？—— 多了压缩/恢复矩阵的参数和计算"
-  - "vLLM 支持 MLA 吗？—— 需要 PagedAttention 的适配"
+- GQA 的分组数怎么选？—— 通常选 n_heads/4 到 n_heads/8 之间
+- MLA 的训练代价是什么？—— 多了压缩/恢复矩阵的参数和计算
+- vLLM 支持 MLA 吗？—— 需要 PagedAttention 的适配
 ---
 
 # 【美团面经】MLA 是怎么对 KV Cache 做优化的？和 MQA/GQA 相比有什么区别？

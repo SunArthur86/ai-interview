@@ -1,29 +1,23 @@
 ---
-id: "misc-048"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "RAG与向量检索"
+id: misc-048
+difficulty: L2
+category: ai-basics
+subcategory: RAG与向量检索
 tags:
-  - "IOC"
+- IOC
 images:
-  - "svg_embedding_training.svg"
+- svg_embedding_training.svg
 feynman:
-  essence: "Embedding 模型选型看维度、语言、最大 token、MTEB 榜单成绩：BGE（智源，中英文强，bge-large-zh/bge-m3 多语言）、E5（微软，多任务通用）、Cohere（英文强、商用 API）、OpenAI text-embedding-3；中文场景推荐 BGE-large-zh-v1.5 或 BGE-M3（支持稠密+稀疏+多向量）。"
-  analogy: "Embedding 就像把词语放到语义地图上——意思相近的词距离近，无关的词距离远，让机器能计算「相似度」。"
+  essence: 将文本/图像映射为高维向量，通过向量距离衡量语义相似度。
+  analogy: 给每句话贴上唯一的“坐标标签”，意思越近标签贴得越近。
+  first_principle: 如何让机器量化计算两个不同内容在语义上的相似程度？
   key_points:
-    - "主流Embedding模型:"
-    - "中文优先: BGE-large-zh-v1.5 或 BGE-M3"
-    - "多语言: BGE-M3 或 Cohere"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 中文首选BGE系列（M3通用，large-zh专项）。
+  - 商业可用选OpenAI或Cohere，多语言能力更强。
+  - 选型需综合考量语言支持、维度大小和部署成本。
 follow_up:
-  - "BGE-M3的「三多」是什么意思?"
-  - "Matryoshka Embedding如何实现维度可变?"
+- BGE-M3的「三多」是什么意思?
+- Matryoshka Embedding如何实现维度可变?
 ---
 
 # 如何选择Embedding模型?BGE、E5、Cohere各有什么特点?中文场景推荐什么

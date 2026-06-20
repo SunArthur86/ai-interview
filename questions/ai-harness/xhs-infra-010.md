@@ -1,27 +1,27 @@
 ---
-id: "xhs-infra-010"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "训练框架"
+id: xhs-infra-010
+difficulty: L4
+category: ai-harness
+subcategory: 训练框架
 tags:
-  - "MoE"
-  - "分布式训练"
-  - "All-to-All"
-  - "专家并行"
-  - "小红书"
+- MoE
+- 分布式训练
+- All-to-All
+- 专家并行
+- 小红书
 feynman:
-  essence: "MoE的通信瓶颈在于：每个token需要被发送到对应专家所在的GPU（All-to-All）。优化思路是减少传输量（混合并行）、隐藏通信延迟（overlap计算）、并防止所有token涌向同一专家（负载均衡loss）。"
-  analogy: "医院分诊系统：病人（token）需要被送到对应专科医生（专家）处。问题：1）所有人涌向热门科室（负载不均）——加辅助约束鼓励分散；2）转运浪费时间（通信瓶颈）——让医生就近上班（EP+TP混合）+ 转运时并行处理其他病人（overlap）。"
-first_principle:
-  problem: "MoE架构中为什么All-to-All是瓶颈而非All-Reduce？"
-  axioms:
-    - "Dense模型用All-Reduce同步梯度——通信量与参数量成正比"
-    - "MoE用All-to-All传输token到专家——通信量与batch×hidden_dim成正比"
-    - "All-to-All的网络模式比All-Reduce更复杂（每对节点都有数据交换）"
+  essence: 优化通信拓扑与负载均衡策略，解决MoE的All-to-All瓶颈。
+  analogy: 像安排专家会诊，既要避免病人都挤向名医，也要避免转院路途太远。
+  first_principle: 如何在稀疏激活模型中高效调度分布式通信与计算负载？
+  key_points:
+  - All-to-All通信是MoE的主要瓶颈
+  - 利用通信-计算重叠和混合并行（EP+TP）优化
+  - 引入Auxiliary Loss惩罚专家负载不均
+  - 设置共享专家处理公共特征，稳定训练
 follow_up:
-  - "Auxiliary Loss的权重alpha如何设置？"
-  - "MoE推理时如何做专家缓存？"
-  - "DeepSeek-V3的MoE有什么创新？"
+- Auxiliary Loss的权重alpha如何设置？
+- MoE推理时如何做专家缓存？
+- DeepSeek-V3的MoE有什么创新？
 ---
 
 # MoE（Mixture of Experts）训练中All-to-All通信瓶颈如何优化？专家负载不均衡怎么解决？

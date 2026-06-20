@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-036"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "多模态AI系统"
+id: ai-scen-036
+difficulty: L3
+category: ai-scenario
+subcategory: 多模态AI系统
 tags:
-  - "图文理解"
-  - "OCR"
-  - "VQA"
-  - "多模态LLM"
-  - "文档智能"
-  - "GPT-4o"
+- 图文理解
+- OCR
+- VQA
+- 多模态LLM
+- 文档智能
+- GPT-4o
 feynman:
-  essence: "【场景分析】 图文理解系统需求：图片内容描述、图文问答（VQA）、文档图片OCR+理解、图表数据提取"
-  analogy: "Transformer 就像高效的读书小组——每个人（注意力头）同时读不同段落，然后交流关键信息，不像 RNN 逐字读。"
+  essence: 融合OCR、多模态大模型与检索技术，解析视觉信息。
+  analogy: 给AI装上眼睛和大脑，不仅能看字，还能懂图表和含义。
+  first_principle: 如何让计算机像人类一样理解图片中的文本、语义和数据？
   key_points:
-    - "预处理：缩放、裁剪、去噪、方向校正"
-    - "OCR引擎：PaddleOCR / Tesseract / 云服务API"
-    - "表格识别：Table Transformer / PP-Structure"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 多层架构：图像处理+多模态理解+知识增强
+  - 核心能力：OCR识别、MLLM理解、图表数据化
+  - 场景落地：文档解析、VQA问答、图表提取
+  - 精度保障：置信度校验与多模型投票
 follow_up:
-  - "如何处理低质量扫描文档的OCR？"
-  - "MLLM在表格理解上的局限性如何弥补？"
-  - "图文理解的评测指标如何设计？"
+- 如何处理低质量扫描文档的OCR？
+- MLLM在表格理解上的局限性如何弥补？
+- 图文理解的评测指标如何设计？
 ---
 
 # 如何设计一个图文理解系统？支持文档图片OCR、图表数据提取、视觉问答（VQA）。

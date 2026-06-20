@@ -1,26 +1,22 @@
 ---
-id: "misc-021"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "推理优化"
+id: misc-021
+difficulty: L2
+category: ai-basics
+subcategory: 推理优化
 images:
-  - "svg_beam_search.svg"
+- svg_beam_search.svg
 feynman:
-  essence: "Temperature + Top-p 最常用.代码/数学:T=0.1,p=0.95;创意写作:T=0.7,p=0.9。"
-  analogy: "采样策略就像调音响的三个旋钮——Temperature 调随机性（高=即兴发挥、低=稳准狠），Top-k 限制候选数量（只看前 k 名），Top-p 按累积概率圈范围（动态截断尾部）。"
+  essence: 调节随机性与确定性的平衡，控制生成内容的多样性与质量。
+  analogy: 调温水龙头，温度低就是固定的冷水，温度高就是随机混搭的热水。
+  first_principle: 如何在模型生成的确定性与创造性之间找到最佳平衡点？
   key_points:
-    - "组合建议: Temperature + Top-p 最常用.代码/数学:T=0.1,p=0.95;创意写作:T=0.7,p=0.9"
-    - "原理: logits除以T后做softmax,再截断Top-k或Top-p,最后从剩余token按概率采样"
-first_principle:
-  problem: "为什么需要 Temperature、Top-p、Top-k采样策略各自的作用?如何组合使用？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - Temperature控制输出随机平滑度
+  - Top-k限制候选词数量
+  - Top-p限制累积概率质量
+  - 通常组合使用Temp+Top-p
 follow_up:
-  - "为什么Temperature=0不等于确定性输出?"
-  - "repetition_penalty如何影响生成质量?"
+- 为什么Temperature=0不等于确定性输出?
+- repetition_penalty如何影响生成质量?
 ---
 
 # Temperature、Top-p、Top-k采样策略各自的作用?如何组合使用

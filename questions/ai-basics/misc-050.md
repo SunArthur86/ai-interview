@@ -1,27 +1,21 @@
 ---
-id: "misc-050"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "评估与安全"
+id: misc-050
+difficulty: L2
+category: ai-basics
+subcategory: 评估与安全
 tags:
-  - "Elasticsearch"
+- Elasticsearch
 feynman:
-  essence: "- *Test-Time Compute:** 在推理时增加计算量(更长的思考链)来提升效果,而非增加模型参数. - *核心洞察:** - 传统Scaling"
-  analogy: "Test-Time Compute Scaling 就像考试时多想一会儿——不靠考前死记硬背（增加参数），而是在答题时花更多时间推理和验证（更长 CoT/更多采样），想得越深答得越好。"
+  essence: 不再只靠做大模型，而是靠在推理时让模型“多想一会儿”来提升智能。
+  analogy: 考试时不再比谁脑子大（参数多），而是比谁肯花时间反复验算（思考久）。
+  first_principle: 如何在模型参数固定的情况下，通过增加推理时的计算量来突破性能瓶颈？
   key_points:
-    - "Test-Time Compute: 在推理时增加计算量(更长的思考链)来提升效果,而非增加模型参数."
-    - "传统Scaling Law:训练时增加计算(更多参数/数据)"
-    - "新范式: 推理时增加计算(更长的CoT/更多采样)"
-first_principle:
-  problem: "为什么需要 Test-Time Compute Scaling?为什么说它是推理模型的新范式？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 范式转移：从“训练算力换智能”转向“推理算力换智能”。
+  - 核心手段：延展思维链、Best-of-N采样、思维树搜索。
+  - 潜力：小模型配合强推理策略，可打败简单推理的大模型。
 follow_up:
-  - "如何确定最优的推理时计算量?"
-  - "Best-of-N的N如何选择?"
+- 如何确定最优的推理时计算量?
+- Best-of-N的N如何选择?
 ---
 
 # Test-Time Compute Scaling是什么?为什么说它是推理模型的新范式

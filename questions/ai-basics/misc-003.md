@@ -1,25 +1,19 @@
 ---
-id: "misc-003"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-003
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 feynman:
-  essence: "MoE将FFN层替换为多个专家网络,通过Router动态选择激活部分专家. - *核心机制:** 1. Router(gate)计算输入与每个专家的匹配度 2."
-  analogy: "MoE（混合专家）就像医院分诊台——根据病症分给不同专家（专家网络），每次只激活相关专家。"
+  essence: 将模型拆分为多个专家，推理时只激活部分专家，以大参数量换取低计算成本。
+  analogy: 医院分科室看病，只挂相关科室的号，不用所有医生都看一遍。
+  first_principle: 如何在不增加推理计算量的前提下扩大模型容量？
   key_points:
-    - "Router(gate)计算输入与每个专家的匹配度"
-    - "选Top-K个专家(通常K=2或K=8)"
-    - "加权融合选中专家的输出"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 通过Router门控网络动态选择激活的专家
+  - 增加参数量同时控制激活计算量
+  - DeepSeek引入共享专家隔离通用与专业知识
 follow_up:
-  - "MoE的负载均衡如何实现?"
-  - "为什么MoE推理时显存占用高?"
+- MoE的负载均衡如何实现?
+- 为什么MoE推理时显存占用高?
 ---
 
 # MoE(Mixture of Experts)架构是什么?DeepSeek-MoE和Mixtral有什么区别

@@ -1,28 +1,22 @@
 ---
-id: "misc-040"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "多模态"
+id: misc-040
+difficulty: L2
+category: ai-basics
+subcategory: 多模态
 tags:
-  - "IO"
-  - "IOC"
+- IO
+- IOC
 feynman:
-  essence: "- *扩散模型原理:** - *前向过程(加噪):** - 逐步向图像添加高斯噪声 - x_t = √(alpha_t) * x_0 + √(1-a"
-  analogy: "Diffusion 就像从噪点中雕刻图片——先撒满噪点再逐步去噪，慢慢浮现目标图像。"
+  essence: 通过学习从噪声中逐步去噪来生成数据，U-Net负责预测噪声。
+  analogy: 像把一杯清水（图像）搅浑成泥水（噪声），再训练魔法倒流还原清水。
+  first_principle: 如何从随机噪声中逐步构建出符合真实分布的高质量图像？
   key_points:
-    - "逐步向图像添加高斯噪声"
-    - "x_t = √(alpha_t) * x_0 + √(1-alpha_t) * noise"
-    - "训练U-Net学习从噪声中恢复图像"
-first_principle:
-  problem: "为什么需要 扩散模型(Diffusion)的前向和反向过程?为什么U-Net是核心架构？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 前向加噪，反向去噪
+  - U-Net预测噪声并通过跳跃连接保留细节
+  - 潜空间扩散大幅降低计算成本
 follow_up:
-  - "Latent Diffusion为什么比像素空间扩散快?"
-  - "DALL-E 3和Stable Diffusion有什么区别?"
+- Latent Diffusion为什么比像素空间扩散快?
+- DALL-E 3和Stable Diffusion有什么区别?
 ---
 
 # 扩散模型(Diffusion)的前向和反向过程是什么?为什么U-Net是核心架构

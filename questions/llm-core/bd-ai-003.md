@@ -1,39 +1,32 @@
 ---
-id: "bd-ai-003"
-difficulty: "L4"
-category: "llm-core"
+id: bd-ai-003
+difficulty: L4
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "AI编程"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: AI编程
 tags:
-  - "字节跳动"
-  - "面经"
-  - "MCP"
-  - "Skills"
-  - "Tools"
-  - "Function Calling"
+- 字节跳动
+- 面经
+- MCP
+- Skills
+- Tools
+- Function Calling
 feynman:
-  essence: "Tools是原子函数调用，Skills是能力封装（Prompt+工具+流程），MCP是标准化的工具服务通信协议。三者从底到顶：MCP/Tools → Skill → Agent。"
-  analogy: "Tools像单个螺丝刀（一个函数一个工具），Skill像一本操作手册（教你怎么用一组工具完成一个任务），MCP像一个USB标准（让任何设备都能接任何电脑）。"
+  essence: 三层抽象：Tools是原子函数，MCP是连接协议，Skills是业务封装。
+  analogy: 像玩乐高：Tools是积木块，MCP是积木接口标准，Skills是拼好的模型。
+  first_principle: 如何高效标准化地连接大模型与外部数据/工具？
   key_points:
-    - "Tools：原子函数，Function Calling，粒度最细"
-    - "Skills：Prompt+工具+流程的高阶封装"
-    - "MCP：标准化Agent与工具服务通信的协议"
-    - "选型：简单用Tools，复用用MCP，业务用Skill"
-    - "MCP生态爆发中，一次开发多Agent消费"
-first_principle:
-  problem: "Agent为什么需要不同层级的工具抽象？统一成一种不行吗？"
-  axioms:
-    - "LLM的上下文窗口有限——太多Tool定义会挤占上下文且降低选择准确率"
-    - "工具复用是工程效率的核心——同一个DB查询不应在每个Agent里重写"
-    - "协议标准化是生态繁荣的前提——USB之所以成功是因为统一了接口"
-  rebuild: "从Agent需要扩展能力的根本需求出发：① 原子操作怎么定义？（Tools）② 怎么跨Agent复用？（MCP标准化协议）③ 复杂业务怎么封装？（Skill打包Prompt+流程）三层抽象分别解决：粒度控制、复用效率、业务建模。"
+  - Tools是函数定义，是基础
+  - Skills是工具+流程的封装，解决业务复用
+  - MCP是通信协议，解耦Agent与Server
+  - 自建服务推荐MCP以兼容生态
 follow_up:
-  - "MCP和传统的API有什么区别？—— MCP是专为LLM设计的协议，包含语义描述和上下文管理，API只管数据传输"
-  - "一个MCP Server怎么开发？—— 用TypeScript/Python SDK，实现tools/resources/prompts三个handler，stdio或SSE传输"
-  - "Skill能跨Agent平台使用吗？—— 目前不行，各平台Skill格式不同，MCP正在尝试标准化Skill层"
+- MCP和传统的API有什么区别？—— MCP是专为LLM设计的协议，包含语义描述和上下文管理，API只管数据传输
+- 一个MCP Server怎么开发？—— 用TypeScript/Python SDK，实现tools/resources/prompts三个handler，stdio或SSE传输
+- Skill能跨Agent平台使用吗？—— 目前不行，各平台Skill格式不同，MCP正在尝试标准化Skill层
 ---
 
 # 【字节面经】Skills、Tools、MCP三者的区别是什么？如果自己实现工具服务，选哪种方案？

@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-007"
-difficulty: "L2"
-category: "ai-scenario"
-subcategory: "RAG系统设计"
+id: ai-scen-007
+difficulty: L2
+category: ai-scenario
+subcategory: RAG系统设计
 tags:
-  - "RAG评测"
-  - "RAGAS"
-  - "Golden Set"
-  - "Faithfulness"
-  - "检索指标"
-  - "LLM-as-Judge"
+- RAG评测
+- RAGAS
+- Golden Set
+- Faithfulness
+- 检索指标
+- LLM-as-Judge
 feynman:
-  essence: "【场景分析】 RAG评测最大痛点：没有统一标准，难以量化迭代效果。"
-  analogy: "AI 评测体系就像学校的考试系统——Golden Set 是标准试题，LLM-as-Judge 是 AI 老师自动阅卷，持续监测模型质量。"
+  essence: 构建检索、生成、端到端三层指标体系，驱动系统持续迭代。
+  analogy: 像体检，要查血液（检索）、心脏（生成）和整体机能（端到端），综合判断健康。
+  first_principle: 如何科学量化RAG系统各个环节的表现，确保迭代方向正确？
   key_points:
-    - "检索质量评测（Retrieval Metrics）："
-    - "Recall@K：相关文档是否在Top-K中（最关键）"
-    - "MRR（Mean Reciprocal Rank）：第一个相关文档的排名倒数"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 检索层：Recall@K、MRR 衡量召回能力
+  - 生成层：Faithfulness、Relevancy 衡量质量
+  - 端到端：LLM-as-Judge + 用户反馈
+  - CI集成：Golden Set回归阻断劣质发布
 follow_up:
-  - "LLM-as-Judge有哪些偏差？如何校准？"
-  - "如何自动构建高质量的评测集？"
-  - "检索指标和生成指标冲突时如何取舍？"
+- LLM-as-Judge有哪些偏差？如何校准？
+- 如何自动构建高质量的评测集？
+- 检索指标和生成指标冲突时如何取舍？
 ---
 
 # 如何为RAG系统设计完整的评测体系？包括检索质量评测和生成质量评测。

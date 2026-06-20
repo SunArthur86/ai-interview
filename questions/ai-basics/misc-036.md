@@ -1,28 +1,22 @@
 ---
-id: "misc-036"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "Prompt Engineering"
+id: misc-036
+difficulty: L2
+category: ai-basics
+subcategory: Prompt Engineering
 tags:
-  - "CAS"
-  - "Elasticsearch"
+- CAS
+- Elasticsearch
 feynman:
-  essence: "**System Prompt设计框架 (CREATE):**"
-  analogy: "Prompt 就像给 AI 的工作指令——指令越清晰、上下文越充分，AI 完成质量越高。"
+  essence: 通过明确角色、规则和约束来精确控制模型的行为边界。
+  analogy: 像给新员工发详细的《岗位手册》，告诉他该做什么、不该做什么以及怎么说话。
+  first_principle: 如何将模糊的任务需求转化为模型可理解、可执行的精确指令？
   key_points:
-    - "System Prompt设计框架 (CREATE):"
-    - "Context - 角色和背景(你是XX公司的AI助手)"
-    - "Role - 具体职责(你负责回答客户的技术问题)"
-first_principle:
-  problem: "为什么需要 System Prompt设计的最佳实践?如何设计有效的角色和约束？如果不存在它会怎样？它解决了什么根本问题？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - 使用CREATE框架构建完整人设
+  - 多用具体正面指令，少用模糊否定
+  - System层定规矩，User层派任务
 follow_up:
-  - "System Prompt应该多长?"
-  - "如何版本管理Prompt?"
+- System Prompt应该多长?
+- 如何版本管理Prompt?
 ---
 
 # System Prompt设计的最佳实践是什么?如何设计有效的角色和约束

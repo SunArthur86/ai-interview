@@ -1,27 +1,21 @@
 ---
-id: "misc-007"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-007
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 tags:
-  - "IOC"
+- IOC
 feynman:
-  essence: "- *SwiGLU = Swish + GLU (Gated Linear Unit)** - *公式对比:** - ReLU: max(0, x) - GEL"
-  analogy: "激活函数就像神经元的开关——ReLU 是硬开关（<0 关 >0 开），GELU/SwiGLU 是带门控的旋钮，更平滑更精细。"
+  essence: 引入门控机制和平滑激活函数,提升模型非线性表达能力。
+  analogy: 神经网络装了智能阀门,能自主决定让哪些信息流过,比只管开关的非线性更好用。
+  first_principle: 如何设计更高效的非经变换来提升特征提取能力?
   key_points:
-    - "SwiGLU = Swish + GLU (Gated Linear Unit)"
-    - "ReLU: max(0, x)"
-    - "GELU: x · Φ(x) - BERT/GPT使用"
-first_principle:
-  problem: "追根溯源：为什么现代大模型(LLaMA/GLM)用SwiGLU替代ReLU/GELU作为FFN激活函数 的根本原因是什么？背后的设计哲学是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - SwiGLU = Swish激活 + 门控线性单元
+  - 参数量增加3/2,但性能提升显著
+  - 解决ReLU神经元"死亡"问题,梯度更平滑
 follow_up:
-  - "为什么不用更复杂的激活函数?"
-  - "SwiGLU的三个矩阵维度如何设定?"
+- 为什么不用更复杂的激活函数?
+- SwiGLU的三个矩阵维度如何设定?
 ---
 
 # 为什么现代大模型(LLaMA/GLM)用SwiGLU替代ReLU/GELU作为FFN激活函数

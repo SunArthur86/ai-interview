@@ -1,36 +1,30 @@
 ---
-id: "bd-ai-008"
-difficulty: "L3"
-category: "llm-core"
+id: bd-ai-008
+difficulty: L3
+category: llm-core
 categories:
-  - "ai-agent"
-  - "eng-practice"
-  - "llm-core"
-subcategory: "Agent核心框架"
+- ai-agent
+- eng-practice
+- llm-core
+subcategory: Agent核心框架
 tags:
-  - "字节"
-  - "面经"
-  - "上下文漂移"
-  - "工具幻觉"
+- 字节
+- 面经
+- 上下文漂移
+- 工具幻觉
 feynman:
-  essence: "上下文漂移=Agent忘了目标，工具幻觉=Agent编造工具。解法=不断提醒目标+严格约束工具调用边界。"
-  analogy: "Agent执行长任务像长途开车——上下文漂移是走神偏离路线（每公里看路牌提醒），工具幻觉是按了不存在的按钮（仪表盘只显示真实存在的按钮）。"
+  essence: 通过记忆锚点和校验约束，确保Agent长期运行不跑偏且调用真实工具。
+  analogy: 像考试时反复看题目（防跑偏），且只能用考场发的文具（防幻觉工具）。
+  first_principle: 如何在不稳定的多步生成中维持目标一致性与真实性？
   key_points:
-    - "每轮注入原始目标"
-    - "阶段性总结+上下文压缩"
-    - "工具白名单拦截"
-    - "参数校验+Few-shot引导"
-first_principle:
-  problem: "LLM的注意力随上下文增长而分散（Lost in the Middle），且工具调用本质是文本生成有概率出错。"
-  axioms:
-    - "注意力是有限资源——重要信息要反复强化"
-    - "工具调用=生成文本——有幻觉概率"
-    - "边界约束比Prompt提示更可靠——白名单>Say no"
-  rebuild: "从注意力机制出发：怎么保持目标不被稀释（注入+总结）？怎么约束工具调用不越界（Schema+白名单+校验）？怎么检测和恢复（监控+重试）？"
+  - 每轮注入原始目标，提醒初心
+  - 阶段总结与压缩上下文，减少噪音
+  - 工具白名单+参数校验，拦截非法调用
+  - Few-shot示范标准用法
 follow_up:
-  - "什么是Lost in the Middle？——上下文中间位置的信息注意力下降"
-  - "工具幻觉的根本原因是什么？——模型把工具调用也当成文本生成，有概率出错"
-  - "怎么监控Agent是否漂移？——定期让Agent输出当前任务理解，与原始目标对比"
+- 什么是Lost in the Middle？——上下文中间位置的信息注意力下降
+- 工具幻觉的根本原因是什么？——模型把工具调用也当成文本生成，有概率出错
+- 怎么监控Agent是否漂移？——定期让Agent输出当前任务理解，与原始目标对比
 ---
 
 # 【字节面经】如何解决Agent的上下文漂移问题？如何防止工具调用出现幻觉？

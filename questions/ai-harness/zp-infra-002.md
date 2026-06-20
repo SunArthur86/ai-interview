@@ -1,34 +1,28 @@
 ---
-id: "zp-infra-002"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "推理优化"
+id: zp-infra-002
+difficulty: L4
+category: ai-harness
+subcategory: 推理优化
 tags:
-  - "智谱"
-  - "面经"
-  - "量化"
-  - "校准"
-  - "MinMax"
-  - "Percentile"
+- 智谱
+- 面经
+- 量化
+- 校准
+- MinMax
+- Percentile
 feynman:
-  essence: "校准 = 用少量数据找到最优的量化范围（裁剪点）。MinMax 太激进（一个 outlier 毁全部），Percentile 和 KL 散度更智能（允许丢弃极少数 outlier 来保护大多数数据）。"
-  analogy: "校准像裁裤脚——MinMax 是按最长的那条腿裁（所有人都嫌短），Percentile 是按 99.9% 的人的腿长裁（极少数长腿人裤脚短一点但无所谓），KL散度是试穿很多次找最合身的。"
+  essence: 确定量化映射的截断范围以最小化信息损失
+  analogy: 像拍照调光圈，MinMax怕过曝（异常值），Percentile则裁掉极亮背景
+  first_principle: 如何确定浮点数到整数的映射范围最合理？
   key_points:
-    - "MinMax：取绝对最大值，简单但对异常值敏感"
-    - "Percentile：取百分位数，鲁棒"
-    - "KL散度：信息论最优，TensorRT默认"
-    - "MSE：直接优化输出误差"
-first_principle:
-  problem: "量化需要确定裁剪范围 [-α, α]。α 太大则正常值精度低，α 太小则 outlier 被截断。如何找到最优 α？"
-  axioms:
-    - "量化误差 = 裁断误差 + 精度误差，两者随 α 变化方向相反"
-    - "KL散度衡量两个分布的差异——量化前后分布越近越好"
-    - "激活值分布通常非高斯（有长尾/outlier）"
-  rebuild: "从量化误差的来源出发：① α 怎么影响精度误差和截断误差？② 如何度量'量化前后差异'（MSE/KL/Percentile）？③ 计算复杂度怎么控制（分析公式 vs 网格搜索）？④ 不同层/通道的 α 应该一样吗（per-tensor vs per-channel）？"
+  - MinMax取绝对最大值，对异常值敏感
+  - Percentile按比例截断异常值，鲁棒性强
+  - KL散度通过最小化分布差异寻找最优阈值
+  - MSE直接优化量化前后的数值误差
 follow_up:
-  - "为什么不用 mean±3σ？—— 大模型激活不一定是高斯分布，可能有重尾"
-  - "KL 散度校准具体怎么做？—— 构建参考分布和量化分布的直方图，逐 bin 计算散度"
-  - "校准数据量需要多少？—— 通常 128~512 个样本即可"
+- 为什么不用 mean±3σ？—— 大模型激活不一定是高斯分布，可能有重尾
+- KL 散度校准具体怎么做？—— 构建参考分布和量化分布的直方图，逐 bin 计算散度
+- 校准数据量需要多少？—— 通常 128~512 个样本即可
 ---
 
 # 【智谱Infra面经】简述 MinMax 和 Percentile 校准算法有什么不同？还知道什么其他校准算法？
@@ -51,7 +45,7 @@ follow_up:
 
 **其他校准算法：**
 
-1. **KL 散度（Entropy）校准**
+1. **KL 散度校准**
    - 目标：找到量化分布与原始分布 KL 散度最小的截断点
    - TensorRT 默认使用此方法
    - 原理：遍历不同截断阈值，计算量化前后分布的 KL 散度，选最小值

@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-023"
-difficulty: "L2"
-category: "ai-scenario"
-subcategory: "LLM推理与部署"
+id: ai-scen-023
+difficulty: L2
+category: ai-scenario
+subcategory: LLM推理与部署
 tags:
-  - "推理缓存"
-  - "语义缓存"
-  - "Prefix Cache"
-  - "GPTCache"
-  - "KV Cache"
-  - "成本优化"
+- 推理缓存
+- 语义缓存
+- Prefix Cache
+- GPTCache
+- KV Cache
+- 成本优化
 feynman:
-  essence: "LLM 推理缓存三层策略：① 精确缓存（HASH 完全匹配，最快、召回低）；② 语义缓存（embedding 相似度匹配，召回高、需防串味）；③ Prefix 缓存（共享相同前缀的 KV Cache，如系统提示复用）。三者结合可大幅降低成本和延迟，关键是设相似度阈值、隔离租户、加 TTL、监控命中率。"
-  analogy: "语义缓存就像客服知识库——相似的问题不用每次重新查（LLM推理），直接从历史回答中找最相似的复用，省钱又快。"
+  essence: 通过复用计算结果或中间状态，减少重复推理以降低延迟和Token消耗。
+  analogy: 像考试时的记忆库，完全一样直接抄答案，意思相似稍作修改，开头一样直接接续写。
+  first_principle: 如何在保证生成结果一致性的前提下，通过复用历史计算来最大化节省算力？
   key_points:
-    - "精确缓存（Exact Match）："
-    - "Key：hash(model + prompt + params)"
-    - "命中率：低（<5%），但100%正确"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 精确缓存保正确，语义缓存提覆盖，Prefix缓存加速首字
+  - 语义缓存需警惕否定词陷阱与阈值设定
+  - 分层存储与多级淘汰策略平衡命中与成本
+  - LLM推理引擎内部复用KV Cache是终极加速手段
 follow_up:
-  - "语义缓存的相似度阈值如何确定？"
-  - "如何处理缓存失效后的雪崩问题？"
-  - "Prefix缓存对不同长度的Prompt效果如何？"
+- 语义缓存的相似度阈值如何确定？
+- 如何处理缓存失效后的雪崩问题？
+- Prefix缓存对不同长度的Prompt效果如何？
 ---
 
 # 如何设计LLM推理的缓存策略？通过精确缓存、语义缓存和Prefix缓存降低成本和延迟。

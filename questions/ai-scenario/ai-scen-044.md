@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-044"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "AI代码助手"
+id: ai-scen-044
+difficulty: L3
+category: ai-scenario
+subcategory: AI代码助手
 tags:
-  - "代码审查"
-  - "Code Review"
-  - "静态分析"
-  - "Semgrep"
-  - "安全漏洞"
-  - "CI/CD集成"
+- 代码审查
+- Code Review
+- 静态分析
+- Semgrep
+- 安全漏洞
+- CI/CD集成
 feynman:
-  essence: "【场景分析】 AI代码审查系统：自动Review PR/MR，检测Bug、安全漏洞、性能问题、代码规范，减少人工Review工作量。"
-  analogy: "工具调用就像给 AI 配了瑞士军刀——根据任务需要灵活选择搜索、计算等工具。"
+  essence: 静态工具扫漏洞，LLM审逻辑，自动化Review流程。
+  analogy: 像带了多种扫描仪的资深专家，机器扫规则，人审逻辑。
+  first_principle: 如何在不依赖人工的情况下保证代码变更的质量与安全？
   key_points:
-    - "【场景分析】 AI代码审查系统：自动Review PR/MR，检测Bug、安全漏洞、性能问题、代码规范，减少人工Review工作量"
-    - "【审查Pipeline】 1. 差异分析层： - Git diff解析：提取变更文件、新增/删除/修改的代码行 - AST解析：构建变更代码的抽象语法树 - 依赖分析：变更可能影响的其他代码 2. 多"
-    - "请审查以下代码变更： 1. 检查逻辑Bug和边界条件 2. 检查安全漏洞（注入、越权、信息泄露） 3. 检查性能问题 4. 检查代码可维护性 5. 对每个问题给出严重级别和修复建议 ``` 【效果优化"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - Diff解析与AST分析
+  - 静态工具与LLM并行审查
+  - 上下文增强（跨文件/历史）
+  - 分级报告与CI集成
 follow_up:
-  - "如何减少LLM代码审查的误报率？"
-  - "LLM审查与传统静态分析工具如何互补？"
-  - "如何处理大型PR的审查？"
+- 如何减少LLM代码审查的误报率？
+- LLM审查与传统静态分析工具如何互补？
+- 如何处理大型PR的审查？
 ---
 
 # 如何设计一个AI代码审查系统？自动检测PR中的Bug、安全漏洞和性能问题。

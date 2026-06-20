@@ -1,29 +1,23 @@
 ---
-id: "misc-006"
-difficulty: "L2"
-category: "ai-basics"
-subcategory: "大模型原理"
+id: misc-006
+difficulty: L2
+category: ai-basics
+subcategory: 大模型原理
 tags:
-  - "IOC"
+- IOC
 images:
-  - "svg_bpe.svg"
+- svg_bpe.svg
 feynman:
-  essence: "- *BPE (Byte Pair Encoding):** - 从字符级开始,迭代合并最高频字节对 - GPT/GPT-2/GPT-3/LLaMA使用 - *"
-  analogy: "三种分词算法就像三种切肉方式——BPE 按频率切（合并高频对，GPT 系）、WordPiece 按似然概率切（BERT）、SentencePiece 不管空格直接在原始文本上切（T5/LLaMA）。"
+  essence: 通过统计频率迭代合并字符对,构建平衡词表以高效压缩文本。
+  analogy: 积木拼词,常用词做成整块大积木,生僻词用小积木拼,省材料。
+  first_principle: 如何将文本切分成既不泛滥也不过碎的合理单元?
   key_points:
-    - "BPE (Byte Pair Encoding):"
-    - "从字符级开始,迭代合并最高频字节对"
-    - "GPT/GPT-2/GPT-3/LLaMA使用"
-first_principle:
-  problem: "它们本质上为什么不同？各自的设计目标和适用场景是什么？"
-  axioms:
-    - "Scaling Law：模型能力与参数量、数据量、算力正相关"
-    - "Self-Attention 的本质是加权求和——O(n²) 复杂度是并行计算的代价"
-    - "位置编码让 Transformer 感知顺序——Self-Attention 本身是排列不变的"
-  rebuild: "从数学本质出发：① 这个技术的数学基础是什么？② 为什么这个数学结构有效？③ 工程上如何高效实现？④ 资源约束下如何优化？"
+  - BPE看频率合并,WordPiece看似然合并
+  - SentencePiece把空格当字符处理,语言通用性强
+  - 大模型选它是为了平衡词表大小和编码效率
 follow_up:
-  - "为什么中文在LLaMA中token效率低?"
-  - "如何评估一个Tokenizer的好坏?"
+- 为什么中文在LLaMA中token效率低?
+- 如何评估一个Tokenizer的好坏?
 ---
 
 # BPE、WordPiece、SentencePiece分词算法有什么区别?为什么大模型多用BPE

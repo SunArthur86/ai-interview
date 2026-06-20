@@ -1,27 +1,27 @@
 ---
-id: "xhs-infra-007"
-difficulty: "L4"
-category: "ai-harness"
-subcategory: "训练框架"
+id: xhs-infra-007
+difficulty: L4
+category: ai-harness
+subcategory: 训练框架
 tags:
-  - "分布式训练"
-  - "OOM"
-  - "MFU"
-  - "Profiler"
-  - "小红书"
+- 分布式训练
+- OOM
+- MFU
+- Profiler
+- 小红书
 feynman:
-  essence: "训练诊断三板斧：OOM是内存不够（加切片/检查点）、低MFU是效率低（找瓶颈：计算/内存/通信哪一个是短板）、Hang是卡住了（查死锁/网络）。核心工具是Profiler——它告诉你时间花在哪了。"
-  analogy: "诊断像体检：OOM=太胖了要减肥（减少内存占用）；低MFU=虽然没胖但效率低（体检找原因：是贫血还是缺乏锻炼还是沟通不畅）；Hang=心脏骤停（紧急查哪里卡住了）。"
-first_principle:
-  problem: "大模型训练效率的三个维度是什么？它们之间如何tradeoff？"
-  axioms:
-    - "训练效率=计算效率x通信效率xIO效率"
-    - "三者相互制约：减少通信可能增加计算，减少内存可能增加IO"
-    - "MFU是综合指标——它捕捉了所有维度的损失"
+  essence: 利用Profiler工具分析算力、显存和通信瓶颈。
+  analogy: 像医生看CT一样，用监控工具定位训练过程堵在哪里。
+  first_principle: 如何精准定位并解决分布式训练中的资源瓶颈与异常？
+  key_points:
+  - OOM通常由大Batch、长序列或未开启Gradient Checkpoint引起
+  - 低MFU需区分是Compute Bound、Memory Bound还是Communication Bound
+  - Hang常见于网络通信故障或Rank间死锁
+  - 核心工具：PyTorch Profiler, Nsight Systems/Compute, NCCL Log
 follow_up:
-  - "如何计算训练的理论MFU？"
-  - "通信-计算overlap具体怎么实现？"
-  - "Gradient Checkpoint的代价是什么？"
+- 如何计算训练的理论MFU？
+- 通信-计算overlap具体怎么实现？
+- Gradient Checkpoint的代价是什么？
 ---
 
 # 大模型训练中如何诊断OOM、低MFU和hang？常用的Profiler工具有哪些？

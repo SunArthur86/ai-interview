@@ -1,32 +1,28 @@
 ---
-id: "ai-scen-021"
-difficulty: "L3"
-category: "ai-scenario"
-subcategory: "LLM推理与部署"
+id: ai-scen-021
+difficulty: L3
+category: ai-scenario
+subcategory: LLM推理与部署
 tags:
-  - "LLM推理"
-  - "vLLM"
-  - "高并发"
-  - "PagedAttention"
-  - "量化"
-  - "Speculative Decoding"
+- LLM推理
+- vLLM
+- 高并发
+- PagedAttention
+- 量化
+- Speculative Decoding
 feynman:
-  essence: "【场景分析】 LLM推理服务核心挑战：高并发、低延迟、GPU资源利用率、成本控制"
-  analogy: "流式输出就像水龙头接水——不用等整桶水接满（全部生成），边接边用（逐字输出），体验更流畅。"
+  essence: 利用高性能推理引擎和GPU调度优化，实现大模型的高吞吐低延迟并发服务。
+  analogy: 像一家高效出租车公司，动态拼车提高满座率，用小省油车跑短途，豪车跑长途。
+  first_principle: 如何在GPU显存和算力受限的物理约束下，最大化LLM推理的吞吐与响应速度？
   key_points:
-    - "vLLM：PagedAttention + Continuous Batching，业界标准"
-    - "TensorRT-LLM：NVIDIA优化，极致性能"
-    - "SGLang：结构化生成优化"
-first_principle:
-  problem: "如果要解决这个问题，最本质的方法论是什么？先理解问题约束，再找最优路径。"
-  axioms:
-    - "模型本质是数学函数的参数优化——所有能力都来自数据和参数"
-    - "质量 > 数量：数据质量决定模型上限，算法决定达到上限的效率"
-  rebuild: "从 AI 系统出发：① 核心挑战是什么？② 现有方案如何解决？③ 有哪些 trade-off？④ 如果重新设计你会怎么做？"
+  - 采用vLLM/TensorRT等引擎实现PagedAttention和连续批处理
+  - 利用KV Cache和Speculative Decoding加速生成过程
+  - 量化压缩显存，Tensor Parallel支持大模型多卡推理
+  - 弹性扩缩容与模型路由平衡性能与成本
 follow_up:
-  - "如何选择量化方案（INT8 vs INT4）？"
-  - "Speculative Decoding的加速比受什么影响？"
-  - "如何监控推理服务的SLA？"
+- 如何选择量化方案（INT8 vs INT4）？
+- Speculative Decoding的加速比受什么影响？
+- 如何监控推理服务的SLA？
 ---
 
 # 如何设计一个高并发的LLM模型推理服务？支持1000+QPS、流式输出、多模型管理。

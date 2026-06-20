@@ -1,33 +1,27 @@
 ---
-id: "zp-infra-006"
-difficulty: "L3"
-category: "ai-harness"
-subcategory: "推理优化"
+id: zp-infra-006
+difficulty: L3
+category: ai-harness
+subcategory: 推理优化
 tags:
-  - "智谱"
-  - "面经"
-  - "GQA"
-  - "KV Cache"
-  - "注意力机制"
+- 智谱
+- 面经
+- GQA
+- KV Cache
+- 注意力机制
 feynman:
-  essence: "GQA = 让多个 Q 头共用一组 KV。不像 MQA 那样粗暴地让所有人共用一份（质量差），而是分组共享——4-8 组，既省 KV Cache 又不太损质量。"
-  analogy: "32 个人开会——MHA 是每人一份会议纪要（最精确但最耗内存），MQA 是所有人共用一份（最省但信息丢失），GQA 是分成 8 组每组一份（平衡点）。"
+  essence: 通过分组共享Key/Value头减少显存并提升吞吐
+  analogy: 像多个人（Q头）查阅几本参考书（KV头），不用人手一本，分组轮流看就行
+  first_principle: 如何在减少KV Cache显存占用和保持注意力表达能力之间平衡？
   key_points:
-    - "MHA→MQA→GQA：质量递减、KV Cache 递减"
-    - "GQA g=8 时质量接近 MHA"
-    - "KV Cache 减少 4-8x"
-    - "GLM-4 用 GQA 支撑长上下文推理"
-first_principle:
-  problem: "MHA 的 KV Cache 随头数线性增长。但不同头的 KV 是否存在冗余？如何减少冗余而不损失太多质量？"
-  axioms:
-    - "不同头的 K/V 存在跨头相关性——不是完全独立的"
-    - "共享粒度越粗（MQA）质量损失越大"
-    - "GQA 的分组是 MHA 和 MQA 之间的连续插值"
-  rebuild: "从 KV Cache 瓶颈出发：① 冗余在哪（跨头相似性）？② 共享多少（MHA→GQA→MQA 的帕累托前沿）？③ 质量损失可控吗（g=4-8 经验最优）？④ 对长上下文的影响（KV 减少是关键）？"
+  - GQA分组共享KV头，减少显存占用
+  - 相比MQA，GQA保留了更多表达能力
+  - 解决了推理时的显存带宽瓶颈
+  - GLM-4等大模型支持超长上下文的关键
 follow_up:
-  - "GQA 的分组数怎么选？—— 通常 h/4 ~ h/8，需要实验验证"
-  - "GQA 训练时和 MHA 有什么区别？—— K/V 投影矩阵更小，其他不变"
-  - "MLA 和 GQA 有什么区别？—— MLA 是低秩压缩（动态恢复），GQA 是离散共享"
+- GQA 的分组数怎么选？—— 通常 h/4 ~ h/8，需要实验验证
+- GQA 训练时和 MHA 有什么区别？—— K/V 投影矩阵更小，其他不变
+- MLA 和 GQA 有什么区别？—— MLA 是低秩压缩（动态恢复），GQA 是离散共享
 ---
 
 # 【智谱Infra面经】GLM-4 为什么选择 GQA？GQA vs MHA/MQA 的头数/维度权衡？KV Cache 节省多少？
