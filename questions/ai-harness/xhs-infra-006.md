@@ -83,6 +83,44 @@ Registers (Thread Fragment)
 
 ## 常见考点
 1. **Shared Memory Bank Conflict 的具体场景**：如果 `int array[32]`，线程 `tid` 访问 `array[tid * 32]`，会访问同一个 Bank，导致 32-way Serialize。如何通过 Padding 解决？
-2. **Tensor Core 的对齐要求**：使用 WMMA API 时，内存指针需要对齐多少字节？（通常 16B 或 32B，视数据类型而定）。
-3. **Warp Divergence 对 GEMM 的影响**：虽然 GEMM 分支较少，但在处理边界（矩阵维度不是 Tile 大小的倍数）时如何避免分歧？（使用边界检查或 Padding 矩阵）。
-4. **L2 Cache 的作用**：在计算密集型 GEMM 中，L2 Cache 的命中率是否重要？通常不如 Shared Memory 关键，但在数据量大无法全部放入 Shared 时，L2 Cache Replay 是主要瓶颈之一。
+
+### 1. 实战案例
+- **场景**：优化某推荐系统的Embedding Lookup与Dense Layer混合计算。原GEMM Kernel因Shared Memory配置过小（仅48KB），导致L1 Cache未充分利用，Roofline分析显示严重Memory Bound。调整Tile大小从128x128增至128x256后，吞吐量提升40%。
+- **踩坑**：在使用Tensor Core时，若矩阵维度M/N/K不是16/8的倍数，未进行Padding会导致硬件无法对齐读取，造成Illegal Memory Access或结果错误。
+
+### 2. 代码示例 (CUDA C++ - Tensor Core WMMA 简化版)
+```cpp
+#include <mma.h>
+using namespace nvcuda::wmma;
+
+__global__ void wmma_gemm(half *A, half *B, float *C, int M, int N, int K) {
+    // 1. 定义矩阵片段 (16x16x16)
+    fragment<matrix_a, 16, 16, 16, row_major> a_frag;
+    fragment<matrix_b, 16, 16, 16, col_major> b_frag;
+    fragment<accumulator, 16, 16, 16, float> c_frag;
+
+    // 2. 加载矩阵到片段 (自动处理Shared Memory到Register)
+    load_matrix_sync(a_frag, A + warpId * ...);
+    load_matrix_sync(b_frag, B + ...);
+    fill_fragment(c_frag, 0.0f);
+
+    // 3. 计算 (Tensor Core指令)
+    for (int k = 0; k < K; k += 16) {
+        mma_sync(c_frag, a_frag, b_frag, c_frag);
+        // 更新指针加载下一块...
+    }
+
+    // 4. 存储结果
+    store_matrix_sync(C + ..., c_frag, mem_row_major);
+}
+```
+
+### 3. 对比表格
+| 优化维度 | 标准 CUDA Core | Shared Memory Tiling | Tensor Core (WMMA) |
+| :--- | :--- | :--- | :--- |
+| **计算单元** | FP32/FP16 ALU | FP32/FP16 ALU | 4x4x4 或 16x16x16 Matrix Units |
+| **指令级** | FADD/FMUL | FADD/FMUL (Warp Shuffle) | HMMA (FP16) / MMA (INT8/FP8) |
+| **数据吞吐** | 1x (Base) | 2-4x (由于Cache复用) | **8-16x** (硬件矩阵乘法) |
+| **编程复杂度** | 低 | 中 (需手动Tiling/Unroll) | 高 (需特定数据布局/Alignment) |
+| **主要瓶颈** | Latency | Shared Memory Bandwidth / Bank Conflict | Register File Bandwidth |
+| **适用算子** | Element-wise, Reduction | 卷积, 小矩阵乘法 | 大矩阵乘法 (GEMM), Attention QKV |

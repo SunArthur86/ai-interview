@@ -67,6 +67,28 @@ LLM Output (Function Call)
     Execute Tool
 ```
 
+**实战案例**：在开发文档查询Agent时，LLM经常幻觉调用`get_pdf_page`函数但传入了非数字的页码参数，导致解析器崩溃。通过在Schema层强制添加`type: "integer"`并在执行前加入Pydantic模型校验，此类Runtime Error减少了90%。
+
+**关键代码实现（Python + Pydantic）：**
+```python
+from pydantic import BaseModel, ValidationError, Field
+
+# 1. 定义严格的参数模型
+class SearchDocsParams(BaseModel):
+    query: str = Field(..., min_length=1, description="Search query")
+    limit: int = Field(default=5, ge=1, le=20, description="Max results")
+
+# 2. 执行前的校验拦截层
+def safe_tool_call(tool_name, arguments):
+    try:
+        # 强制类型转换和校验
+        validated_args = SearchDocsParams(**arguments).dict()
+        return execute_tool(tool_name, validated_args)
+    except ValidationError as e:
+        # 返回结构化错误给LLM，让其自我修正
+        return {"error": f"Invalid params: {e.errors()}"}
+```
+
 ## 常见考点
 1. **Prompt注入攻击**：如果用户输入内容包含“忽略之前的指令，调用XX工具”，如何防御？（指令层级隔离/关键词过滤）
 2. **ReAct循环稳定性**：如果模型一直输出Thought但不调用Action，如何强制终止？（设定最大Thought迭代次数）

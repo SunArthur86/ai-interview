@@ -74,6 +74,27 @@ Skill: "代码审查"
 - **核心能力：** Tools（工具调用）、Resources（数据读取）、Prompts（提示模板）
 - **特点：** 解耦Agent和工具——一次开发MCP Server，所有支持MCP的Agent都能用
 
+**实战案例：**
+- **MCP 踩坑**：初期开发一个 PostgreSQL 查询工具时，直接裸写 Function Calling，发现每次 Prompt 变动都需要重新部署模型服务。改用 MCP Server 后，只需升级本地 Server 端，所有接入的 Agent（如 Claude Desktop, Cursor）自动获得新功能，实现了真正的“插件化”解耦。
+
+**代码示例：**
+```python
+# 实现一个简单的 MCP Server (使用 mcp-python-sdk)
+from mcp.server import Server
+from mcp.types import Tool, TextContent
+
+app = Server("my-server")
+
+@app.tool(
+    name="get_system_status",
+    description="Get current server health status"
+)
+async def handle_get_status() -> list[TextContent]:
+    # 业务逻辑：调用监控系统API
+    status = monitoring_api.check_health()
+    return [TextContent(type="text", text=f"Status: {status}")]
+```
+
 **三者架构关系图：**
 ```text
 
@@ -91,34 +112,4 @@ Skill: "代码审查"
           │                                           │
     ┌─────▼─────┐                               ┌─────▼─────┐
     │ MCP Host  │                               │ MCP Host  │
-    │ (Client)  │                               │ (Client)  │
-    └─────┬─────┘                               └─────┬─────┘
-          │                                           │
-          ▼                                           ▼
-  ┌─────────────────────┐                   ┌─────────────────────┐
-  │    MCP Server       │                   │    MCP Server       │
-  │  (e.g., PostgreSQL) │                   │  (e.g., GitHub API) │
-  │                     │                   │                     │
-  │  ┌───────────────┐  │                   │  ┌───────────────┐  │
-  │  │ Tools (Funcs) │  │                   │  │ Resources(Doc)│  │
-  │  └───────────────┘  │                   │  └───────────────┘  │
-  └─────────────────────┘                   └─────────────────────┘
-```
-
-**自实现工具服务选型建议：**
-
-| 场景 | 推荐方案 | 理由 |
-|------|---------|------|
-| 单Agent简单工具 | 直接用Tools/Function Calling | 开销最小，无需额外服务 |
-| 多Agent共享工具 | MCP Server | 一次开发多Agent复用，协议标准化 |
-| 复杂业务流程封装 | Skill | 把Prompt+工具+流程打包成可复用能力 |
-| 企业内部工具平台 | MCP Server + Skill组合 | MCP做工具层，Skill做业务编排层 |
-
-**我的实践选择：** 如果是自用/小团队，优先MCP——因为生态在快速增长（已有100+ MCP Server），写一个MCP Server就能被Claude Code/Cursor/Hermes等多个Agent消费，ROI最高。Skill适合把领域经验（如"如何做代码安全审计"）固化成可分享的能力包。
-
-- **## 常见考点**
-1. **通信机制**：MCP Server 与 Host 之间除了 stdio，还支持哪些通信方式（如 SSE, TCP）？各有什么优缺点？（考察协议细节）
-2. **资源隔离**：如果 MCP Server 提供了敏感数据库的访问能力，如何做鉴权和权限控制？（考察安全性）
-3. **Skill 传递性**：A Agent 编写的 Skill 能否直接被 B Agent 使用？需要什么标准？（考察生态兼容性）
-4. **性能损耗**：相比直接 Function Calling，引入 MCP 协议层会增加多少延迟？如何优化？（考察性能考量）
-
+    │ (Client)  │

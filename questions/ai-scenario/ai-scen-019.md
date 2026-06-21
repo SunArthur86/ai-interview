@@ -59,42 +59,48 @@ follow_up:
 对话状态包含: intent, slots(字典), history(列表), topic_stack, summary
 决策逻辑: 检查missing_slots → 有缺失则追问 → 齐全则执行任务
 
-【系统架构图】
-```text
-┌───────────┐     ┌─────────────┐     ┌──────────────┐
-│  User     │────>│   NLU       │────>│   Dialogue   │
-│  Input    │     │ (NER/Intent)│     │   Manager    │
-└───────────┘     └─────────────┘     └──────┬───────┘
-                                              │
-                    ┌─────────────────────────┼──────────────────┐
-                    │                         │                  │
-           ┌────────▼────────┐      ┌────────▼────────┐  ┌───────▼──────┐
-           │   Context       │      │   Slot Filling  │  │   Policy     │
-           │   Manager       │<────>│   & Tracker     │  │   Engine     │
-           │ (Summary/Stack) │      │                 │  │ (LLM/Rules)  │
-           └─────────────────┘      └─────────────────┘  └──────┬───────┘
-                                                                         │
-                                                                   ┌─────▼─────┐
-                                                                   │  Response │
-                                                                   │ Generator │
-                                                                   └───────────┘
-```
-
 【LLM-based 对话管理】
 - 传统方案：NLU + DST + Policy（规则驱动）
 - LLM方案：将对话状态和策略融入Prompt，让LLM自行决策（如函数调用Function Calling）
 - 混合方案：LLM处理灵活对话 + 规则处理关键流程
 
+【实战案例】
+在订票系统中，用户常跳转话题（如：“我要一张去北京的票” -> “顺便查下北京天气” -> “还是买下午的吧”）。我们实现了**基于Stack的上下文快照**，支持用户无缝切回“订票”意图并继承之前的槽位（目的地、时间），体验大幅提升。
+
+【关键代码】（基于Pydantic的状态管理）
+```python
+from pydantic import BaseModel, Field
+from typing import Optional, List
+
+class BookingState(BaseModel):
+    intent: str = "book_flight"
+    slots: dict = {"destination": None, "date": None, "class": None}
+    
+    def check_missing(self) -> Optional[str]:
+        """检查缺失槽位，返回第一个缺失项的追问语"""
+        if not self.slots.get("destination"):
+            return "请问您想去哪里？"
+        if not self.slots.get("date"):
+            return "请问您打算哪天出发？"
+        return None # 信息齐全
+
+# 使用LLM Function Calling填充状态
+def update_state_with_llm(user_input: str, current_state: BookingState) -> BookingState:
+    prompt = f"用户输入：{user_input}\n当前状态：{current_state.model_dump_json()}"
+    # 调用LLM解析新输入并更新JSON状态
+    new_state_json = llm_with_structured_output(prompt)
+    return BookingState.parse_raw(new_state_json)
+```
+
+【DST方案对比】
+| 特性 | 传统 Rule-Based | 框架驱动 (Rasa/DS) | LLM Native (GPT-4o/Claude) |
+| :--- | :--- | :--- | :--- |
+| **复杂度** | 低（仅简单if/else） | 高（需定义Domain/YAML） | 中（Prompt Engineering） |
+| **泛化能力** | 极差（需穷举说法） | 中（需训练NLU） | **极强（Zero-shot）** |
+| **上下文长度** | 受限 | 一般 | 优秀（支持长窗口） |
+| **推理成本** | 低 | 中 | **高（Token消耗大）** |
+| **维护效率** | 代码维护繁琐 | 配置维护繁琐 | 文本化维护，较直观 |
+
 【关键技术细节】
 - **指代消解**：处理“它”、“那个”等指代词，需结合实体链接技术将其映射到具体的槽位值上。
-- **省略恢复**：用户输入“我要去北京”（省略了交通方式），需基于历史上下文补全为“我要[坐飞机]去北京”再进行意图识别。
-
-## 常见考点
-1. **如何处理话题嵌套与死循环？**
-   - 使用栈结构管理话题，设置最大嵌套深度防止死循环；在栈中保存快照，回滚时严格校验槽位状态。
-2. **长上下文下的Token效率优化？**
-   - 实施滑动窗口+摘要混合策略，利用向量检索召回历史关键信息，而非将全量历史传入模型。
-3. **槽位冲突如何解决？**
-   - 当用户修改已填充的槽位（如改时间），需设计显式的修正意图优先级，覆盖旧值并清除下游依赖的槽位。
-4. **多轮对话的评测指标？**
-   - 目标完成率、平均轮数（越少越好）、槽位填充准确率 (F1-score)。
+- **省略恢复**：用户输入“

@@ -30,6 +30,9 @@ follow_up:
 【场景分析】
 模型网关是生产级AI应用的必备组件：统一接入多个LLM供应商、路由、限流、成本追踪。
 
+**【实战案例】**
+某金融客服项目初期直接对接OpenAI，某日OpenAI API大面积宕机，导致客服全线瘫痪。接入网关后，配置了熔断器，当检测到错误率>50%时，50ms内自动切换至Azure OpenAI，实现业务无感。此外，某次开发人员误将API Key提交至Git，网关的动态Key刷新功能避免了Key泄露后的长期风险。
+
 【核心职责】
 1. 供应商适配：
    - 统一接口：OpenAI/Anthropic/Azure/本地模型 → 统一API格式
@@ -61,3 +64,40 @@ follow_up:
 - 可插拔：新增供应商只需实现适配器接口
 - 可观测：每次调用的全链路Trace
 - 安全：API Key加密存储、最小权限原则
+
+**【代码示例：统一适配接口】**
+```python
+# 定义统一的请求响应模型
+class UnifiedRequest(BaseModel):
+    model: str
+    messages: List[Dict]
+    temperature: float = 0.7
+    stream: bool = False
+
+# 供应商适配器接口
+class ProviderAdapter(ABC):
+    @abstractmethod
+    async def completion(self, req: UnifiedRequest) -> AsyncIterator[str]:
+        pass
+
+# OpenAI适配实现
+class OpenAIAdapter(ProviderAdapter):
+    async def completion(self, req: UnifiedRequest) -> AsyncIterator[str]:
+        client = AsyncOpenAI(api_key=self._get_key())
+        stream = await client.chat.completions.create(
+            model=req.model, messages=req.messages, stream=True
+        )
+        async for chunk in stream:
+            yield chunk.choices[0].delta.content or ""
+```
+
+**【开源方案对比】**
+
+| 特性 | LiteLLM | Portkey | OneAPI | 自研方案 |
+| :--- | :--- | :--- | :--- | :--- |
+| **接入难度** | 低（一行代码） | 低（SDK丰富） | 中（需部署服务） | 高（全栈开发） |
+| **路由策略** | 预设规则 | 预设+简单权重 | 基础负载均衡 | **深度定制（如意图识别路由）** |
+| **成本观测** | 基础统计 | 详细Dashboard | 基础统计 | **完全自定义（如按部门分摊）** |
+| **性能开销** | 低 (<20ms) | 低 (<30ms) | 中 (>50ms) | **最低 (<10ms)** |
+| **适用场景** | 快速M验证 | 中小企业统一管理 | 多模型私有化部署 | 大型企业核心业务 |
+

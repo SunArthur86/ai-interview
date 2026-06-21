@@ -35,7 +35,7 @@ follow_up:
 2. Target 模型一次前向计算所有 γ+1 个位置
 3. 逐个验证：如果 draft 猜对 → 免费获得 token
 4. 猜错的 token 之后重新用 target 生成
-5. 数学保证：最终输出分布与纯 target 完全一致（lossless）
+5. 数学保证：最终输出分布与纯 target 完全一致
 ```
 
 **Medusa（多头并行投机）：**
@@ -65,6 +65,28 @@ follow_up:
 | 延迟 | 单次前向延迟高 | 持续低延迟 |
 | 吞吐 | 低 batch 好 | 高 batch 好 |
 | 实现 | Medusa/EAGLE | PEARL |
+
+---
+
+**实战案例**：
+在 Code LLM 推理中接入 EAGLE，由于代码结构规律性强，Draft 模型接受率极高（常 >75%），首字生成时间（TTFT）略微增加，但整体端到端吞吐提升了 2.2 倍。但在重 QA 任务中因接受率跌至 40% 以下，反而增加了 15% 的延迟，需根据场景动态切换。
+
+**代码示例（Python - Speculative Sampling 验证逻辑）**：
+```python
+import torch
+
+def verify_sampling(draft_tokens, target_logits, base_model_probs):
+    # target_logits: [seq_len, vocab_size]
+    n = draft_tokens.shape[0]
+    for i in range(n):
+        draft_token = draft_tokens[i]
+        # 简单接受逻辑：概率对比或随机采样
+        q = base_model_probs[i, draft_token]
+        p = target_logits[i, draft_token].softmax(dim=-1)
+        if p < q: # 简化的拒绝条件
+            return i # 返回接受位置
+    return n
+```
 
 ## 常见考点
 1. **Speculative Decoding 如何保证数学上的等价性？**（涉及 rejection sampling 的概率证明）

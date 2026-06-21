@@ -59,53 +59,43 @@ follow_up:
   │                │            │                │      │                  │
   │ ┌────────────┐ │            │ ┌────────────┐ │      │ (Small Models)   │
   │ │GPU HBM     │◄────────────┤ │Block Mgr   │ │      │                  │
-  │ │(Hot/Active)│ │    Swap    │ │(PagedAttn) │ │      └──────────────────┘
-  │ └────────────┘ │            │ └────────────┘ │
-  │ ┌────────────┐ │            │ ┌────────────┐ │
-  │ │CPU RAM     │◄────────────┤ │Compute     │ │
-  │ │(Warm/Swap) │ │  (PCIe/NV)│ │Kernel      │ │
-  │ └────────────┘ │            │ └────────────┘ │
-  │ ┌────────────┐ │            │                │
-  │ │SSD / Obj   │ │            │   TP/PP Group  │
-  │ │(Cold/Offload)│             │                │
-  │ └────────────┘ │            └────────────────┘
-  └────────────────┘
+  │ │(Hot/Active)│ │    Swap    │ │(PagedAttn) │ │      └────────────
 ```
 
-**关键设计点（深度解析）：**
+**1. 调度策略：Prefix Caching + Iterative Scheduling**
+- **问题**：1M 上下文导致 Batch Size 极小（可能仅为 1），显存利用率低，且 Pre-fill 耗时极长（几十秒）。
+- **解法**：
+  - **Prefill/Decode 分离**：使用专用的 Prefill 节点处理长上下文编码，Decode 节点专注于高吞吐生成。
+  - **Radix Tree 调度**：对于 Agent 场景中重复的 System Prompt 或工具定义，利用 Radix Tree 共享 KV Block，仅解码 Unique Part。
 
-1.  **KV Cache 分层管理**
-    *   **热**：当前活跃请求的 KV Blocks → GPU HBM（通过 `BlockManager` 管理物理块）。
-    *   **温**：Agent 多轮对话历史或 Tool Calling 等待时的上下文 → CPU RAM（利用 `cpu_offload` 机制）。
-    *   **冷**：长时间挂起会话 → SSD/NVMe（释放 CPU 内存，仅保留元数据）。
-    *   **原理细节**：基于引用计数或 LRU 策略进行换出。在 Agent 调用工具时，模型推理暂停，此时 KV 必须卸载到 CPU 以腾出 GPU 给其他请求，工具返回后再从 CPU 换入 GPU 继续生成。
+**2. KV 管理与多模态：**
+- **KV Cache 分层存储**：
+  - **L1 (GPU HBM)**：存储最近 20% 的活跃 KV Tokens（高频访问）。
+  - **L2 (CPU RAM / NVMe)**：存储长尾的历史 KV Tokens。当需要回溯时异步加载（类似 vLLM 的 Swap 机制）。
+- **多模态处理**：
+  - 图片/视频通过 Vision Encoder 编码为 Feature Vectors，视作特殊的 Token Embedding 拼接到 LLM 输入序列。
+  - 优化：压缩视觉特征（如 CLIP pooling）减少 Prefix 长度。
 
-2.  **前缀复用（RadixAttention）
-    *   **原理**：将 System Prompt、Tool Definition 等静态长文本计算出的 KV Cache 存储在全局共享内存中。
-    *   **实现**：使用 Radix Tree（基数树）管理 KV Block 的逻辑索引。新请求到来时，只需计算 Prompt 的变动部分，直接指针指向共享的物理 Block。
-    *   **边界**：需要处理 Cuda Graph 的捕获问题（动态共享前缀可能破坏图），通常需要 Partial Capture 或 fallback 机制。
+**3. 负载均衡**
+- **一致性哈希**：基于 Session ID 或 User ID 进行路由，保证多轮对话的 KV Cache 在同一 GPU 节点，避免跨节点传输 KV。
+- **预测性扩容**：监控 Prefill Queue 长度，若长文本请求堆积，动态扩容 Prefill 专用实例。
 
-3.  **动态批处理**
-    *   **策略**：采用 **Continuous Batching**（或称 Iterative Scheduling）。
-    *   **流程**：
-        1.  Scheduler 轮询所有 Running Batch。
-        2.  对于已经 `finished` 的 slot，立即释放并加入 `free_queue`。
-        3.  从 `waiting_queue` 中选取新请求，如果剩余 free blocks 足够其 prefill 阶段需求，则立即插队加入当前 batch。
-    *   **优势**：消除了传统 Static Batching 中必须等最慢请求结束的 Padding 浪费，显著提升 GPU利用率。
+**实战案例：**
+某金融 Agent 接入 500 页 PDF 作为上下文，首次请求耗时 45s。通过 Radix Cache 复用 PDF 文本的 KV，后续同一文档的提问只需处理 User Query 的 Pre-fill，耗时降至 0.5s。
 
-4.  **负载均衡与调度策略**
-    *   **指标**：不仅是 `Concurrent Requests`，更核心是 **`KV Cache Utilization`**（剩余 Block 数量）。
-    *   **算法**：加权最小连接数或一致性哈希。将长上下文请求路由到剩余显存较大的节点，避免因碎片化导致的 OOM（Out Of Memory）。
-    *   **多模态处理**：对于多模态输入（图像），通常将 Image Encoder 独立部署，将 Image Embedding 视作特殊的 PrefixKV 注入到 LLM 的输入序列中。
-
-5.  **成本与性能优化**
-    *   **Speculative Decoding**：利用小模型（如 7B）草稿，大模型（如 70B）验证。在 Token 生成阶段，若验证通过，则一次生成多个 Token，大幅提升生成速度。
-    *   **量化**：激活值/权重使用 FP8/INT8，KV Cache 使用 INT8/FP8（需关注平滑量化 SmoothQuant 对 KV 精度的影响）。
-
----
+**代码示例 (Python - LLM Engine 伪代码):**
+```python
+# 模拟调度器逻辑：优先复用前缀
+if request.prefix_hash in radix_cache:
+    # 命中缓存，仅解码新部分
+    cached_blocks = radix_cache.get(request.prefix_hash)
+    scheduler.schedule(request, kv_blocks=cached_blocks)
+else:
+    # 未命中，进入 Pre-fill 队列（可能需排队）
+    prefill_queue.enqueue(request)
+```
 
 ## 常见考点
-1.  **PagedAttention 中 Block 表的管理机制**：GPU 上的物理块表和 CPU 上的逻辑块表如何映射？Copy-on-Write 机制是如何实现 KV 共享的？
-2.  **Continuous Batching 的调度开销**：如果 Scheduler 轮询频率过高，CPU 成为瓶颈如何解决？（如 C++ 实现 Scheduler、Batch 调度）
-3.  **Long Context 的极限优化**：当 Context 超过单卡显存，甚至超过集群显存时（Ring Attention），KV 如何切分和通信？
-4.  **多模态输入的 KV 处理**：多模态 Feature Token 数量巨大（如高分辨率图），如何避免其挤占 LLM 的 Text KV 空间？（答案：Feature 压缩/池化、独立的 LoRA 适配器处理）。
+1. **Iterative Scheduling 相比 Continuous Batching 的优势？**（Continuous Batching 需等整个 batch 内最慢的请求完成步进，Iterative 可让完成的请求先出，更适合长短不一的 1M 场景）
+2. **如何处理 1M 长度下的 Attention 计算延迟？**（使用 Ring Attention 或 Block Sparse Attention，如 Longformer 架构）
+3. **多模态特征占用的显存通常比文本大多少？如何优化？**（图片特征通常维度高且序列长，可使用 Feature Linear Projection 或 VQ-VAE 进行压缩量化）

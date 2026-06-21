@@ -62,81 +62,66 @@ follow_up:
                                ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                         Retrieval & Augmentation Layer                   │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                │
-│  │ Query        │───▶│ Hybrid       │───▶│ Reranker     │                │
-│  │ Rewrite      │    │ Retrieval    │    │ (Cross-Enc)  │                │
-│  │ (HyDE)       │    │ (Dense+Sparse)│   │ (Top-K)      │                │
-│  └──────────────┘    └──────┬───────┘    └──────┬───────┘                │
-│                             │                   │                         │
-│                             ▼                   │                         │
-│                    ┌────────────────┐          │                         │
-│                    │ Elasticsearch  │          │                         │
-│                    │ (BM25/Keyword) │          │                         │
-│                    └────────────────┘          │                         │
-│                             │                   │                         │
-│                             └────────┬──────────┘                         │
-│                                      ▼ (RRF Fusion + Rank)                │
-│                          ┌──────────────────────┐                        │
-│                          │  Security Filter     │                        │
-│                          │  (Pre/Post ACL)      │                        │
-│                          └──────────┬───────────┘                        │
-└─────────────────────────────┬────────────────────────────────────────────┘
-                              │ (Context + Prompt)
-                              ▼
+│  (Hybrid Search: Dense(BGE) + Sparse(BM25) -> Rerank(CrossEncoder))      │
+└──────────────────────────────┬───────────────────────────────────────────┘
+                               │
+                               ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                           Generation Layer                                │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐                │
-│  │ Context      │───▶│ LLM Service  │───▶│ Answer       │                │
-│  │ Assembler    │    │ (vLLM/LangChain)│   │ Post-process │                │
-│  │ (Max Token   │    │              │    │ (Citation)   │                │
-│  │  Truncation) │    │              │    │              │                │
-│  └──────────────┘    └──────────────┘    └──────────────┘                │
+│                           Generation Layer                               │
+│               (LLM + Context Window + Reference Citations)               │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-**核心流程与关键细节：**
+**核心设计细节：**
 
-1.  **文档摄入**
-    *   **解析**：针对 PDF/Word/表格，使用 `Unstructured` 或专用 OCR 引擎。
-    *   **分块**：避免简单的固定长度切分。推荐 **Recursive Character Split** 或 **Semantic Chunking**（基于 Embedding 相似度切分），确保语义完整。
-    *   **元数据**：必须包含 `doc_id`, `tenant_id`, `department`, `create_time`, `access_level`。
+1.  **文档解析与切片**
+    *   **Parser**：支持 PDF, Docx, Markdown。推荐 `Unstructured` 或 `PyMuPDF` (PDF)。
+    *   **Chunking**：
+        *   **固定窗口**：简单，但可能切断语义。
+        *   **语义切片**：基于句子 embedding 相似度动态切分，保持语义完整性（推荐）。
+    *   **实战技巧**：每个 Chunk 保留父文档 ID 和标题信息，便于溯源。
 
-2.  **索引层**
-    *   **Embedding 模型**：BGE-large-zh (中文) / OpenAI text-embedding-3。支持 GPU 批量推理加速。
-    *   **向量索引**：Milvus/Qdrant。推荐 **HNSW** (Hierarchical Navigable Small World) 索引，兼顾召回率与速度。参数 `M` (连接数) 和 `ef_construction` 需根据数据规模调优。
-    *   **关键词索引**：Elasticsearch。BM25 用于处理精确匹配（如人名、型号、缩写），弥补语义向量对专有名词理解的不足。
+2.  **向量化与存储**
+    *   **Embedding 模型**：BGE-M3 (支持多语言/长文本) 或 OpenAI `text-embedding-3`。
+    *   **向量库选型**：
+        | 特性 | Milvus | Qdrant | Weaviate | Pinecone |
+        |------|--------|--------|----------|---------|
+        | **部署难度** | 高 (需K8s) | 中 | 中 | 低 (SaaS) |
+        | **性能** | 极高 | 高 | 中 | 高 |
+        | **过滤能力** | 强 (标量+向量) | 强 | 强 | 强 |
+        | **推荐** | 私有化首选 | 轻量首选 | 生态集成好 | 快速验证 |
 
-3.  **检索层**
-    *   **Query 改写**：
-        *   **HyDE**：生成假设性回答向量，用回答向量检索，比问题向量更接近文档向量。
-        *   **Query Decomposition**：复杂问题拆解为多个子问题。
-    *   **混合检索**：Dense Retrieval (向量) + Sparse Retrieval (BM25)。
-    *   **融合**：使用 **RRF (Reciprocal Rank Fusion)** 算法合并两个排序列表，公式 $score(d) = \sum_{q} \frac{1}{k+rank_q(d)}$。避免简单的加权平均带来的分值归一化难题。
-    *   **重排序**：取出 Top-20/50，用 Cross-encoder (如 `bge-reranker-large`) 精排。重排模型计算量大，通常部署在 CPU 集群或单独的 GPU 服务上。
+3.  **检索策略**
+    *   **混合检索**：Dense Vector (语义) + Sparse Vector (关键词 BM25)。
+    *   **重排序**：检索 Top-50 文档，使用 `BGE-Reranker` 或 `Cohere Rerank` 精排至 Top-5，提升准确率。
 
-4.  **生成层**
-    *   **上下文组装**：
-        *   限制 Context Window (如 4k/8k tokens)。
-        *   策略：优先保留 Rerank 后的高分 Chunk；如果用户提问强调时间，优先按时间元数据筛选。
-    *   **Prompt 工程**：强制 LLM 输出引用来源 `[doc_id]`，如果不知道答案，明确回答 "不知道"，不要胡编。
+4.  **生成与引用**
+    *   **Prompt**：将 Top-5 文档片段拼入 Prompt，要求 LLM "仅根据上下文回答"。
+    *   **引用生成**：Prompt 中要求回答包含 `[doc_id]`，或在后处理中通过相似度匹配答案对应的文档片段。
 
-5.  **安全层**
-    *   **权限过滤**：
-        *   **Pre-Retrieval Filter**：在检索前，通过 Vector DB 的 Metadata Filter 过滤掉用户无权访问的 `tenant_id`。这是最高效的。
-        *   **Post-Retrieval Filter**：在 LLM 组装 Context 前，再次校验 Chunk 的 ACL。
-    *   **PII 脱敏**：在 Ingestion 阶段或 Generation 阶段识别并掩盖敏感信息（手机号、身份证）。
+**实战案例：**
+在处理包含大量表格的财报 PDF 时，纯文本解析丢失了表头对应关系。引入 `Table-Transformer` 先识别表格区域并转为 Markdown 格式或 HTML，再进行切片，回答“Q1 净利润”这类问题的准确率从 30% 提升至 90%。
 
-**性能优化：**
-*   **异步索引**：使用 Kafka/Pulsar 解耦文档上传与索引构建，避免阻塞用户上传接口。
-*   **缓存**：
-    *   **语义缓存**：对用户的 Query 做 Embedding，在 Redis 中缓存 Top-K 结果。相似度 > 0.95 直接返回，绕过检索与生成。
-    *   **LLM 缓存**：对完全相同的 Prompt 缓存 LLM 的 Response。
-*   **向量量化**：使用 PQ (Product Quantization) 将向量从 Float32 压缩到 Int8，牺牲极小精度换取显存/内存节省。
+**代码示例 (Python - LangChain 混合检索):**
+```python
+from langchain.retrievers import EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
 
----
+# 密集检索
+vector_retriever = vectordb.as_retriever(search_kwargs={"k": 5})
+
+# 稀疏检索
+bm25_retriever = BM25Retriever.from_texts(documents)
+bm25_retriever.k = 5
+
+# 集成混合检索
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[bm25_retriever, vector_retriever],
+    weights=[0.5, 0.5]  # 权重可调
+)
+```
 
 ## 常见考点
-1.  **混合检索的融合策略**：除了 RRF，还有哪些加权融合方式？如何处理向量检索和关键词检索分数量级不一致的问题？（答案：Min-Max 归一化、Sigmoid 归一化）。
-2.  **RAG 幻觉问题**：如何检测 LLM 生成的答案与检索到的 Context 不一致？（答案：FactScore、引用验证模型、让 LLM 先生成再反向验证）。
-3.  **向量数据库选型**：Milvus vs Pinecone vs PG-Vector 的优劣对比？在什么场景下 PG-Vector 足够？（答案：数据量小（<百万）、已有 PostgreSQL 基础设施时可用 PG-Vector；大规模高并发需专用向量库）。
-4.  **召回率优化**：当检索结果不相关时，如何系统性排查？（答案：检查分块是否破坏语义、Embedding 模型是否适配领域知识、Query 改写是否准确、是否缺乏 BM25 纠错）。
+1.  **如何解决检索到的文档与问题不相关？**（优化 Prompt 增加Query重写，或使用 HyDE 假设性答案增强检索，引入 Reranker 模型）
+2.  **向量数据库索引如何选择？**（数据量<100万用 IVF_FLAT，数据量大且内存足够用 HNSW，需要精确查全用 Flat）
+3.  **RAG 中如何处理数据更新？**（Upsert 机制：向量库支持 Insert+Update，或采用“软删除+重新插入”策略保证一致性）

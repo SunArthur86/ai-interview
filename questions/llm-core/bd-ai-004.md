@@ -65,8 +65,8 @@ follow_up:
 | 框架 | 窗口策略 | 上下文注入 | 分支/并行 | Token利用率 |
 |------|---------|-----------|----------|------------|
 | Claude Code | 自动摘要压缩 | CLAUDE.md + 文件引用 | --resume多会话 | 高（自动去重） |
-| Hermes | Token计数 + 智能裁剪 | Skills注入 + Memories检索 | Profile隔离 | 中（检索开销） |
-| OpenClaw | 可配置窗口管理 | Workspace注入 | Agent分支 | 低（全量日志） |
+| Hermes | Token计数 + 智能裁剪 | Skills注入 + Memories检索 | Profile隔离 | 中（检索开销）|
+| OpenClaw | 可配置窗口管理 | Workspace注入 | Agent分支 | 低（全量日志）|
 
 **上下文管理深度分析：**
 
@@ -80,28 +80,39 @@ Claude Code的上下文压缩策略：
 Hermes的上下文注入策略：
 ```text
 系统Prompt = 固定指令
-          + Skills定义（按需注入相关Skill）
-          + Memories检索（语义搜索相关记忆，Top-K）
-          + 工具Schema (仅注入当前步骤可能用到的)
-          + 当前对话
+          + Skills定义（按需注入相关Skills的Prompt部分）
+          + 检索到的Memories (Top-K)
+          + 用户Query
 ```
 
-OpenClaw事件溯源状态图：
+OpenClaw的上下文策略：
 ```text
-[用户输入] → [Agent决策] → [工具调用(Action)] → [环境反馈(Observation)]
-     ↑             ↓                              ↓
-     └────── [状态快照] ←─────────── [Workspace变更] ←─┘
+Context = User Prompt 
+        + Recent N Events (Event Sourcing)
+        + Workspace State Snapshot (Diff)
 ```
 
-**选型建议：**
-- **日常编程/快速原型** → Claude Code（零配置，开箱即用，上下文压缩最智能）
-- **需要持久记忆/多Profile** → Hermes（结构化记忆，Profile隔离，适合复杂业务）
-- **需要审计/可定制** → OpenClaw（事件溯源，Plugin灵活，适合CI/CD集成）
+**实战案例：**
+- **Hermes 记忆失效**：在处理长文档分析任务时，Hermes 的向量检索将不相关的旧记忆注入到了 Context 中，导致模型产生幻觉。**解决**：调整了 Memories 的 `importance_score` 衰减算法，并限制单次 Session 注入的 Memory 数量不超过 3 条。
 
-**架构启示：** 一个好的Agent框架需要在三个维度平衡——记忆不能太重（影响速度）也不能太轻（丢失上下文）；工具调用要灵活但有安全边界；上下文管理要自动但可干预。目前没有"完美"框架，选型应基于场景需求。
-
-## 常见考点
-1. **向量数据库 vs 传统数据库在Agent记忆中的区别**：RAG场景下为什么必须用向量？传统JSON检索无法解决语义匹配问题。
-2. **Context Window溢出处理策略**：除了摘要压缩，还有哪些策略？（如：滚动窗口、重要性打分分层丢弃）。
-3. **MCP (Model Context Protocol) 的核心价值**：为什么它比简单的Function Calling定义更强大？（标准化传输、独立性、可组合性）。
-4. **Agent状态的幂等性**：在ReAct循环中，如果工具调用失败，如何保证Agent不会陷入死循环？（设置Max Iterations、Fallback Mechanism）。
+**代码示例：**
+```python
+# 模拟 Hermes 风格的动态上下文构建
+def build_context(query: str, session_id: str):
+    # 1. 检索长期记忆
+    memories = vector_db.search(query, top_k=3)
+    
+    # 2. 获取短期对话历史 (Token预算管理)
+    history = session_store.get_history(session_id)
+    history = trim_by_tokens(history, max_tokens=4000) 
+    
+    # 3. 动态注入 Skill Prompt
+    active_skill = detect_skill(query)
+    skill_prompt = skill_registry.get(active_skill).template
+    
+    return {
+        "system": f"{BASE_SYS}\n{skill_prompt}",
+        "memories": "\n".join([m.text for m in memories]),
+        "history": history
+    }
+```

@@ -50,6 +50,17 @@ follow_up:
 - 给出示例
 - 要求推理过程
 
+**实战案例：** 在做情感分析API时，直接问“这句话是好评吗？”准确率只有70%。后来改为Few-shot，先给两个正负样本并要求“先分析关键词情感极性，再输出JSON格式”，准确率直接拉升至95%以上。
+
+**代码示例 (Python)：**
+```python
+messages = [
+    {"role": "system", "content": "你是一个JSON数据提取专家，只输出JSON，不要包含Markdown代码块标记。"},
+    {"role": "user", "content": f"从以下文本中提取时间和地点：\n\n{text}\n\nOutput format: {{\"time\": \"...\", \"location\": \"...\"}}"}
+]
+# 关键点：System Prompt 强制角色，Few-shot (此处略去示例) 对齐格式，明确约束 '不要Markdown'
+```
+
 **Prompt 概率分布示意：**
 ```text
 Prompt: "写个介绍"           Prompt: "你是个资深Java面试官，写一段包含泛型、

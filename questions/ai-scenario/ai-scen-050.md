@@ -67,3 +67,25 @@ AI多语言翻译系统需求：高质量翻译（信达雅）、低延迟（实
 | COMET | 基于预训练模型的翻译质量评估 | >0.8 |
 | 人工评分 | 1-5分流畅度和准确度 | >4.0 |
 | 翻译速度 | 每秒翻译的词数 | >1000 words/s |
+
+【实战深化】
+- **实战案例**：在处理一份跨国公司的法律合同时，通用模型将 "Consideration"（对价）翻译成了 "考虑"，导致法律含义完全错误。通过注入法律领域术语表并强制LLM进行术语检索，法律术语的翻译准确率从75%提升至98%。
+
+- **代码示例**（伪代码：混合翻译路由）：
+```python
+def route_translation(text):
+    # 简单场景判断：无专业术语且句子较短 -> NMT
+    if is_simple_sentence(text) and not contains_domain_terms(text):
+        return nmt_model.translate(text)
+    # 复杂/专业场景 -> LLM with Context
+    context = fetch_terminology(text) # 获取术语表
+    prompt = f"Terminology: {context}\nTranslate: {text}"
+    return llm.generate(prompt)
+```
+
+- **技术选型对比**（翻译模型选型）：
+| 模型类型 | 优势 | 劣势 | 适用场景 |
+| :--- | :--- | :--- | :--- |
+| **传统 NMT (RNN/CNN)** | 推理速度极快，部署成本低 | 长距离依赖差，缺乏泛化能力 | 实时字幕，大批量粗翻 |
+| **Transformer NMT** | 翻译质量均衡，生态成熟 | 上下文窗口有限，领域迁移难 | 通用网页翻译，文档翻译 |
+| **LLM (GPT-4/Qwen)** | 理解力强，支持上下文与风格控制 | 推理成本高，延迟大 | 文学翻译，法律/医疗高精翻 |

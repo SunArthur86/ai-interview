@@ -49,6 +49,20 @@ RoPE的核心思想是将绝对位置信息通过旋转操作注入到Query和Ke
 2. 长度外推 - 训练4K可推理32K+
 3. 计算高效 - 只需矩阵乘法
 
+**实战案例：**
+工程中常遇到“长文本灾难”，即直接截断或使用普通插值会导致模型回复重复或逻辑断裂。实战中通常采用 **NTK-aware Scaling**（动态调整base值）而非简单线性插值，能让模型在处理8K以上长文本时保持注意力衰减特性。
+
+**代码示例 (Python/PyTorch RoPE核心实现)：**
+```python
+def precompute_freqs_cis(dim: int, end: int, theta: float = 10000.0):
+    freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim))
+    t = torch.arange(end, device=freqs.device)
+    freqs = torch.outer(t, freqs).float()
+    # 生成复数形式的旋转频率: cos + i*sin
+    freqs_cis = torch.polar(torch.ones_like(freqs), freqs) 
+    return freqs_cis
+```
+
 **ASCII 架构图（RoPE 计算流程）：**
 ```
 输入向量 X                位置索引 m

@@ -49,6 +49,31 @@ Token成本是LLM应用的主要运营成本，优化需从模型、Prompt、架
 - **成本临界点**：当高频调用 Token 量极大时，API 费用可能超过 GPU 租赁+运维成本
 - **推理优化**：使用 vLLM + 量化 (AWQ/GPTQ) + 显存优化 (PagedAttention)
 
+### 💡 实战案例
+在构建企业知识库助手时，我们发现每次请求都会将长达 50k 的公司规章制度作为 System Prompt 上下文发送，导致每月成本激增。**实战优化**：我们启用了 Prompt Caching 并结合了动态 RAG 检索，仅在必要时将具体规则切片注入，使得单次请求成本降低了 85%。
+
+### 💻 代码示例 (Python - 语义缓存实现)
+```python
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+def semantic_cache_check(query, cache_dict, embed_model, threshold=0.95):
+    query_vec = embed_model.embed(query)
+    for cached_q, cached_vec in cache_dict.items():
+        score = cosine_similarity([query_vec], [cached_vec])[0][0]
+        if score >= threshold:
+            return cache_dict[cached_q]["answer"] # 命中缓存
+    return None
+```
+
+### 📊 成本优化策略对比
+| 策略维度 | 手段 | 成本降低幅度 | 延迟影响 | 适用场景 |
+| :--- | :--- | :--- | :--- | :--- |
+| **模型层** | 模型路由/降级 | 30%-90% | 降低 | 逻辑分层明确的业务 |
+| **传输层** | Prompt Caching | 50%-90% (重复部分) | 显著降低 | 长上下文/多轮对话 |
+| **计算层** | 语义缓存 | ~100% (命中时) | 极低 | 高频重复问题 |
+| **输入层** | RAG 精简/截断 | 20%-40% | 略降 | 知识库检索场景 |
+
 ## 常见考点
 1. **模型路由的具体实现逻辑？**：讨论基于规则的路由和基于 LLM 的路由的优劣。
 2. **Semantic Cache 的相似度阈值如何设定？**：阈值过高导致缓存命中率低，过低可能导致答非所问，需结合业务场景调优。

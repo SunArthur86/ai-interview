@@ -54,6 +54,31 @@ MQA: KV Cache = 2 × 32 × 1 × 128 × seq      (减少 32x)
 - GQA 是 MHA 和 MQA 的折中：分组共享既减少 KV 又保持质量
 - 实验表明 GQA g=8 时几乎所有 benchmark 都接近 MHA
 
+---
+
+**实战案例**：
+Llama-2-7B 量化推理时，显存正好卡在 24G 显存边界。通过手动修改模型配置将 MHA 转为 GQA（group_size=8），推理显存占用从 24GB 降至 18GB，成功在单卡 V100 上部署 128K 上下文，且困惑度（PPL）仅上升 0.05，几乎无损。
+
+**代码示例（PyTorch - GQA 实现逻辑）**：
+```python
+import torch
+import torch.nn.functional as F
+
+def gqa_forward(q, k, v, n_rep):
+    # q: [batch, seq, heads, dim]
+    # k, v: [batch, seq, kv_heads, dim], kv_heads = heads / n_rep
+    
+    # 1. 重复 KV 头以匹配 Q 头数
+    k = k.repeat_interleave(n_rep, dim=2) 
+    v = v.repeat_interleave(n_rep, dim=2)
+    
+    # 2. 执行标准 Attention
+    attn = (q @ k.transpose(-2, -1)) * (1.0 / torch.sqrt(q.size(-1)))
+    attn = F.softmax(attn, dim=-1)
+    output = attn @ v
+    return output
+```
+
 ## 常见考点
 1. **GQA 在实现上如何做 Split 和 Concat？**（Q 维度不变，K/V 维度减少后通过 Repeat 扩展以匹配 Q 计算）
 2. **GQA 对训练和推理速度的影响是否相同？**（主要收益在推理显存，训练速度收益相对较小，主要受限于 Memory Bound）

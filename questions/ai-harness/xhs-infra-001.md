@@ -42,3 +42,34 @@ vLLM通过PagedAttention机制大幅提升推理效率。
 - 吞吐量提升2-4x（vs HuggingFace Transformers）
 - 内存浪费从60%+降至<4%
 - 支持长上下文高并发Serving
+
+### 实战案例
+- **OOM 问题解决**：在某次支持 32k 上下文长度的模型部署中，使用 HuggingFace Transformers 的 `transformers` 库在 Batch Size=4 时就显存溢出（OOM）。切换到 vLLM 后，由于 PagedAttention 的物理块非连续分配特性，同样的显卡能支持 Batch Size=30 且长文本互不干扰。
+- **Prefill 阶段卡顿**：在高并发下，vLLM 的 Block Manager 可能成为瓶颈。遇到 GPU 利用率低但延迟高的情况，通常是因为 `gpu_memory_utilization` 设置过高导致留给 KV Cache 的空间碎片化，调整至 0.9 并预留显存给系统后，P99 延迟下降了 15%。
+
+### 代码示例 (Python - vLLM 离线推理)
+```python
+from vllm import LLM, SamplingParams
+
+# 初始化 LLM 引擎，启用 block 16
+llm = LLM(model="meta-llama/Llama-2-7b-hf", block_size=16)
+
+# 配置采样参数
+sampling_params = SamplingParams(temperature=0.8, top_p=0.95, max_tokens=100)
+
+# 批量推理 prompts
+prompts = ["你好，请介绍一下vLLM。", "什么是PagedAttention？"]
+outputs = llm.generate(prompts, sampling_params)
+
+for output in outputs:
+    print(f"Output: {output.outputs[0].text}")
+```
+
+### 传统 vs vLLM 内存管理对比
+| 特性 | 传统 KV Cache (如 HF Transformers) | vLLM PagedAttention |
+| :--- | :--- | :--- |
+| **内存分配** | 预分配连续整块内存 | 动态分配固定大小 Block |
+| **内存碎片** | 严重（Sequence 长度不一导致内部/外部碎片） | 极低（非连续存储，类似虚拟内存） |
+| **显存利用率** | 低（通常浪费 20%-60%） | 高（接近物理上限） |
+| **长文本支持** | 差（需按最大长度预留） | 强（动态扩展 Block） |
+| **缓存共享** | 难（Prefix Caching 实现复杂） | 易（通过 RadixTree 引用计数共享） |

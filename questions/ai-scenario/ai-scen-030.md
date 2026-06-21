@@ -30,16 +30,18 @@ follow_up:
 【场景分析】
 AI系统的权限控制比传统系统更复杂：LLM可能被诱导绕过权限、工具调用需要细粒度控制、多租户数据隔离。
 
+**实战案例**：在某企业级知识库问答中，曾出现攻击者通过Prompt注入诱导LLM执行“列出所有管理员用户”的SQL命令。解决方案是在LLM生成的SQL执行前，强制通过中间件层进行SQL解析和白名单校验，而非仅依赖LLM自身的“安全承诺”。
+
 【AI权限控制三层模型】
-1. 用户身份层（Who）：
+1. 用户身份层：
    - 认证：OAuth 2.0 / SAML / JWT
    - 会话管理：Token过期、刷新、吊销
    - 多因素认证：高风险操作需要MFA
-2. 资源权限层（What）：
+2. 资源权限层：
    - RBAC：角色 → 权限 → 资源
    - ABAC：基于属性的访问控制（用户部门+资源标签+环境）
    - 数据权限行级过滤：用户只能看自己部门的数据
-3. AI行为层（How）：
+3. AI行为层：
    - Prompt权限：不同角色看到不同的系统Prompt
    - 工具权限：不同角色可调用的工具集不同
    - 输出权限：模型输出经过权限过滤（如隐藏敏感字段）
@@ -61,7 +63,32 @@ AI系统的权限控制比传统系统更复杂：LLM可能被诱导绕过权限
 - 混合方案：普通租户逻辑隔离，企业客户物理隔离
 - 向量库隔离：每租户独立Collection或Namespace
 
+**代码示例（Python：基于工具调用的权限校验）**
+```python
+def execute_tool(user_id, tool_name, args):
+    role = get_user_role(user_id)
+    # 1. 工具级权限检查：不信任LLM的tool_name选择
+    if not has_tool_permission(role, tool_name):
+        raise PermissionError(f"User {role} cannot access {tool_name}")
+    
+    # 2. 参数级权限检查：防止越权访问资源
+    if "user_id" in args and args["user_id"] != user_id:
+        raise PermissionError("Cannot access other user's data")
+    
+    return tool_registry[tool_name].run(**args)
+```
+
 【审计与合规】
 - 全链路审计：用户请求→LLM推理→工具调用→输出，全程记录
 - 不可篡改：审计日志写入WORM存储（Write Once Read Many）
 - 定期审计：季度权限审查，清理多余权限
+
+**对比表格：传统权限 vs AI权限控制**
+
+| 维度 | 传统权限控制 | AI权限控制 |
+| :--- | :--- | :--- |
+| **核心对象** | API接口、数据库行、按钮 | Prompt、工具、RAG上下文、生成内容 |
+| **权限判断时机** | 请求发起前（代码逻辑） | 请求前 + 推理过程中（输出审查） |
+| **上下文感知** | 静态（配置表） | 动态（依赖对话历史和意图理解） |
+| **防御重点** | 防止未授权访问 | 防止Prompt注入 + 越权工具调用 + 数据泄露 |
+| **失效风险** | 代码Bug、配置错误 | 模型幻觉、对抗性攻击、Prompt泄露 |

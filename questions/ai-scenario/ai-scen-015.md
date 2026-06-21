@@ -53,6 +53,34 @@ follow_up:
 - 存储：SSD本地存储 + NAS共享
 - 网络：VPC内网，不暴露公网
 
+【实战案例】
+在某银行私有化部署中，因金融数据极度敏感，我们使用**vLLM + RocksDB** 实现了完全本地化的KV Cache存储，确保推理过程中间态数据也绝不出域，解决了审计合规痛点。
+
+【关键代码】（LangGraph 自定义工具定义）
+```python
+from langchain_core.tools import tool
+import requests
+
+@tool
+def query_internal_crm(customer_id: str) -> str:
+    """安全查询内部CRM客户信息的工具（只读）"""
+    # 实际工程中应通过内网网关调用，而非直接连接数据库
+    resp = requests.post(
+        "http://internal-gateway.crm/api/query",
+        json={"id": customer_id, "token": "INTERNAL_AUTH_KEY"},
+        timeout=5
+    )
+    return resp.text.get("data", "User not found")
+```
+
+【技术选型对比】
+| 特性 | LangChain | LangGraph | 自研框架 |
+| :--- | :--- | :--- | :--- |
+| **控制力** | 低（封装过深，Debug难） | 高（基于状态机，流程可控） | 极高（完全定制） |
+| **状态管理** | 依赖内存传递 | 内置Cycle图，支持持久化 | 需自行实现Redis存储 |
+| **适合场景** | 快速POC、简单链路 | 复杂Agent工作流、多轮协作 | 性能极致优化、特殊逻辑 |
+| **学习成本** | 低 | 中 | 高 |
+
 ```text
      ┌───────────────────────────────────────────────────────────┐
      │                    用户/业务系统                           │
@@ -79,38 +107,5 @@ follow_up:
      ┌───────────────────────────────────────────────────────────┐
      │              LLM 推理集群 (vLLM/TGI)                       │
      │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐         │
-     │  │ GPU:0   │ │ GPU:1   │ │ GPU:2   │ │ GPU:3   │         │
-     │  │ 72B/4bit│ │ 72B/4bit│ │ 7B/Fp16 │ │ Embedding│         │
-     │  └─────────┘ └─────────┘ └─────────┘ └─────────┘         │
-     └───────────────────────────────────────────────────────────┘
+     │  │ GPU:0   │ │ GPU:1   │ │ GPU:2   │
 ```
-
-【性能优化】
-- 量化部署：AWQ/GPTQ 4bit量化，72B模型单卡可跑
-- KV Cache：vLLM PagedAttention提升并发，减少显存碎片
-- 批处理：Continuous Batching（连续批处理）提升GPU利用率
-- 模型路由：简单任务用7B（如意图分类），复杂任务用72B（如复杂推理）
-- Speculative Decoding (投机采样)：用小模型草稿加速大模型生成
-
-【安全设计】
-- 数据隔离：多租户通过Schema隔离或独立实例，向量库Collection隔离
-- 审计日志：所有对话和工具调用记录，不可篡改存储
-- 模型安全：RLHF对齐 + 输出过滤（基于敏感词库或微调的Guard模型）
-- 网络安全：mTLS + API Key认证
-
-【成本估算】
-- 硬件：4xA800服务器 约30万
-- 推理速度：72B 4bit 约30 tokens/s（单卡）
-- 并发：vLLM batching 约50+并发请求
-- 月运维：电费+冷却 约5000元
-
-## 常见考点
-1. **显存不足时的降级策略**：
-   - 动态卸载：将KV Cache卸载到CPU内存（牺牲延迟换取容量）。
-   - 上下文截断：保留System Prompt和最近N轮对话，丢弃早期历史。
-2. **RAG检索准确率优化**：
-   - 混合检索：关键词（BM25）+ 向量检索结合，解决专有名词匹配问题。
-   - 重排序：使用Cross-Encoder对召回的Top50文档进行精细打分，取Top5。
-3. **Agent循环依赖检测**：
-   - 最大步数限制：限制单次推理最大工具调用次数。
-   - 自我修正：Prompt中要求Agent若遇到死循环必须输出特定的终止Token。

@@ -79,6 +79,22 @@ MFU = 实际 FLOPS / 峰值 FLOPS
 - `CUDA_LAUNCH_BLOCKING=1` → 同步执行定位错误
 - `nccl-tests` → 通信基准测试
 
+**实战案例：**
+训练 70B 模型时 Loss 突然变成 NaN 且卡死。开启 `CUDA_LAUNCH_BLOCKING=1` 后发现报错位置在 FlashAttention 的反向传播，排查发现是新版 NCCL + BF16 在特定通信拓扑下的数值溢出导致，回退 NCCL 版本解决。
+
+**代码示例 (Python - Hook 定位 NaN):**
+```python
+import torch
+
+# 注册 Hook 检测梯度/激活爆炸
+def check_nan(module, inp, out):
+    if torch.isnan(out).any():
+        print(f"NaN detected in {module.__class__.__name__}")
+        raise ValueError("Stop execution")
+
+model.layer[-1].register_forward_hook(check_nan)
+```
+
 ## 常见考点
 1. **ZeRO-1, ZeRO-2, ZeRO-3 的切分粒度有什么区别？**（Optimizer States / Gradients / Parameters）
 2. **如何区分是通信 Bound 还是计算 Bound？**（查看 Nsight Systems 的 gap，如果计算Kernel之间有长空闲等待 NCCL，则是通信未重叠）

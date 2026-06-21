@@ -30,6 +30,8 @@ follow_up:
 【场景分析】
 AI审计系统核心需求：全链路可追溯、输出可解释、合规可证明。适用于金融、医疗、法律等强监管行业。
 
+**实战案例**：在金融投顾场景中，监管要求解释“为何建议用户买入A股票”。系统必须记录并回溯出：推荐词来源于哪一份研报的哪一页（RAG Chunk），以及模型当时是如何推理出该结论的，若无法提供依据将被判定为合规违规。
+
 【审计数据模型】
 1. 请求审计：
    - 用户ID、时间戳、IP地址
@@ -47,6 +49,27 @@ AI审计系统核心需求：全链路可追溯、输出可解释、合规可证
    - 用户反馈（满意度、修正）
    - 后续行为（是否采纳建议）
    - 异常标记（是否触发告警）
+
+**代码示例（Python：TraceID透传与结构化日志）**
+```python
+import logging
+import uuid
+
+# 初始化Trace ID
+trace_id = str(uuid.uuid4())
+
+# 结构化日志记录
+def log_tool_call(tool_name, inputs, outputs, cost_tokens):
+    logging.info({
+        "event": "tool_execution",
+        "trace_id": trace_id,
+        "tool": tool_name,
+        "input_hash": hashlib.md5(str(inputs).encode()).hexdigest(), # 脱敏输入
+        "output_preview": outputs[:100], # 截断输出
+        "tokens": cost_tokens,
+        "timestamp": datetime.utcnow().isoformat()
+    })
+```
 
 【Trace回放系统】
 功能：给定历史请求ID，完整复现当时的推理过程

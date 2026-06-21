@@ -30,6 +30,9 @@ follow_up:
 【场景分析】
 AI测试生成系统：自动生成单元测试、集成测试、API测试，提升测试覆盖率，减少手写测试的工作量。
 
+**【实战案例】**
+某电商结算模块重构中，利用AI生成工具对涉及200+分支逻辑的旧代码补充测试，成功在上线前发现了3处隐藏的极端金额计算Bug（如负数库存扣减），这些Bug在人工设计中极易遗漏。
+
 【测试生成架构】
 1. 代码理解层：
    - AST解析：提取函数签名、参数类型、返回值
@@ -50,6 +53,21 @@ AI测试生成系统：自动生成单元测试、集成测试、API测试，提
    - 去重：与已有测试去重
    - 修复迭代：测试失败 → LLM修复 → 重新验证
 
+**【代码示例：Pytest Mock生成】**
+```python
+# AI分析到函数依赖DB，自动生成Mock
+import pytest
+from unittest.mock import patch
+
+def test_get_user_success():
+    # Mock 外部数据库依赖
+    with patch('app.db.query') as mock_query:
+        mock_query.return_value = {'id': 1, 'name': 'Alice'}
+        response = get_user(user_id=1)
+        assert response['name'] == 'Alice'
+        mock_query.assert_called_once()
+```
+
 【不同测试类型的生成策略】
 1. 单元测试：
    - 输入：函数代码 + 类型信息
@@ -63,6 +81,14 @@ AI测试生成系统：自动生成单元测试、集成测试、API测试，提
    - 输入：服务架构 + 依赖关系
    - 输出：跨服务调用链测试
    - 环境：Testcontainers/Docker Compose
+
+**【对比表格：测试类型选型】**
+| 维度 | 单元测试生成 | API测试生成 | 集成测试生成 |
+| :--- | :--- | :--- | :--- |
+| **核心输入** | 函数源码/AST | Swagger/OpenAPI | 架构图/容器编排 |
+| **主要挑战** | 复杂逻辑Mock、私有方法 | 边界组合、链路依赖 | 环境稳定性、启动慢 |
+| **适用场景** | 算法密集型模块重构 | 前后端联调、接口契约 | 微服务整体回归 |
+| **AI工具重点** | 静态分析+代码补全 | 文档解析+用例组合 | 环境编排+链路追踪 |
 
 【质量保障】
 - 生成的测试必须能运行通过

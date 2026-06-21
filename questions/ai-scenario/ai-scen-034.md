@@ -30,23 +30,41 @@ follow_up:
 【场景分析】
 AI系统可观测性比传统系统更复杂：不仅要监控基础设施，还要监控模型行为、输出质量、成本。
 
+**实战案例**：某次线上故障中，虽然P99延迟显示正常，但“工具调用成功率”指标突然下跌。排查发现是Rerank服务异常导致检索结果为空，LLM频繁尝试调用不存在的工具。业务指标比延迟指标更早暴露了问题。
+
 【三层可观测性】
-1. 基础设施层（Infra）：
+1. 基础设施层：
    - GPU利用率、显存占用、温度
    - 请求QPS、延迟分布（P50/P95/P99）
    - 错误率、重试率、熔断次数
    - 工具：Prometheus + Grafana
-2. 模型行为层（Model Behavior）：
+2. 模型行为层：
    - Token消耗趋势（按模型/功能/租户）
    - 拒答率：模型拒绝回答的比例
    - 幻觉率：基于Golden Set的实时监控
    - 安全拦截率：有害内容触发拦截的比例
    - 工具调用成功率：Function Calling的成功/失败
-3. 业务质量层（Business Quality）：
+3. 业务质量层：
    - 用户满意度：点赞率/点踩率/评分
    - 任务完成率：对话是否达到用户目标
    - 人工转接率：AI无法处理转人工的比例
    - 用户留存：AI体验对留存的影响
+
+**代码示例（Python：Prometheus Metrics记录业务指标）**
+```python
+from prometheus_client import Counter, Histogram
+
+# 定义指标
+llm_tokens_total = Counter('llm_tokens_consumed_total', 'Total tokens consumed', ['model', 'tenant'])
+user_feedback = Counter('user_feedback_total', 'User feedback count', ['type']) # type: like/dislike
+
+# 在代码中埋点
+def log_llm_usage(model, tenant, input_tokens, output_tokens):
+    llm_tokens_total.labels(model=model, tenant=tenant).inc(input_tokens + output_tokens)
+
+def log_user_action(action_type):
+    user_feedback.labels(type=action_type).inc()
+```
 
 【Trace全链路追踪】
 OpenTelemetry标准，一次请求的完整Trace：
@@ -67,6 +85,16 @@ OpenTelemetry标准，一次请求的完整Trace：
 - 趋势分析：日/周/月维度的质量变化趋势
 - 对比分析：不同模型/Prompt版本的效果对比
 - Bad Case分析：差评案例的分类统计和根因分析
+
+**对比表格：传统监控 vs AI可观测性**
+
+| 维度 | 传统监控 (APM) | AI可观测性 (LLMOps) |
+| :--- | :--- | :--- |
+| **核心指标** | QPS, Latency, Error, CPU/Mem | Token/成本, 幻觉率, 拒答率, 引用准确度 |
+| **数据类型** | 结构化日志、数值型 | 非结构化文本、概率分布、Embedding向量 |
+| **故障排查** | 查看Error Stack Trace | 分析Prompt上下文、检索相关性、模型推理逻辑 |
+| **成本归因** | 计算资源成本 | 模型推理成本 (Token计费) + 检索成本 |
+| **质量评价** | 服务可用性 (SLA) | 答案正确性、安全性、有用性 |
 
 ## 常见考点
 1. **非结构化数据的监控难点**：如何量化监控“幻觉率”或“逻辑错误”？

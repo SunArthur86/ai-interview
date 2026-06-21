@@ -62,35 +62,46 @@ feynman:
 
 ### 组件详解
 
-1. **API Gateway**
-   - **请求路由**：根据业务场景路由到不同服务
-   - **安全防护**：限流（防止滥用）、认证（API Key/OAuth）、输入过滤（初步清洗）
+#### 1. API Gateway
+作为流量的统一入口，负责处理非业务逻辑的横切关注点。
+- **鉴权与安全**：集成 OAuth2/API Key，防止 Key 泄露和滥用。
+- **限流熔断**：防止突发流量击穿后端 LLM 供应商配额或预算。
 
-2. **LLM 服务层**
-   - **模型路由**：大小模型分流（MoE 思想）
-   - **容错机制**：多供应商 Failover（如 OpenAI 宕机切换至 Azure 或本地模型）
-   - **并发控制**：连接池管理，避免供应商 429 Rate Limit
+#### 2. LLM 服务层
+这一层是架构的大脑，负责与模型供应商交互。
+- **多模型管理**：抽象统一的接口，支持热切换模型（如从 OpenAI 切换至 Azure）。
+- **请求编排**：处理 Prompt 模板渲染、上下文拼接。
 
-3. **RAG 管道**
-   - **离线处理**：ETL 抽取、切片、Embedding 入库
-   - **在线检索**：混合检索（向量+关键词）、Rerank（重排序）提升相关性
+#### 3. RAG 管道
+- **流式/非流式处理**：离线 ETL 负责文档切片、向量化入库；在线管道负责 Query 向量化、检索和 Rerank。
 
-4. **缓存层**
-   - **语义缓存**：对高频相似问题直接返回结果，大幅降低成本和延迟
-   - **Prompt 缓存**：利用推理框架缓存 KV Cache
+#### 4. 监控与观测
+- **可观测性**：不仅监控 HTTP 状态码，还要追踪 Token 消耗、首字延迟（TTFT）和端到端延迟。
 
-5. **监控告警**
-   - **性能指标**：TTFT (Time to First Token), TPOT (Time per Output Token), Latency (P50/P99)
-   - **业务指标**：Token 消耗、用户满意度、幻觉率监控
+### 💡 实战案例
+在某金融风控问答系统上线首日，我们发现 OpenAI API 偶发 5xx 超时，导致前端直接报错，用户体验极差。**实战优化**：我们在 API Gateway 层增加了**多供应商熔断降级策略**，当监测到 GPT-4 超时率超过 5% 时，自动将流量切换至备用模型（如 Claude 3 或自部署 Llama），保证了 99.9% 的可用性。
 
-6. **安全与治理**
-   - **输入**：Prompt Injection 检测、PII（隐私信息）识别与脱敏
-   - **输出**：有害内容过滤（Azure Content Safety, Llama Guard）
+### 💻 代码示例 (Python - 熔断器装饰器)
+```python
+from circuitbreaker import circuit
 
-7. **CI/CD**
-   - Prompt 版本管理（类似代码管理）、A/B 测试、灰度发布（金丝雀部署）
+@circuit(failure_threshold=5, recovery_timeout=30)
+def call_llm_with_fallback(prompt):
+    try:
+        return primary_llm_client.generate(prompt)
+    except Exception as e:
+        print(f"Primary failed: {e}, switching to fallback")
+        return fallback_llm_client.generate(prompt)
+```
 
-## 常见考点
-1. **如何处理 LLM 请求的超时和重试？**：指数退避策略是必须的，同时要区分“流式输出”和“非流式”的超时处理差异。
-2. **RAG 系统中向量数据库选型的考量？**：讨论性能、成本、扩展性。
-3. **如何实现多供应商模型的 Failover 而又不影响用户体验？**：需要保证接口协议的兼容性，特别是流式输出的统一封装。
+### 📊 架构选型对比
+| 关键组件 | 云托管方案 | 自建/开源方案 |
+| :--- | :--- | :--- |
+| **LLM 服务** | OpenAI/Azure (零运维，高单价) | vLLM/TGI (需 GPU 维护，低边际成本) |
+| **向量库** | Pinecone/Zilliz (全托管，自动扩展) | Milvus/Weaviate (需运维，数据私有化) |
+| **编排层** | LangChain Cloud (功能丰富，较重) | LlamaIndex (轻量，Pythonic) |
+| **可观测性** | LangSmith (集成度高，厂商绑定) | Prometheus + Grafana (通用，需自埋点) |
+
+#### 5. 数据流与安全性
+- **数据隐私**：敏感数据（PII）在进入 LLM 前需通过脱敏模块处理。
+- **Prompt 注入防御**：在 Gateway 层增加输入清洗策略。

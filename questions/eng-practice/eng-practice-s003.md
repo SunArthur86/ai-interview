@@ -50,6 +50,36 @@ feynman:
 #### 6. 知识增强
 - 工具调用：让模型调用搜索 API、计算器而非凭借记忆生成
 
+> **💡 实战案例**：医疗问诊系统中，LLM经常编造不存在的药物副作用。采用了**基于知识图谱的约束**（KG-Constrained Decoding），在生成过程中只允许输出图谱中存在的“疾病-症状/药物”关系，幻觉率降低了 90%。
+
+> **🧱 代码示例（Python - LogProbs 幻觉检测）**
+> ```python
+> import openai
+>
+> def check_hallucination_via_logprobs(text):
+>     response = openai.ChatCompletion.create(
+>         model="gpt-4",
+>         messages=[{"role": "user", "content": text}],
+>         logprobs=True, top_logprobs=5
+>     )
+>     # 检查生成token的概率分布
+>     for token in response.choices[0].logprobs.content:
+>         top_probs = [p.logprob for p in token.top_logprobs]
+>         # 如果最高概率和次高概率非常接近，模型可能很不确定
+>         if abs(top_probs[0] - top_probs[1]) < 1.0: 
+>             return "Uncertain"
+>     return "Certain"
+> ```
+
+### 防幻觉方案对比
+
+| 方案 | 成本 | 实施难度 | 适用场景 | 效果上限 |
+|------|------|----------|----------|----------|
+| **Prompt 约束** | 极低 | 低 | 通用问答 | 中，依赖模型遵循指令能力 |
+| **RAG (检索)** | 中 | 中 | 知识密集型任务 | 高，受限于检索质量和知识库覆盖 |
+| **RLHF/DPO** | 极高 | 高 | 特定领域对齐 | 高，但需大量高质量人工反馈 |
+| **知识图谱约束** | 高 | 高 | 专业领域（医疗/法律） | 极高，几乎杜绝事实性编造 |
+
 ### 防幻觉的 RAG 架构增强
 ```text
 [用户提问] ──> [检索] ──> [文档切片] ──> [LLM 生成]

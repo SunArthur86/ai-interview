@@ -33,7 +33,7 @@ AI文生图系统需求：文字描述生成高质量图片、支持多种风格
 【技术架构】
 1. 生成模型层：
    - 扩散模型：Stable Diffusion 3 / Flux / DALL-E 3
-   - 自回归： Parti / Muse（token-based生成）
+   - 自回归：Parti / Muse（token-based生成）
    - 关键能力：文生图、图生图、图片编辑、风格迁移
 2. Prompt工程层：
    - Prompt增强：用户简短描述 → LLM扩展为详细Prompt
@@ -66,3 +66,31 @@ AI文生图系统需求：文字描述生成高质量图片、支持多种风格
 - 设计：海报、Logo、UI元素生成
 - 内容创作：插画、漫画、配图
 - 广告：批量广告素材生成
+
+【实战案例】
+某电商模特换脸功能上线后，遇到严重的“人体崩坏”问题（多指、肢体扭曲）。排查发现是因为上传的用户自拍姿势过于复杂且背景杂乱，干扰了ControlNet的姿态识别。解决方案：引入一个轻量级分割模型预处理用户图，提取纯人体蒙版并重置背景，结合IP-Adapter固定人脸特征，将人体结构生成成功率从60%提升至95%。
+
+【关键代码实现】
+```python
+import torch
+from diffusers import StableDiffusionControlNetPipeline, ControlNetModel
+
+# 加载模型：SD + ControlNet (用于姿态控制)
+controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-openpose")
+pipe = StableDiffusionControlNetPipeline.from_pretrained(
+    "runwayml/stable-diffusion-v1-5", controlnet=controlnet, torch_dtype=torch.float16
+).to("cuda")
+
+def generate_controllable_image(prompt, pose_image):
+    # 启用内存优化注意力机制
+    pipe.enable_xformers_memory_efficient_attention()
+    
+    # 生成图像，保持姿态一致
+    image = pipe(
+        prompt, 
+        image=pose_image,  # ControlNet输入（骨架图）
+        num_inference_steps=20,
+        guidance_scale=7.5
+    ).images[0]
+    return image
+```

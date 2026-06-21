@@ -76,8 +76,25 @@ follow_up:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**## 常见考点**
-1. **RAG 上下文检索策略**：面试官可能会问如何处理大型 Monorepo 的索引问题（如：如何划分 Chunk？用向量检索还是符号检索？）。
-2. **Agent 的 Loop 机制**：追问 Cursor Agent 的“观察-行动-反思”循环具体是如何实现的（例如：如何检测代码错误并自我修正？）。
-3. **Diff 应用策略**：Windsurf Cascade 模式中的 Diff 生成是如何保证代码语法正确性的？(基于 AST 的 Patch 还是 Unified Diff)。
-4. **.cursorrules**：如何编写高效的 System Prompt 来规范 AI 的代码风格？
+**对比表格：**
+
+| 维度 | Cursor | Windsurf (Codeium) |
+| :--- | :--- | :--- |
+| **核心模式** | **Composer** (Agent 闭环执行，自主性强) | **Cascade** (流式推理，类似 Chain-of-Thought) |
+| **上下文索引** | 强，支持 `.cursorrules` 自定义规则，语义检索快 | 优秀，Flow 模式对项目结构理解深 |
+| **模型支持** | Claude 3.5 Sonnet (默认), GPT-4o, o1 | DeepSeek V3, Codestral, Claude 3.5, GPT-4o |
+| **最佳场景** | 全栈开发、多文件重构、Agent 自动化任务 | 复杂逻辑推导、长代码流修改、本地化适配 |
+| **稳定性** | Agent 模式偶尔死循环或幻觉修改 | 编辑交互更可控，Diff 生成精准 |
+
+**实战案例：**
+在处理一个 10w+ 行的 Node.js 遗留项目迁移时，使用 Cursor 的 `.cursorrules` 强制 AI 遵循项目内部的 TS 接口规范，成功自动迁移了 30+ 个 API 接口，但在处理极其复杂的嵌套回调时，Windsurf 的 Cascade 模式展现出了比 Cursor Composer 更稳定的代码连贯性，避免了上下文丢失导致的逻辑断裂。
+
+**代码示例（.cursorrules 配置）：**
+```text
+# Tech Stack: Node.js, TypeScript, NestJS
+# Rules:
+1. Always use class-validator for DTOs.
+2. Use 'interface' for entity definitions, 'type' for complex unions.
+3. Follow the existing folder structure: /src/modules/{module_name}.
+4. Do not use 'any'; use 'unknown' if type is uncertain.
+```

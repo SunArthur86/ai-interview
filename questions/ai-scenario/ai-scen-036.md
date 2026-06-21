@@ -63,10 +63,34 @@ follow_up:
 - 人工复核：低置信度结果转人工确认
 - 领域微调：发票/合同等垂直场景微调MLLM
 
-## 常见考点
-1. **高分辨率图像处理**：MLLM通常有分辨率限制（如4K），如何处理高清大图或长PDF？
-   *答案要点*：采用“分块+滑动窗口”策略。将大图切成Overlap（重叠）的Patch，分别进行特征提取或OCR，最后合并。或者使用Layout Analysis先定位关键区域（如表格、签名），只对这些区域进行高精度识别。
-2. **复杂表格还原**：对于跨页表格、嵌套表格，传统OCR容易识别乱，如何解决？
-   *答案要点*：引入HTML/Table结构化识别模型（如Table Transformer）。不仅要识别文字，还要识别Cell的坐标和合并关系。输出HTML/XML结构后，再进行渲染或解析。
-3. **图表数据的准确性**：从折线图中读取数值时，像素偏差导致数值不准怎么办？
-   *答案要点*：建立坐标系映射模型。先检测坐标轴（X/Y轴的起点、终点、刻度值），然后通过像素比例计算数值。对于密集点，使用回归模型预测数值而非纯像素读取。
+【技术选型对比】
+| 组件 | 传统方案 (Rule-based/CV) | 生成式方案 (LLM/MLLM) |
+| :--- | :--- | :--- |
+| **核心原理** | 专用模型检测(如YOLO) + 规则解析 | 端到端语义理解与生成 |
+| **灵活性** | 低，需针对新版式重新训练模型 | 高，通过Prompt适配新场景 |
+| **准确率** | 结构化文档极高，手写体较差 | 复杂语义理解强，但可能产生幻觉 |
+| **推理成本** | 低 (CPU/GPU轻量级) | 高 (依赖昂贵GPU或API) |
+| **适用场景** | 标准票据、固定表单、海量低成本处理 | 复杂合同、版面多变、图表分析 |
+
+【实战案例】
+在处理银行电子回单时，传统OCR将“转账金额：10,000.00”识别为两行文本，导致字段提取失败。引入MLLM进行版面语义理解后，系统自动关联金额符号与数值，但初期出现将“10,000.00”误读为“10,000.00美元”的幻觉，需在Prompt中强制约束“仅提取数字，不推断货币单位”。
+
+【关键代码实现】
+```python
+from transformers import pipeline
+import matplotlib.pyplot as plt
+
+# 图表数据提取流水线
+def extract_chart_data(image_path):
+    # 1. 使用Qwen-VL识别图表类型和坐标轴信息
+    vqa_pipe = pipeline("visual-question-answering", model="Qwen/Qwen-VL-Chat")
+    context = vqa_pipe(image_path, question="描述图表类型、X轴和Y轴的含义及刻度范围")
+    
+    # 2. 如果图表复杂，裁剪关键区域放大处理
+    # crop_img = crop_region(image_path, context["bbox"]) 
+    
+    # 3. 引导模型生成结构化JSON数据
+    prompt = f"基于上下文：{context}，请提取图表中的所有数据点，输出JSON格式：{{'data': [{{'x':..., 'y':...}}]}}"
+    result = vqa_pipe(image_path, question=prompt)
+    return parse_json(result)
+```

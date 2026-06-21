@@ -61,6 +61,34 @@ Layer 2 (Part A)    GPU 2: Layer 21-30   GPU 2: Full Model
 Layer 2 (Part B)                        GPU 3: Full Model
 ```
 
+### 实战案例
+在训练 70B 参数模型时，若强行在单机 8 卡上使用 PP，会因为跨层通信频繁导致 NVLink 带宽拥塞；实战中通常将 TP 限制在单机内（利用 NVLink），而将 PP 扩展到多机间（利用 InfiniBand），以平衡计算与通信。
+
+### 并行策略选型对比
+| 维度 | 张量并行 (TP) | 流水线并行 (PP) | 数据并行 (DP/ZeRO) | 序列并行 (SP) |
+| :--- | :--- | :--- | :--- | :--- |
+| **切分粒度** | 层内权重矩阵切分 | 模型层切分 | 数据批次切分 | 输入序列切分 |
+| **通信频率** | 极高（每层） | 低（阶段边界） | 低（Step 结束） | 高（Attention 内）
+| **显存节省** | 中（仅权重分片） | 高（每卡仅存部分层） | 低（需存完整副本，ZeRO除外）| 高（KV Cache 分片）
+| **适用场景** | 单机多卡、强带宽 | 跨机部署、超长模型 | 数据规模大、模型适中 | 超长上下文文本 |
+| **主要缺点** | 通信瓶颈明显 | 存在气泡，调度复杂 | 显存占用大（非 ZeRO）| 实现复杂，依赖特定算子 |
+
+### 代码示例 (PyTorch - TP 切分列示例)
+```python
+import torch.distributed as dist
+# Column Parallel Linear: Y = XA (A is split by column)
+class ColumnParallelLinear(torch.nn.Module):
+    def __init__(self, in_features, out_features):
+        super().__init__()
+        self.weight = torch.nn.Parameter(torch.randn(out_features // world_size, in_features))
+    
+    def forward(self, x):
+        # All-Reduce to sum partial results from all GPUs
+        output = torch.nn.functional.linear(x, self.weight)
+        dist.all_reduce(output, op=dist.ReduceOp.SUM)
+        return output
+```
+
 ## 常见考点
 1. **推理时为什么首选 TP 而不是 PP？**
    - TP 的通信延迟被计算掩盖，且无需像 PP 那样处理 Pipeline Bubble（气泡），延迟更低，更适合在线推理。

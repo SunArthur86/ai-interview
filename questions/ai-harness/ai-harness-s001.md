@@ -20,24 +20,52 @@ feynman:
 
 vLLM是当前最流行的开源LLM推理框架，核心优化：
 
-1. PagedAttention：
+1. **PagedAttention**：
 - 将KV Cache分块管理（类似OS虚拟内存分页）
 - 消除显存碎片，显存利用率从60%提升到96%+
 - 支持Copy-on-Write，Parallel Sampling共享前缀
 
-2. Continuous Batching（连续批处理）：
+2. **Continuous Batching（连续批处理）**：
 - 传统Static Batching：一个batch中所有请求要同时完成
 - Continuous Batching：每个iteration动态调度，完成一个请求立即放入新请求
 - GPU利用率大幅提升
 
-3. Tensor Parallelism（张量并行）：
+3. **Tensor Parallelism（张量并行）**：
 - 将模型权重切分到多GPU
 - 支持NCCL通信
 
-4. 其他优化：
+4. **其他优化**：
 - Prefix Caching：缓存相同前缀的KV（如system prompt）
 - Speculative Decoding：投机采样加速
 - Quantization：支持AWQ、GPTQ量化模型
+
+- **技术对比 (vLLM vs HuggingFace Transformers)**
+
+| 特性 | HuggingFace (Static) | vLLM (PagedAttention + Continuous) |
+|------|---------------------|------------------------------------|
+| 内存管理 | 预分配连续内存 (易碎片) | PagedAttention (非连续分页) |
+| Batch 调度 | 静态 (等最长请求结束) | 连续 (动态进出) |
+| 显存利用率 | ~60-70% | >90% |
+| 吞吐量 | 低 (受限于 batch size) | 高 (24x 提升) |
+| 适用场景 | 单任务/微调 | 高并发在线服务 |
+
+- **实战案例**：在某在线客服系统中，使用 vLLM 替换 TGI 后，相同 A100 显存支持的最大并发数从 50 提升至 200，且 P99 延迟降低了 40%。踩坑：Block Size 设置不当（如过大）会导致小请求显存浪费，需要根据平均请求长度调整。
+
+- **代码示例**：
+```python
+from vllm import LLM, SamplingParams
+
+# 初始化 vLLM 引擎，启用 Block 机制
+llm = LLM(
+    model="meta-llama/Llama-2-7b-hf",
+    tensor_parallel_size=2,  # 2卡张量并行
+    block_size=16,           # 关键：Block Size 设置
+    enable_prefix_caching=True
+)
+
+sampling_params = SamplingParams(temperature=0.7, top_p=0.95, max_tokens=100)
+outputs = llm.generate(["Hello, my name is", "The future of AI is"], sampling_params)
+```
 
 性能：比HuggingFace Transformers快14-24倍，接近商用API吞吐量。
 

@@ -30,6 +30,9 @@ follow_up:
 【场景分析】
 LLM推理缓存可大幅降低成本和延迟。缓存策略需要平衡命中率、正确性、新鲜度。
 
+**【实战案例】**
+某电商大促期间，客服机器人80%的问题集中在“物流查询”和“退改政策”。引入语义缓存后，RPM（每分钟请求数）峰值期间，直接命中缓存的响应时间从800ms降至15ms，且节省了约$2000/天的API调用成本。但在初期，因阈值设置过低（0.85），导致用户问“退货地址”时错误返回了“发货地址”的缓存，后引入“否定词检测”逻辑解决。
+
 【缓存层次】
 1. 精确缓存：
    - Key：hash(model + prompt + params)
@@ -83,6 +86,27 @@ Request
                  └── No  ──> LLM Inference ──> Write to Cache ──> Return
 ```
 
+**【代码示例：语义缓存检索逻辑】**
+```python
+async def get_semantic_cache(query: str, threshold=0.95):
+    # 1. 计算Query向量
+    query_embedding = await embed_model.embed_query(query)
+    
+    # 2. 向量检索（Redis Vector Search或Milvus）
+    results = await vector_store.search(
+        vector=query_embedding, 
+        top_k=1, 
+        score_threshold=threshold
+    )
+    
+    if results:
+        cached_item = results[0]
+        # 3. 否定词安全检查（防止语义相近但意图相反）
+        if not has_negation_overlap(query, cached_item.question):
+            return cached_item.answer
+    return None
+```
+
 ## 常见考点
 1. **缓存的一致性问题如何处理？**
    - 系统Prompt更新时，需基于版本号（Hash）自动使旧前缀缓存失效；对于知识库问答，知识库内容变更时需触发相关缓存的定向清除。
@@ -92,3 +116,4 @@ Request
    - 不同的Temperature会导致输出完全不同，因此Hash Key必须包含Temperature等参数。通常建议对Temperature=0（确定性输出）的场景启用强缓存。
 4. **流式输出与缓存的冲突？**
    - 命中缓存时，若原始结果已完整生成，服务端需模拟流式发送（将缓存结果切片发送），保持客户端接口一致性。
+

@@ -30,6 +30,9 @@ follow_up:
 【场景分析】
 LLM Token成本是企业AI应用的核心运营指标。需要从请求层、模型层、缓存层多维度控制。
 
+**【实战案例】**
+某SaaS知识库问答系统，初期盲目使用GPT-4，导致月成本$5万无法落地。通过“小模型意图分类+长文本截断+Prompt精简”三步走：1. 使用Qwen-7B判断意图，非复杂问题拦截；2. 检索Top 3文档而非Top 10，上下文长度缩减60%；3. 将Prompt中的CoT（思维链）指令压缩。最终在不影响准确率的前提下，单次调用成本降低了70%，月成本降至$1.5万。
+
 【成本控制架构】
 1. 请求层优化：
    - Prompt精简：去除冗余指令，用简洁模板
@@ -67,3 +70,38 @@ LLM Token成本是企业AI应用的核心运营指标。需要从请求层、模
 - GPT-4o-mini: 约$15/天
 - 自建vLLM (72B): 约$50/天（含GPU折旧）
 - 路由优化后混合: 约$80/天 → 降本73%
+
+**【代码示例：Prompt压缩与截断】**
+```python
+from transformers import AutoTokenizer
+
+def truncate_context(prompt: str, max_len: int = 4000):
+    # 获取Tokenizer
+    tokenizer = AutoTokenizer.from_pretrained("gpt-4")
+    
+    # 1. 强制系统指令部分保留（System Prompt不可截断）
+    sys_end = prompt.find("\n\nUser:")
+    sys_part = prompt[:sys_end]
+    user_part = prompt[sys_end:]
+    
+    # 2. 截断用户部分（保留后部，因为通常包含最新的关键信息）
+    tokens = tokenizer.encode(user_part)
+    sys_tokens = tokenizer.encode(sys_part)
+    
+    # 3. 计算剩余可用Token数
+    remaining = max_len - len(sys_tokens)
+    if len(tokens) > remaining:
+        tokens = tokens[-remaining:] # 尾部截断
+        
+    return tokenizer.decode(sys_tokens + tokens)
+```
+
+**【路由策略成本对比】**
+
+| 路由策略 | 准确率影响 | 成本倍数 | 实现复杂度 | 适用场景 |
+| :--- | :--- | :--- | :--- | :--- |
+| **全量GPT-4** | 基准 | 10x | 低 | 高价值、低频次场景（医疗诊断） |
+| **意图分级路由** | -2% ~ -5% | 1.5x | 中 | **通用客服、知识问答（推荐）** |
+| **全量Mini/7B** | -10% ~ -20% | 0.2x | 低 | 简单意图识别、文本分类 |
+| **长短文分离** | 无 | 0.7x | 低 | 文档摘要、长对话 |
+

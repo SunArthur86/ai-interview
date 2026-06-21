@@ -63,10 +63,32 @@ AI视频分析需求：实时监控、内容审核、视频摘要、动作识别
 - 体育分析：运动员动作识别和统计
 - 视频摘要：长视频→关键片段→文字摘要
 
-## 常见考点
-1. **实时性处理与精度的权衡**：在实时监控中，高帧率会导致推理延迟堆积，如何优化？
-   *答案要点*：采用“抽帧”策略（如每秒5帧）而非全帧处理。利用运动检测，仅当画面有显著变化时才触发检测。对于关键帧（如检测到异常），动态提升帧率进行分析。
-2. **长时序依赖捕捉**：动作识别（如“打架”）通常需要连续多帧信息，单帧检测无法识别，如何设计？
-   *答案要点*：使用基于3D-CNN或VideoTransformer的模型（如SlowFast），它们以Clip（视频片段）为单位输入，能捕捉时序特征。在工程上，需要维护一个滑动窗口的Frame Buffer，积累足够帧数后再送入模型。
-3. **多路视频流并发处理**：单台GPU如何同时处理几十路摄像头视频？
-   *答案要点*：动态Batching。将不同视频流的同一帧时刻组成一个Batch送入GPU。设置TensorRT加速，并限制每个流的FPS上限（如5fps）。如果资源不足，在边缘端做初步过滤，只将疑似异常片段上传中心服务器分析。
+【实战案例】
+在工地安全帽检测项目中，初期使用全帧（25fps）推理导致GPU算力不足，延迟高达5秒。后优化为“关键帧+运动检测”策略：只有当画面像素变化超过阈值（有人进入）时才触发检测，并将检测帧率降至5fps，单GPU并发路数从4路提升至16路，且未漏报任何违规事件。
+
+【关键代码实现】
+```python
+import cv2
+import torch
+
+def process_stream(stream_url, model, frame_buffer):
+    cap = cv2.VideoCapture(stream_url)
+    prev_frame = None
+    
+    while True:
+        ret, frame = cap.read()
+        if not ret: break
+        
+        # 运动检测：只有画面变动显著时才推理
+        if prev_frame is not None and motion_score(frame, prev_frame) < threshold:
+            continue
+            
+        # 动态Batching：收集多路流的帧组成Batch
+        frame_buffer.append(frame)
+        if len(frame_buffer) == batch_size:
+            results = model(torch.stack(frame_buffer))
+            handle_results(results)
+            frame_buffer.clear()
+            
+        prev_frame = frame
+```

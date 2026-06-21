@@ -74,6 +74,37 @@ Arithmetic Intensity (AI) = FLOPs / Bytes
   4. Vectorized access: float4 一次读 4 个 float
 ```
 
+---
+
+**实战案例**：
+优化一个自定义的 Element-wise Add+Scale Kernel，Nsight 分析显示 `dram__throughput` 仅 50GB/s（远低于 1.5TB/s 峰值），且存在大量 `stall_memory_dependency`。通过将计算逻辑从 `float` 转为 `float4` 向量化读写（一次加载 128bit），带宽利用率飙升至 450GB/s，整体速度提升 8 倍。
+
+**代码示例（CUDA - Memory Coalescing 对比）**：
+```cpp
+// --- 优化前：Non-Coalesced Access (未对齐读取) ---
+__global__ void bad_add(float* x, float* y, float* out, int n) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    // 假设 stride 奇数，导致 warp 内线程访问不连续的内存块
+    int stride = 17; 
+    if (idx < n) out[idx] = x[idx] + y[stride * idx];
+}
+
+// --- 优化后：Coalesced Access (向量化+对齐) ---
+__global__ void good_add(float4* x, float4* y, float4* out, int n) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    // float4 一次读 16 bytes，且 warp 内线程连续访问
+    if (idx < n) {
+        float4 a = x[idx];
+        float4 b = y[idx];
+        // 简化的向量加法
+        out[idx].x = a.x + b.x;
+        out[idx].y = a.y + b.y;
+        out[idx].z = a.z + b.z;
+        out[idx].w = a.w + b.w;
+    }
+}
+```
+
 ## 常见考点
 1. **Occupancy 是不是越高越好？**（不是，有时牺牲 Occupancy 换取更多的 Register/Shared Memory 使用能减少全局内存访问）
 2. **如何通过 Nsight Compute 的 `dram__throughput` 和 `dram__bytes_sum` 快速判断是否 Memory Bound？**（如果吞吐接近峰值或 Stall 主要在 Memory，即为 Memory Bound）

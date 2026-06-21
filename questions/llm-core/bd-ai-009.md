@@ -41,13 +41,9 @@ follow_up:
 **可扩展性设计关键点：**
 
 1. **Skill注册表** — 所有Skill注册到中心化目录，Agent运行时根据任务自动发现和调用，不需要硬编码
-
 2. **版本管理** — Skill升级不影响正在使用的Agent，语义版本号+向后兼容+灰度发布
-
 3. **组合编排** — 复杂任务不是开发一个复杂Skill，而是组合多个简单Skill。每个Skill只做一件事，组合起来完成复杂任务
-
 4. **权限隔离** — 不同Skill有不同权限范围（文件操作只能访问指定目录、数据库只能查不能改），防止一个Skill出问题影响整个系统
-
 5. **热插拔** — 新增或更新Skill不需要重启Agent服务，动态加载即可
 
 **Skill 生命周期管理图示：**
@@ -64,6 +60,53 @@ follow_up:
                      │ (Marketplace)│      │  (Cache/Dep) │
                      └──────────────┘      └──────────────┘
 ```
+
+**实战案例**：在构建自动化营销Agent时，初期将"发送邮件"写死在主流程中，导致扩展短信、Push推送时需修改核心代码。重构后抽象出`NotificationSkill`接口，后续只需在注册表新增对应实现，Agent根据用户配置动态选择，扩展新渠道耗时从2天缩短至2小时。
+
+**关键代码：Skill注册与调用基类（Python）**
+```python
+from abc import ABC, abstractmethod
+
+class BaseSkill(ABC):
+    """所有Skill必须继承此基类，确保接口统一"""
+    name: str = "base_skill"
+    description: str = "Default description"
+    
+    @abstractmethod
+    def execute(self, params: dict) -> dict:
+        """执行逻辑，需遵循输入输出Schema"""
+        pass
+
+class SkillRegistry:
+    _skills = {}
+    
+    @classmethod
+    def register(cls, skill_cls: BaseSkill):
+        cls._skills[skill_cls.name] = skill_cls
+    
+    @classmethod
+    def get(cls, name: str):
+        return cls._skills.get(name)
+
+# 使用装饰器自动注册
+@SkillRegistry.register
+class SendEmailSkill(BaseSkill):
+    name = "send_email"
+    description = "Send email to user"
+    def execute(self, params):
+        # 具体实现
+        return {"status": "sent", "id": "123"}
+```
+
+**Skill vs 传统Plugin对比：**
+
+| 维度 | 传统Plugin | AI Agent Skill |
+| :--- | :--- | :--- |
+| **发现机制** | 配置文件/静态扫描 | 语义理解/向量检索路由 |
+| **参数适配** | 严格的接口实现 | 半结构化JSON Schema + LLM纠错 |
+| **描述重点** | API定义 | 自然语言功能描述 + Examples |
+| **执行环境** | 共享进程 | 隔离沙箱/容器 (推荐) |
+| **适配难度** | 高 (需改代码) | 低 (Prompt + Schema配置) |
 
 ## 常见考点
 1. **依赖冲突**：如果两个Skill依赖同一个工具的不同版本，如何解决？（容器化隔离或接口兼容层）

@@ -63,4 +63,32 @@ follow_up:
 └─ 只讨论不写 → ChatGPT/Claude Web
 ```
 
+**实战案例：**
+- **Cursor 踩坑**：在重构一个遗留的 Java 项目时，Cursor 因为 Gradle 依赖解析失败，生成了不存在的类名引用。**解决**：先用 `@Gradle` 引入构建文件上下文，再进行重构，确保 AI 理解依赖约束。
+- **Claude Code 救场**：CI 流水线因为 Python 版本升级报错几百个 Flake8 警告。使用 Claude Code 执行“自动修复所有 Flake8 警告并验证”，它在沙箱中循环修正，直到测试通过，节省了半天的手动修复时间。
+
+**代码示例：**
+```python
+# Cursor 的 .cursorrules 示例（项目级编码规范）
+# 当使用 Cursor 进行多文件编辑时，遵循以下规则以确保风格统一
+
+You are a senior Python engineer.
+Tech Stack: FastAPI, Pydantic v2, SQLAlchemy 2.0.
+Rules:
+1. Always use type hinting.
+2. Use AsyncSession for DB operations.
+3. Route dependencies must be validated via Pydantic.
+4. No `print()` statements, use `logger.info()`.
+```
+
+**工具对比矩阵：**
+
+| 特性 | GitHub Copilot | Cursor | Claude Code | ChatGPT Web |
+| :--- | :--- | :--- | :--- | :--- |
+| **核心交互** | 自动补全 | 对话 + 编辑 | 命令行 Agent | 对话 |
+| **上下文感知** | 当前文件 (~50行) | 全项目 | 文件系统 | 粘贴内容 |
+| **执行能力** | 无 | 仅编辑文本 | 终端/文件操作 | 无 |
+| **最佳场景** | 敲代码加速 | 代码重构/理解 | 环境搭建/批量修复 | 架构设计/学习 |
+| **离线性** | 部分支持 | 否 | 否 | 否 |
+
 **实践心得：** 工具不是越多越好。日常80%时间用Cursor（编辑+对话）+ Copilot（补全），遇到复杂批量任务才启动Claude Code。关键在于建立"AI工具肌肉记忆"——每个工具的快捷键、引用语法、上下文边界都要熟练，才能在编码心流中无缝切换。

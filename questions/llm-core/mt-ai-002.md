@@ -55,3 +55,32 @@ q[2i+1] = q[2i]·sin(mθ_i) + q[2i+1]·cos(mθ_i)
 - **可学习位置编码** — BERT/GPT 使用，每个位置一个可训练向量
 - **ALiBi** — 直接在 attention score 上加距离偏置，外推能力强
 - **NoPE** — 无位置编码（GPT-NeoX 某些实验发现 causal mask 本身含位置信息）
+
+**实战案例**：
+在做长文本摘要任务（32k context）时，使用固定 Sinusoidal 编码导致模型在第 4k 位置后输出完全崩坏（重复输出）。通过引入 **NTK-aware Scaling** 动态调整 RoPE 的 base 频率（如从 10000 增加到 500000），在不重新训练的情况下成功将有效长度扩展至 32k。
+
+**代码示例 (Python - RoPE 算子逻辑)**：
+```python
+import torch
+
+def rotate_half(x):
+    # 将 x 分为两半，分别作为实部和虚部旋转
+    x1, x2 = x[..., :x.shape[-1]//2], x[..., x.shape[-1]//2:]
+    return torch.cat((-x2, x1), dim=-1) # 对应复数乘以 i 的效果
+
+def apply_rotary_pos_emb(q, k, cos, sin):
+    # q, k: [batch, seq_len, heads, head_dim]
+    # cos, sin: [seq_len, head_dim]
+    q_embed = (q * cos) + (rotate_half(q) * sin)
+    k_embed = (k * cos) + (rotate_half(k) * sin)
+    return q_embed, k_embed
+```
+
+**对比表格 (主流位置编码方案)**：
+
+| 方案 | 原理 | 外推能力 | 计算开销 | 适用场景 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Sinusoidal** | 固定频率的正弦/余弦函数 | 差 (需插值) | 极低 | 原生 Transformer，短文本 |
+| **Learnable** | 随机初始化，端到端训练 | 极差 (无法越界) | 低 (查表) | BERT，固定长度任务 |
+| **ALiBi** | 在 Attention Score 加线性距离惩罚 | **极强** (无需插值) | 低 (加法) | 长序列建模，非自回归场景 |
+| **RoPE** | 向量在复数域旋转，内积体现相对位置 | 中等 (需 NTK/YaRN 缩放) | 低 (逐元素乘) | LLaMA, PaLM 等绝大多数 LLM |

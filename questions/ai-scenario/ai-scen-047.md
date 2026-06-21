@@ -72,3 +72,27 @@ AI医疗辅助诊断核心约束：极高准确性要求（涉及生命安全）
 - ROC-AUC：诊断准确性的综合指标
 - 医生满意度：AI建议的采纳率和有用性评分
 - 临床试验：多中心临床试验验证效果
+
+【实战深化】
+- **实战案例**：在某肺结节检测项目中，曾遇到过模型对陈旧性瘢痕和恶性结节混淆的问题。引入「既往病历对比」模块后，利用历史影像的时间序列特征，将假阳性率降低了30%，医生才愿意在临床中使用。
+
+- **代码示例**（伪代码：多模态特征融合逻辑）：
+```python
+# 假设 image_feat 来自CNN，text_feat 来自BERT
+def multimodal_fusion(image_feat, text_feat):
+    # 对特征维度进行对齐
+    image_proj = nn.Linear(2048, 512)(image_feat)
+    text_proj = nn.Linear(768, 512)(text_feat)
+    # 拼接后经过全连接层输出诊断概率
+    combined = torch.cat([image_proj, text_proj], dim=-1)
+    diagnosis_prob = nn.Softmax()(nn.Linear(1024, 3)(combined))
+    return diagnosis_prob
+```
+
+- **技术选型对比**（医学影像模型选型）：
+| 模型类型 | 优势 | 劣势 | 适用场景 |
+| :--- | :--- | :--- | :--- |
+| **ResNet/DenseNet** | 结构成熟，训练资源需求低 | 缺乏全局注意力，对微小病灶敏感度低 | 常规初筛，分类任务 |
+| **Vision Transformer (ViT)** | 全局感受野，捕捉长距离依赖 | 需要海量数据预训练，算力消耗大 | 复杂病理图像分析 |
+| **U-Net++** | 精确的像素级分割，多尺度特征融合 | 推理速度较慢 | 病灶勾画，手术导航 |
+| **MedSAM** | 任务通用性强，无需微调即可分割 | 参数量巨大，部署成本高 | 快速原型验证，多病种探索 |

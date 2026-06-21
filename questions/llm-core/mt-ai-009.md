@@ -85,8 +85,37 @@ follow_up:
 - 低成本推理 → DeepSeek（MoE 推理成本低）
 - 私有部署 → Qwen/Llama（开源 + 可微调）
 
-## 常见考点
-1. **DeepSeek-V3 的 MoE 架构细节**：其 671B 参数中，活跃参数是多少？这种架构对推理硬件有什么特殊要求？（需关注 Expert 路由和负载均衡）
-2. **SFT 与 RLHF 对基座的影响**：为什么同一个基座模型经过不同对齐后，在代码、对话任务上表现差异巨大？
-3. **Llama 3.1 的 405B 模型地位**：它作为目前最大的开源 Dense 模型，与 SOTA 开源 MoE（如 DeepSeek）相比优劣在哪里？
-4. **评测陷阱**：如何全面评估一个基座模型的好坏？只看 OpenCompass 或 MMLU 排名有哪些局限性？（需结合业务场景数据集）
+### 实战案例
+在构建内部知识库问答系统时，初期尝试用 GPT-4 效果好但成本高且存在数据合规风险。**实战切换**：改为部署 **DeepSeek-V3**，利用其 MoE 架构在 4 卡 A100 上实现高并发，成本降至 GPT-4 的 1/10，且针对垂直领域的 SFT 数据适配速度极快，解决了数据不出域的问题。
+
+### 代码示例
+```python
+# 使用 OpenAI 兼容接口调用本地部署的 DeepSeek 或 Qwen
+from openai import OpenAI
+
+# 本地服务地址 (如 vLLM 启动的服务)
+client = OpenAI(
+    api_key="dummy-key", 
+    base_url="http://localhost:8000/v1"
+)
+
+response = client.chat.completions.create(
+    model="deepseek-v3", # 或 qwen2.5-72b
+    messages=[
+        {"role": "system", "content": "你是一个专业的 Python 助教。"},
+        {"role": "user", "content": "请解释 Python 中的装饰器原理。"}
+    ],
+    temperature=0.5,
+    max_tokens=1024
+)
+```
+
+### 对比表格
+| 维度 | 闭源 (GPT-4o / Claude) | 开源 (Qwen / Llama / DeepSeek) |
+| :--- | :--- | :--- |
+| **部署成本** | API 调用费 (高) | 硬件卡费 + 电费 (长期更划算) |
+| **数据隐私** | 数据上传云端 (需评估) | 数据完全本地化 (安全) |
+| **定制能力** | Prompt/Fine-tuning 有限 | 可全量 SFT/RLHF，LoRA 随意调 |
+| **性能上限** | 当前最强 (逻辑推理) | 进步极快 (部分场景已持平) |
+| **维护难度** | 无 (直接调 API) | 高 (需运维 KV Cache、显存等) |
+| **中文能力** | 优秀 | **Qwen/GLM 具有本土优势** |

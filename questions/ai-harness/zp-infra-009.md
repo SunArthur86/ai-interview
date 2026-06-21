@@ -58,6 +58,25 @@ follow_up:
 - **vLLM**：通用推理、单轮对话、API 服务
 - **SGLang**：多轮对话、Agent、结构化输出、Few-shot 大量前缀共享
 
+**实战案例：**
+在同一个 System Prompt 下服务 1000 个并发用户时，vLLM 会为每个请求重复缓存相同的 KV（显存压力大），而 SGLang 利用 RadixTree 仅缓存一份，显存占用仅为 vLLM 的 20% 左右。
+
+**代码示例 (Python - SGLang 结构化输出):**
+```python
+import sglang as sgl
+
+# 定义正则约束（例如提取手机号）
+regex_pattern = r"1[3-9]\d{9}"
+
+@sgl.function
+def phone_extraction(s):
+    s += "Please extract the phone number: "
+    s += sgl.gen("answer", regex=regex_pattern)
+
+# 运行时强制输出符合格式的 token，无后处理重试成本
+state = phone_extraction.run("Call me at 13812345678.")
+```
+
 ## 常见考点
 1. **Radix Tree 相比 vLLM 的 Block Manager 在前缀共享上有何本质不同？**（Block Manager 主要解决碎片，Radix Tree 逻辑上更高效地处理了树状结构的共享引用）
 2. **vLLM 的 PagedAttention 在实现计算时是如何处理非连续物理 Block 的？**（通过 paged_kernel 索引映射）

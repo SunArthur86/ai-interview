@@ -37,6 +37,21 @@ MHA、MQA、GQA三者是Key/Value在不同head间的共享策略:
 
 **计算影响**：在推理阶段，Attention 计算受限于内存带宽。GQA 减少了读取 Key/Value 的数据量，从而显著提升推理吞吐量（TPS），而不仅仅是显存静态占用的减少。
 
+**实战案例：**
+在将 PaLM (MHA架构) 迁移到生产环境推理时，发现延迟极高。改用 **MQA/GQA** 后，虽然训练损失略有上升（需进行少量步数的 uptraining），但推理 TPS (Tokens Per Second) 提升了 3 倍以上，因为瓶颈从计算转为了显存带宽。
+
+**代码示例 (PyTorch - GQA KV重复逻辑)：**
+```python
+# inputs: q [bs, seq, n_heads, d], k [bs, seq, n_kv_heads, d]
+# n_kv_heads 必须能整除 n_heads
+
+def repeat_kv(hidden_states, n_rep):
+    batch, seq_len, n_kv_heads, head_dim = hidden_states.shape
+    if n_rep == 1:
+        return hidden_states
+    return hidden_states[:, :, :, None, :].expand(batch, seq_len, n_kv_heads, n_rep, head_dim).reshape(batch, seq_len, n_kv_heads * n_rep, head_dim)
+```
+
 - **GQA (Grouped-Query Attention):**
 - 将Q头分为G组,每组共享一对K/V
 - 例如32个Q头分为8组,每组4个Q头共享K/V

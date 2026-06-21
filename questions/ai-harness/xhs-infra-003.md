@@ -45,3 +45,44 @@ ZeRO（Zero Redundancy Optimizer）通过分片消除数据并行中的冗余。
 ## 实际经验
 - ZeRO-3 + 3D Parallel + overlap 可实现高MFU
 - 小红书场景：vLLM魔改适配私有模型
+
+### 实战案例
+- **ZeRO-3 训练卡顿**：在训练 175B 参数模型时，使用 ZeRO-3 遇到了迭代时间随节点数增加不降反升的问题。排查发现是 `bucket_size` 设置过小导致通信过于频繁。增大 `gradient_clipping` 的通信 bucket 大小并启用 `offload_optimizer` 后，训练速度提升 20%。
+- **Checkpoint 恢复慢**：ZeRO-3 的模型参数分布在各张卡上，保存 Checkpoint 时需要所有-to-all 通信汇聚，非常耗时。改用 DeepSpeed 的 `async_save` 和分布式 Checkpoint 后，保存时间从 15 分钟缩短至 30 秒。
+
+### 代码示例 (Python - DeepSpeed ZeRO-3 配置)
+```python
+# deepspeed_config.json
+{
+  "train_batch_size": 192,
+  "gradient_accumulation_steps": 1,
+  "optimizer": {
+    "type": "AdamW",
+    "params": {
+      "lr": 1e-4
+    }
+  },
+  "zero_optimization": {
+    "stage": 3,  // 开启 ZeRO-3
+    "overlap_comm": true,  // 通信计算重叠
+    "contiguous_gradients": true,
+    "reduce_bucket_size": 5e8,
+    "stage3_prefetch_bucket_size": 5e7,
+    "stage3_param_persistence_threshold": 1e5,
+    "offload_optimizer": {   // 开启 CPU Offload 节省显存
+      "device": "cpu"
+    }
+  },
+  "fp16": {
+    "enabled": true
+  }
+}
+```
+
+### ZeRO-3 vs FSDP 选型对比
+| 特性 | DeepSpeed ZeRO-3 | Megatron-LM + TP | Hugging Face FSDP |
+| :--- | :--- | :--- | :--- |
+| **易用性** | 高（插件式，兼容 HF） | 中（需改模型代码） | 中（HF 原生支持） |
+| **显存节省** | 极致（支持 CPU/NVME Offload） | 一般（依赖模型并行切分） | 高（支持 Offload） |
+| **通信模式** | All-Gather / Reduce-Scatter | All-Reduce (TP内) | All-Gather / Reduce-Scatter |
+| **适用场景** | 超大规模模型单卡/多卡训练 | 推理极致性能或特定训练架构 | PyTorch 生态原生迁移 |

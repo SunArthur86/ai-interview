@@ -65,6 +65,48 @@ follow_up:
 4. **Entropy (Entropy Minimization)**
    - **核心**：让量化后的数据熵最大（即数据分布最平坦），利用率最高。
 
+---
+
+### 💡 实战深化
+
+#### 1. 实战案例
+- **MinMax 坑点**：在量化 Whisper 等语音模型时，若使用 MinMax 校准激活值，某个 Batch 中的突发噪声会导致 Scale 异常大，推理时正常语音信号被量化为 0，输出全为静音。
+- **Percentile 场景**：在 LLaMA 3 70B 推理中，部分 Attention Head 的激活值存在严重长尾。使用 99.99% Percentile 校准 KV Cache，相比 MinMax 可在不显著影响精度的前提下，减少 20% 的显存占用波动。
+
+#### 2. 代码示例 (PyTorch 伪代码)
+```python
+import torch
+
+def percentile_calibration(x: torch.Tensor, percentile: float = 99.9):
+    """
+    动态计算 Percentile 截断阈值并量化
+    """
+    # 获取绝对值
+    abs_x = torch.abs(x)
+    # 计算指定百分位数值（模拟直方图统计过程）
+    threshold = torch.quantile(abs_x, percentile / 100.0)
+    
+    # 截断：限制在 [-threshold, threshold] 范围内
+    x_clipped = torch.clamp(x, -threshold, threshold)
+    
+    # 计算 Scale (INT8: [-127, 127])
+    q_max = 127.0
+    scale = threshold / q_max
+    
+    # 量化
+    x_quant = torch.round(x_clipped / scale).to(torch.int8)
+    return x_quant, scale
+```
+
+#### 3. 选型对比表
+| 特性 | MinMax | Percentile (e.g. 99.9%) | KL Divergence |
+| :--- | :--- | :--- | :--- |
+| **核心逻辑** | 极值决定范围 | 分位数截断 Outlier | 最小化分布差异 (信息论) |
+| **Outlier 处理** | 差 (被动拉高 Scale) | 好 (主动截断) | 较好 (分布拟合) |
+| **计算开销** | 极低 (O(1) Reduce) | 中等 (需 Hist/Sort) | 高 (需迭代寻优) |
+| **适用场景** | 权重量化, 简单模型 | 激活值量化, 长尾分布 | TensorRT 推理, 高精度要求 |
+| **数值安全性** | 无截断损失 | 有信息截断 | 有信息截断 |
+
 ## 常见考点
 1. **追问**：为什么 TensorRT 推荐用 KL 散度而不是 MSE？（答：KL 散度关注的是概率分布的重合度，对于神经网络提取特征而言，保持分布形状比单纯的数值误差更重要，泛化性更好）。
 2. **追问**：Percentile 中的百分比（如 99.9% 或 99.99%）是如何选定的？（答：这是超参数，通常通过验证集调优。99.9% 是经验值，太高会引入误差，太低无法过滤 Outlier）。

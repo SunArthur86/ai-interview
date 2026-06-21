@@ -39,6 +39,34 @@ feynman:
 4. **结构化输出**：JSON Mode（强制格式）、Outlines（正则约束）、Guidance（Token级别控制）
 5. **多轮对话管理**：基于 Sliding Window 或 Token Limit 动态截断，使用 Summary 累积历史信息
 
+> **💡 实战案例**：在做结构化数据抽取时，直接要求输出JSON经常遇到字段缺失或格式错误（如注释干扰）。改用**Type Hints（类型提示）配合 Pydantic 定义**，并要求模型仅输出纯JSON字符串，解析成功率从 85% 提升至 99%。
+
+> **🧱 代码示例（Python - 动态 Few-shot 检索）**
+> ```python
+> from langchain.embeddings import OpenAIEmbeddings
+> from langchain.vectorstore import FAISS
+>
+> def get_dynamic_examples(query, example_pool, k=3):
+>     # 从向量库中检索与当前Query最相似的示例
+>     embeddings = OpenAIEmbeddings()
+>     vectorstore = FAISS.from_texts(
+>         [ex['input'] for ex in example_pool], 
+>         embeddings, 
+>         metadatas=example_pool
+>     )
+>     retrieved = vectorstore.similarity_search(query, k=k)
+>     return [item.metadata for item in retrieved]
+> ```
+
+### 对比不同Prompt技术的适用性
+
+| 技术 | 核心思想 | 适用场景 | 成本/延迟 | 实战注意事项 |
+|------|----------|----------|-----------|--------------|
+| Zero-shot | 直接指令 | 简单任务、格式转换 | 最低 | 指令需极度清晰，避免歧义 |
+| Few-shot | 给出示例 | 模式匹配、风格模仿 | 低 | 示例必须具有代表性，避免模型过拟合示例细节 |
+| CoT | 思维链 | 数学、逻辑推理、复杂QA | 中 | 简单任务慎用，模型可能“过度思考”出错 |
+| ReAct | 推理+行动 | 工具调用、Agent 任务 | 高（多轮交互） | 必须限制Action步数，防止死循环 |
+
 ## 常见考点
 1. **如何处理 Prompt 越界问题？**：System Prompt 和 User Prompt 的优先级是如何处理的（通常 System 优先级最高，但部分模型可通过特定 Prompt 注入覆盖）。
 2. **Few-shot 学习的样本选择策略？**：如何通过 Embedding 相似度从向量库中动态检索最相关的 Examples，而不是静态写死。

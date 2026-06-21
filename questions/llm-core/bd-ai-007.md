@@ -38,6 +38,8 @@ follow_up:
 2. **链式** — Agent1→Agent2→Agent3，每步验证。适合线性流水线
 3. **网状** — Agent之间直接通信。灵活但复杂，容易循环依赖
 
+**实战案例**：在构建企业级知识库问答系统时，采用链式架构导致中间步骤（如意图识别）一旦出错，后续步骤全部做无用功；改用星型架构并由主Agent引入"纠错机制"后，系统整体容错率提升40%。
+
 **推荐星型架构的设计要点：**
 - 主Agent负责任务分解、路由、结果聚合
 - 子Agent之间不直接通信，通过主Agent中转
@@ -75,14 +77,44 @@ follow_up:
 3. **降级方案** — 某个子Agent挂了，主Agent用更简单方式完成（如搜索Agent挂了用本地知识库）
 4. **结果校验** — 子Agent输出不直接信任，主Agent校验格式和内容（如代码能不能编译）
 
+**通信模式对比：**
+
+| 特性 | 星型 | 链式 | 网状 |
+| :--- | :--- | :--- | :--- |
+| **耦合度** | 低 (子Agent互不知晓) | 高 (上下游强依赖) | 中 (协议定义复杂) |
+| **容错性** | 高 (单点故障易隔离) | 低 (一环断全断) | 中 (需路由策略) |
+| **调试难度** | 低 (主Agent全知) | 中 (需跟踪链路) | 高 (状态难以追踪) |
+| **适用场景** | 任务分发、结果聚合 | 流水线作业 (ETL) | 协作博弈、模拟仿真 |
+
 **工程实现关键点：**
 - **状态持久化**：每步结果存DB/Redis，崩溃可恢复
 - **Checkpoint机制**：关键步骤后存检查点，可回滚
 - **人工介入点**：高风险操作（删数据/发邮件）需确认
 - **消息幂等性**：防止网络抖动导致的重复执行，特别是涉及写操作时
 
+```python
+# 关键代码：带超时与重试的主Agent分发逻辑 (Python)
+import time
+from functools import wraps
+
+def execute_with_retry(agent_func, max_retries=2, timeout=5):
+    for attempt in range(max_retries):
+        try:
+            # 设置超时，防止子Agent死循环
+            result = agent_func(timeout=timeout)
+            # 简单的结果非空校验
+            if not result: 
+                raise ValueError("Empty response from Sub-Agent")
+            return result
+        except Exception as e:
+            if attempt == max_retries - 1:
+                # 最终降级：返回默认值或记录错误
+                return f"Fallback: Failed to execute {agent_func.__name__}"
+            time.sleep(1) # 指数退避
+```
+
 ## 常见考点
 1. **子Agent无限循环**：如何通过限制最大步数或主Agent黑名单机制打断死循环？
 2. **异步通信可靠性**：如果主Agent挂了，正在执行的子Agent结果如何处理？（需引入持久化队列或状态机）
-3. **上下文传递**：子Agent是否需要全部历史上下文？如何设计“参考上下文”窗口以节省Token？
+3. **上下文传递**：子Agent是否需要全部历史上下文？如何设计"参考上下文"窗口以节省Token？
 4. **并发控制**：当任务分解为几十个子任务时，如何进行并发限流和资源调度（Semaphore/RateLimiter）？

@@ -29,18 +29,18 @@ follow_up:
 
 # 【美团面经】说一说大模型后训练（Post-training）的流程？
 
-大模型训练分为**预训练（Pre-training）** 和**后训练（Post-training）** 两大阶段。
+大模型训练分为**预训练和**后训练两大阶段。
 
 **后训练完整流程：**
 
 ```
-预训练模型（Base Model）
+预训练模型
   │
   ├─ ① SFT（监督微调）
   │    用高质量指令-回答对微调
   │    让模型学会'听懂指令'并按格式输出
   │
-  ├─ ② 奖励模型训练（Reward Model）
+  ├─ ② 奖励模型训练
   │    用人类偏好数据训练打分模型
   │    输入：(prompt, response) → 输出：标量分数
   │
@@ -61,3 +61,28 @@ follow_up:
 - **RLHF vs DPO**：RLHF 需要训练 RM + PPO（复杂），DPO 直接从偏好对优化（简单高效）
 - **DeepSeek-R1 的创新**：跳过 SFT 直接 RL（RL first），用 GRPO 替代 PPO
 - **迭代对齐**：GPT-4 / Claude 等顶级模型都经过多轮 RLHF 迭代
+
+### 实战案例
+在做金融问答模型 SFT 时，直接使用通用 SFT 数据会导致模型回答口语化严重（如"哦、这个嘛"）。**实战中需清洗数据**：使用正则过滤语气词，并强制训练模型输出 JSON 格式，否则线上 JSON 解析器会频繁报错。
+
+### 代码示例
+```python
+# DPO 关键代码片段
+# 只需修改 Loss 计算，无需训练 Reward Model
+def dpo_loss(policy_chosen_logps, policy_rejected_logps, ref_chosen_logps, ref_rejected_logps, beta):
+    # 计算策略模型和参考模型的 logp 差值
+    pi_logratios = policy_chosen_logps - policy_rejected_logps
+    ref_logratios = ref_chosen_logps - ref_rejected_logps
+    
+    # DPO 的核心目标：最大化 
+    losses = -F.logsigmoid(beta * (pi_logratios - ref_logratios))
+    return losses.mean()
+```
+
+### 对比表格
+| 维度 | RLHF (PPO) | DPO |
+| :--- | :--- | :--- |
+| **训练复杂度** | 高（需训练 Policy, Value, RM 三个模型） | 低（只需训练 Policy 模型） |
+| **显存占用** | 极高（需存储多模型副本及 Rollout 缓存） | 较低（仅相当于 SFT） |
+| **训练稳定性** | 较差（超参数敏感，易 KL 散度发散） | 较好（本质是分类优化） |
+| **效果** | SOTA天花板（OpenAI 路线） | 接近 RLHF，性价比首选 |

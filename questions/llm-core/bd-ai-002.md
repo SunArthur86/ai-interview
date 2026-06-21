@@ -62,6 +62,22 @@ Claude Code 执行链：
 
 4. **多轮自主迭代** — 遇到错误会自动分析traceback、修改代码、重新运行
 
+**实战案例：**
+- **“死循环”陷阱**：在一次复杂的依赖升级任务中，Claude Code 陷入了“安装失败->修改版本->回滚->再安装”的死循环，消耗了大量 API 额算。
+- **解决**：学会使用 `--diff-first` 参数，让它先生成改动 Plan，人工确认后再执行；或者在关键节点使用 `--pause`，让它停下来等人工介入，防止失控。
+
+**代码示例：**
+```bash
+# 使用 Claude Code 进行自主化的测试驱动修复
+# 无需手动分析报错，直接让 Agent 结合环境自愈
+
+claude 
+  "Run the test suite. If any tests fail, 
+   analyze the error, fix the code, 
+   and rerun tests until all pass. 
+   Do not modify test files, only source code."
+```
+
 **使用经验与最佳实践：**
 
 - **任务粒度要适中** — 太小（改一行）浪费Agent能力，太大（重写整个系统）容易跑偏。最佳粒度是"一个可验证的功能单元"

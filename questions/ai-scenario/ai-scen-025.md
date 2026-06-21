@@ -30,6 +30,9 @@ follow_up:
 【场景分析】
 端侧LLM部署场景：手机助手、车载系统、IoT设备。核心约束：内存有限（4-8GB）、无GPU、电池敏感。
 
+**【实战案例】**
+在开发离线会议摘要App时，直接使用FP16的3B模型导致老款Android手机频繁OOM（内存溢出）。将模型量化为INT4后，内存占用从6GB降至1.2GB，但在长会议（>30分钟）转录时仍会因KV Cache增长过大而闪退。最终采用“滑动窗口+分段摘要”策略：每处理5分钟文本清理一次KV Cache，生成中间摘要，最后汇总摘要，成功在低端机上稳定运行。此外，iPhone上利用Core ML的ANE加速，推理速度相比纯CPU提升3倍。
+
 【模型选择与压缩】
 1. 模型选型：
    - 小模型：Qwen2.5-1.5B/3B / Gemma-2B / Phi-3-mini
@@ -102,3 +105,39 @@ follow_up:
    - 基于Prompt复杂度、设备电量、网络状况动态决策。例如：检测到“总结文档”且电量低→上云；检测到“设置闹钟”→端侧。
 4. **移动端推理框架的选择依据？**
    - iOS首选Core ML（最佳硬件加速），Android首选MediaPipe或MLC-LLM（兼容性好），跨平台首选llama.cpp。
+
+**【代码示例：端云路由决策】**
+```python
+import psutil
+
+def decide_route(prompt: str, context: dict):
+    # 1. 检查敏感词（隐私优先）
+    if contains_sensitive_data(prompt):
+        return "local"
+    
+    # 2. 检查上下文长度（端侧模型通常限制Context Window）
+    if len(prompt) > 2000:
+        return "cloud"
+        
+    # 3. 检查设备状态（电量/内存）
+    battery = psutil.sensors_battery()
+    if battery.percent < 20 and not battery.power_plugged:
+        return "cloud" # 省电模式
+        
+    # 4. 意图分类（简单任务本地化）
+    intent = classify_intent(prompt)
+    if intent in ["alarm", "call", "note"]:
+        return "local"
+    
+    return "cloud"
+```
+
+**【推理框架对比】**
+
+| 框架 | 核心优势 | 支持平台 | 硬件加速 | 适用模型格式 |
+| :--- | :--- | :--- | :--- | :--- |
+| **llama.cpp** | 轻量、兼容性最强 | iOS/Android/Web/PC | CPU/Metal/Vulkan | GGUF (量化首选) |
+| **MLC LLM** | TVM生态，编译优化极深 | iOS/Android/Web | Vulkan/Metal/OpenGL | MLC格式 (需编译) |
+| **MediaPipe** | Google官方，集成度高 | Android/iOS/Web | GPU/NPU | TFLite (有限) |
+| **Core ML** | Apple生态原生性能 | iOS/macOS | ANE (NPU) | Core ML模型 |
+

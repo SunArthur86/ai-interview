@@ -78,9 +78,22 @@ follow_up:
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-**## 常见考点**
-1. **RoPE 细节**：面试官常问 RoPE 如何实现相对位置编码？（通过复数域的旋转矩阵相乘，将绝对位置编码转换为相对位置感知）。
-2. **长度外推**：为什么 Llama 用 RoPE 后还是会有长度限制？（旋转角度的 base 值导致远距离位置区分度下降，解决方案如 NTK-aware scaling）。
-3. **KV Cache 优化**：DeepSeek 的 MLA（Multi-Head Latent Attention）是如何省显存的？（将 Key/Value 压缩到低维 latent vector，推理时再解压，大幅减少 Cache 大小）。
-4. **DPO vs PPO**：DPO 为什么不需要训练 Reward Model？（DPO 通过解析 RLHF 的目标函数，推导出可以直接用偏好数据优化的 Loss 函数，隐式包含了奖励模型）。
-5. **MoE 负载均衡**：在 DeepSeek MoE 架构中，如何避免专家负载不均？（Auxiliary Loss 均衡专家负载，以及细粒度专家切分策略）。
+**实战案例：**
+在优化长文本摘要任务时，遇到普通 Attention 在 4k+ 长度下“丢失中间信息”的问题。复现 RoPE 论文中的外推实验，通过调整 `base` 值（从 10000 调至 500000）实现了不微调模型的情况下将上下文窗口从 4k 扩展到 16k，解决了长文档摘要截断的问题。
+
+**代码示例（RoPE 位置编码实现）：**
+```python
+import torch
+
+def apply_rotary_emb(xq, xk, freqs_cis):
+    # xq, xk: [batch, seq_len, head, dim]
+    # freqs_cis: [seq_len, dim//2] (complex numbers)
+    xq_ = torch.view_as_complex(xq.float().reshape(*xq.shape[:-1], -1))
+    xk_ = torch.view_as_complex(xk.float().reshape(*xk.shape[:-1], -1))
+    
+    # Apply rotation
+    xq_out = torch.view_as_real(xq_ * freqs_cis).flatten(-2)
+    xk_out = torch.view_as_real(xk_ * freqs_cis).flatten(-2)
+    
+    return xq_out.type_as(xq), xk_out.type_as(xk)
+```

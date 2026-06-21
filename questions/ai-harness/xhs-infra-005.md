@@ -78,8 +78,34 @@ FP8: 误差极小且非线性 [#######|]
 - 推荐场景：INT8 通用性最佳，复杂Prompt下 AWQ 优于 GPTQ。
 - AIGC 生成：FP8 是未来趋势（特别是 H100 集群），不仅省显存还能提升 Throughput。
 
-## 常见考点
-1. **GPTQ vs AWQ 的本质区别**：GPTQ 是基于数学优化的"全局误差最小"，AWQ 是基于数据分布的"重要权重保护"。
-2. **Per-Tensor vs Per-Channel 量化**：为何权重量化通常需要 Per-Channel（因为不同 Channel 的数值范围差异大），而激活量化通常 Per-Tensor？
-3. **SmoothQuant 的 $\alpha$ 参数含义**：调节激活与权重的难度平衡，$\alpha$ 越大越偏向平滑激活（推荐 0.5）。
-4. **FP8 的 Scaling Factor**：为何 FP8 推理需要动态计算 Max Abs？因为 FP8 动态范围有限，需防止 Overflow/Underflow。
+### 1. 实战案例
+- **场景**：在某70B模型部署中，INT4 GPTQ在长文本生成中出现逻辑混乱（PPL突然升高），而AWQ通过保留关键线性层的1%通道，解决了该问题且推理速度提升20%。
+- **踩坑**：SmoothQuant迁移到新模型时，若平滑因子`alpha`未根据层数调整（如深层设为0.7），会导致量化溢出。
+
+### 2. 代码示例 (AWQ 核心激活缩放)
+```python
+# AWQ: 基于激活幅度 scaling 权重
+def scale_weights(layer, activation_scale):
+    # 获取每层的权重 (out_features, in_features)
+    weight = layer.weight.data
+    
+    # 计算每个输出通道的重要性（基于激活统计）
+    # 通常取 activation_scale 的 X% 分位数作为 clip 阈值
+    clip_threshold = torch.quantile(activation_scale, 0.99)
+    scale = activation_scale.clamp(max=clip_threshold)
+    
+    # 将 scale 除入权重 (模拟 X * (W/s) * s 的等价变换)
+    # 实际工程中通常只 scale 权重，保留 scale 为常数用于反量化
+    layer.weight.data = weight / scale.unsqueeze(1)
+    return scale
+```
+
+### 3. 对比表格
+| 维度 | GPTQ | AWQ | SmoothQuant | FP8 |
+| :--- | :--- | :--- | :--- | :--- |
+| **核心思想** | 权重误差最小化 | 激活感知/保留关键权重 | 激活-权重难度迁移 | 硬件原生低精度 |
+| **硬件需求** | 通用 (需支持INT4 Gemm) | 通用 (需支持INT4 Gemm) | 通用 (INT8 Tensor Core) | H100+ (Hopper架构) |
+| **校准集** | 需校准 (~128 seq) | 需校准 (~128 seq) | 需校准 (~256 seq) | 无需/仅计算Scale |
+| **显存占用 (70B)** | ~40GB (INT4) | ~42GB (INT4 mix FP16) | ~80GB (INT8) | ~45GB (FP8) |
+| **推理速度** | 中 (需Dequant) | 快 (Simulated Group Gemm) | 快 (Native INT8) | 最快 (Native FP8) |
+| **抗异常值能力** | 弱 (容易 outliers) | 强 (Scale化解) | 强 (Smooth迁移) | 强 (FP8动态范围) |

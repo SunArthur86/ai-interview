@@ -41,7 +41,7 @@ FlashAttention通过IO-aware的tiling策略将Attention从O(N²)内存降低到O
 
 ## v3改进（2024）
 - **H100 Tensor Core FP8支持**
-- **异步加载（async loading）**：通过TMA（Tensor Memory Access）
+- **异步加载**：通过TMA（Tensor Memory Access）
 - **低精度计算**：BF16/FP8
 - H100上速度接近理论峰值
 
@@ -49,3 +49,42 @@ FlashAttention通过IO-aware的tiling策略将Attention从O(N²)内存降低到O
 - 核心是**减少HBM（显存）读写次数**
 - 传统：多次读写N×N矩阵
 - FlashAttention：分块在SRAM计算，只读写一次
+
+### 1. 实战案例
+- 在优化LLM长文本推理时，未使用FlashAttention导致序列长度超过4k时显存溢出（OOM），替换后支持至32k且吞吐量提升30%。
+- **踩坑**：v1在A100上非F16输入时会回退到低效实现，务必确保输入为`torch.float16`或`bfloat16`。
+
+### 2. 代码示例 (Triton伪代码 - 在线Softmax核心)
+```python
+# 简化的Online Softmax逻辑 (Triton-like)
+# 每个block处理一个Q行与K列块的计算
+m_prev = -float('inf') # 之前的最大值
+l_prev = 0.0           # 之前的归一化因子
+acc = 0.0              # 累加输出
+
+# 迭代加载K,V的块
+for k_start in range(0, N, BLOCK_SIZE):
+    k_block = load_k(k_start) # 加载K块到SRAM
+    qk = q @ k_block.T         # 计算局部QK^T
+    
+    # 增量更新Softmax
+    m_curr = max(m_prev, max(qk, axis=1))
+    l_curr = l_prev * exp(m_prev - m_curr) + sum(exp(qk - m_curr), axis=1)
+    
+    # 更新累加器 O
+    acc = (acc * exp(m_prev - m_curr)) + (exp(qk - m_curr) @ v_block)
+    
+    m_prev, l_prev = m_curr, l_curr
+
+out = acc / l_curr
+```
+
+### 3. 对比表格
+| 特性 | Standard Attention | FlashAttention v1 | FlashAttention v2 | FlashAttention v3 |
+| :--- | :--- | :--- | :--- | :--- |
+| **算法复杂度 (HBM)** | O(N²) | O(N) | O(N) | O(N) |
+| **并行策略** | Layer-level | Block-level (串行迭代) | **Warp-level (并行)** | Warp/TMA (流水线) |
+| **数值稳定性** | 高 (完整矩阵) | 高 (Online Softmax) | 高 | 高 (FP8需Scaling) |
+| **主要瓶颈** | 显存带宽 | Shared Mem | Non-matmul Ops | Compute (Tensor Core) |
+| **适用硬件** | 全部 | Ampere+ (A100) | Ampere+ (A100) | Hopper (H100) |
+| **反向传播** | 需存N²矩阵 | 重计算 (省显存) | 更高效的并行重计算 | 异步重计算 |

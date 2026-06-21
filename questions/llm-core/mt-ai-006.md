@@ -48,7 +48,7 @@ follow_up:
 - **原理**：相比于外推算法，“内插”（在训练时就见过）效果最稳。配合 GQA 减少显存，使得全长训练成为可能。
 
 **核心技术细节：YaRN 的数学原理**
-``n原始 RoPE 频率: θ_i = base^(-2i/d)
+```n原始 RoPE 频率: θ_i = base^(-2i/d)
 YaRN 缩放后:     θ_i' = θ_i / s(λ_i)
 
 其中 s(λ_i) 是缩放因子，取决于该维度属于高频还是低频：
@@ -56,7 +56,31 @@ YaRN 缩放后:     θ_i' = θ_i / s(λ_i)
 - λ → 0 (低频): s = scale_factor (线性缩放，适配全长)
 ```
 
-## 常见考点
-1. **插值 vs 外推**：YaRN 属于哪种？（答：属于插值方法 Interpolation，将 100K 的位置映射到模型训练过的 32K 空间内，而非直接让模型预测位置 100001）。
-2. **Long Context 性能退化**：为什么模型变长了，但在短任务上性能有时会变差？（答：因为 RoPE 的 base 变小导致高频分辨率下降，短文本的精细结构识别能力变弱，YaRN 正是为了解决这个问题）。
-3. **训练数据配比**：Qwen2.5 为了支持长文本，数据构造上有什么技巧？（答：除了常规长文本，还会构造“大海捞针”数据，强迫模型在长距离中提取关键信息）。
+### 实战案例
+在 Qwen2-72B 推理中，直接启用 128K 上下文处理财报分析时，显存经常 OOM。**实战优化**：开启 HuggingFace 的 `sdpa` (Scaled Dot Product Attention) 和 `flash_attention_2`，并使用 `use_cache=True`，能将显存占用降低约 40%，使得单卡 A100 (80G) 可跑通 128K 批次大小为 1 的推理。
+
+### 代码示例
+```python
+# transformers 中使用 YaRN 配置加载 Qwen2 进行长度外推
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model = AutoModelForCausalLM.from_pretrained(
+    "Qwen/Qwen2-7B-Instruct",
+    rope_scaling={
+        "type": "yarn",  # 指定使用 YaRN 缩放
+        "factor": 16.0,   # 缩放因子 (例如从 8K 拉伸到 128K)
+        "original_max_position_embeddings": 32768
+    },
+    torch_dtype="auto",
+    device_map="auto"
+)
+```
+
+### 对比表格
+| 策略 | NTK-Aware Scaling | YaRN | 暴力训练 (Full Length Training) |
+| :--- | :--- | :--- | :--- |
+| **原理** | 修改 base 进行非线性插值 | 分频段插值 (高频保持+低频拉伸) | 训练阶段直接包含长序列数据 |
+| **额外训练** | 不需要 | 不需要 (或微调) | 需要 (预训练/SFT 阶段) |
+| **短文本性能** | 有一定退化 | 几乎无退化 (保留高频分辨率) | 最优 (原生长度) |
+| **资源消耗** | 低 (推理时配置) | 低 | 高 (需更多显存和算力) |
+| **适用场景** | 快速验证、资源受限 | 生产环境外推首选 (Qwen2/GPT-4) | 追求极致长文效果 (Qwen2.5) |

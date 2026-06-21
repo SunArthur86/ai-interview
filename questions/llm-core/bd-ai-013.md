@@ -43,6 +43,22 @@ follow_up:
 - RAG只能提供参考资料，不能保证模型按你想要的方式去思考
 - 举例：法律文书的写作风格、医学影像的判读逻辑、特定编程语言的代码规范
 
+**实战案例：** 在开发SQL生成助手时，使用RAG经常能把表结构检索出来，但生成的SQL语法经常不符合公司内部的自定义函数规范。后来用几百条“表结构+标准SQL”做了LoRA微调，模型不仅学会了自定义函数，还学会了避免使用全表扫描的写法。
+
+**代码示例 (PEFT LoRA)：**
+```python
+from peft import LoraConfig, get_peft_model
+
+config = LoraConfig(
+    r=16,  # rank，控制可训练参数量
+    lora_alpha=32,
+    target_modules=["q_proj", "v_proj"], # 只微调注意力层，节省显存
+    lora_dropout=0.05
+)
+model = get_peft_model(base_model, config)
+# 关键点：通过极少的参数量适配特定风格，避免全量微调的灾难性遗忘
+```
+
 **决策框架：**
 | 需求 | 方案 |
 |------|------|

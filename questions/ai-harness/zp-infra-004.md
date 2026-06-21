@@ -69,6 +69,26 @@ follow_up:
 5. **GQA/MQA 减少 KV 头数**
    - GLM-4 用 GQA（4-8 组）→ KV Cache 减少 4-8x
 
+---
+
+**实战案例**：
+曾遇某内部 RAG 服务上线后 OOM，排查发现因不同用户 Prompt 长方差大（30-2000 token），传统 OrcaStaticBatching 按 4096 预分配导致 80% 显存闲置。切换至 vLLM 的 PagedAttention 后，相同显卡并发数提升 3 倍，P99 延迟降低 40%。
+
+**代码示例（Python - PagedAttention 核心逻辑模拟）**：
+```python
+class BlockTable:
+    def __init__(self, block_size=16):
+        self.block_size = block_size
+        self.free_blocks = [] # 物理显存块池
+        self.logical_to_phys = {} # 逻辑seq -> 物理block映射
+
+    def allocate(self, seq_len):
+        # 计算需要的block数，向上取整
+        num_blocks_needed = (seq_len + self.block_size - 1) // self.block_size
+        blocks = [self.free_blocks.pop() for _ in range(num_blocks_needed)]
+        return blocks
+```
+
 ## 常见考点
 1. **PagedAttention 中 Block Table 的维护开销在哪里？**（CPU 管理开销与 GPU 内存碎片消除的权衡）
 2. **Continuous Batching 和 Static Batching 在调度策略上的本质区别？**（基于 Step vs 基于 Token 的时间片）

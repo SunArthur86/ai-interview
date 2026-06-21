@@ -71,6 +71,36 @@ KV Cache是LLM推理的主要显存开销（可达总显存的80%+）：
 └──────────────┘
 ```
 
+### 实战案例
+在 128K 长文本推理中，使用 FP16 存储 KV Cache 导致 80GB 显存仅能容纳 2 个并发请求。通过开启 vLLM 的 **INT8 KV Cache** 并结合 **GQA**（若模型支持），显存占用降低约 60%，成功将并发数提升至 6 个，且 Perplexity 几乎无损失。
+
+### KV Cache 优化技术对比
+| 优化技术 | 核心机制 | 显存节省 | 性能影响 | 实施难度 | 适用场景 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **PagedAttention** | 类似操作系统虚拟内存分页 | 消除内部碎片 | 增加少许管理开销 | 高（需修改内核） | 高并发、变长请求 |
+| **GQA/MQA** | 多个 Query 头共享一组 KV | 高 (取决于分组比) | 减少内存带宽瓶颈 | 低（推理侧透明） | Llama3, Mistral 等现代模型 |
+| **INT4/INT8 量化** | 降低 KV 数据类型位宽 | 高 (50%-75%) | 可能增加 Dequantize 开销 | 中（需校准） | 显存极度受限场景 |
+| **Sliding Window** | 仅保留窗口内 KV | 极高 (固定上限) | 长距离上下文丢失 | 低 | 生成任务、局部依赖强 |
+| **Prefix Caching** | 共享 System Prompt KV | 间接节省 | 加速 TTFT | 高（需框架支持） | 多轮对话、Prompt 固定 |
+
+### 代码示例 (简单的 KV Cache 伪代码)
+```python
+class KVCache:
+    def __init__(self, max_len, head_dim, dtype=torch.float16):
+        self.k_cache = torch.zeros((max_len, head_dim), dtype=dtype, device='cuda')
+        self.v_cache = torch.zeros((max_len, head_dim), dtype=dtype, device='cuda')
+        self.seq_len = 0
+
+    def update(self, k_new, v_new):
+        # 将新生成的 K, V 追加到缓存中
+        batch_size, new_tokens, _, _ = k_new.shape
+        self.k_cache[self.seq_len : self.seq_len + new_tokens] = k_new.squeeze(1)
+        self.v_cache[self.seq_len : self.seq_len + new_tokens] = v_new.squeeze(1)
+        self.seq_len += new_tokens
+        # 返回当前全部历史用于 Attention 计算
+        return self.k_cache[:self.seq_len], self.v_cache[:self.seq_len]
+```
+
 ## 常见考点
 1. **GQA 相比 MHA 能节省多少显存？**
    - 假设 Attention 头数为 H，GQA 的 KV 头数为 G，显存节省比例约为 $(1 - G/H)$，同时显著提升 Decode 阶段带宽利用率。

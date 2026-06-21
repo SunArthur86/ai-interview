@@ -62,6 +62,52 @@ follow_up:
 - 训练加速：梯度/优化器状态压缩
 - 与 FP8 Tensor Core 配合实现端到端 FP4 推理
 
+---
+
+### 💡 实战深化
+
+#### 1. 实战案例
+- **动态范围优势**：在 LLM 推理中，若 KV Cache 值出现尖峰（如 >6.0），INT4 量化（通常范围 [-8, 7]）会直接发生饱和，导致信息丢失。NVFP4 能动态表示到 ±448，无需饱和截断，显著降低“Loss Spike”导致推理崩坏的风险。
+- **显存布局注意**：由于是 Per-Block Scaling，权重在显存中必须是 32 对齐的。如果 Transformer 的 Hidden_Dimension 不是 32 的倍数，需进行 Padding，否则会导致 CUDA Kernel 访存越界错误。
+
+#### 2. 代码示例 (Python 模拟内存布局)
+```python
+import numpy as np
+
+def pack_fp4_blocks(weight_matrix):
+    """
+    模拟 NVFP4 的 Per-Block (32) 存储布局
+    weight_matrix: [M, N] float32
+    """
+    M, N = weight_matrix.shape
+    block_size = 32
+    assert N % block_size == 0, "N must be multiple of 32 for NVFP4"
+    
+    # 1. 计算每个 Block 的最大绝对值作为 FP8 Scale 的参考（简化模拟）
+    # reshape to [M, N/32, 32] -> reduce max on last dim
+    reshaped = weight_matrix.reshape(M, -1, block_size)
+    scales = np.max(np.abs(reshaped), axis=2) # 形状 [M, N/32]
+    
+    # 2. 模拟量化 (这里用伪代码代替实际的 FP4 编码逻辑)
+    # normalized_weights = reshaped / scales[..., None]
+    # fp4_data = custom_fp4_cast(normalized_weights) 
+    
+    return {
+        "fp4_packed_tensor": "<packed_4bit_data>",
+        "fp8_scales_shape": scales.shape, # [M, N/32]
+        "scale_dtype": "float8_e4m3fn"
+    }
+```
+
+#### 3. 维度与格式对比表
+| 特性 | Per-Tensor (INT8) | Per-Channel (INT4) | **NVFP4 (Blackwell)** |
+| :--- | :--- | :--- | :--- |
+| **缩放粒度** | 整个矩阵一个 Scale | 每个 Output Channel 一个 Scale | **每 32 个元素一个 Scale** |
+| **缩放维度** | Scalar | [Out_Channels] | **[Out_Channels, In_Channels/32]** |
+| **缩放数据类型** | FP32 | FP32 | **FP8 (E4M3)** |
+| **显存额外开销** | 极小 | 较小 (Channel数 * 2Bytes) | **中等 (元素数/32 * 1Byte)** |
+| **对 Outlier 鲁棒性** | 低 | 中 | **极高 (粒度细 + FP8大范围)** |
+
 ## 常见考点
 1. **FP4 的 E2M1 编码具体包含哪些数值？**（特别是特殊值 Inf/NaN 的处理）
 2. **为什么选择 per-block (32) 而不是 per-channel 或 per-tensor？**（精度与显存开销的平衡）

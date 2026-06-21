@@ -54,7 +54,7 @@ follow_up:
 - **迭代过程**：v1（MVP）→ v2（优化）做了什么改进？（Bad Case 驱动）
 
 **R（Result）结果：**
-- 定量指标：准确率（Acc）、召回、延迟（TP50/TP99）、Token 成本、DAU/留存率
+- 定量指标：准确率、召回、延迟（TP50/TP99）、Token 成本、DAU/留存率
 - 用户反馈：NPS、满意度评分、典型用户评价
 - 业务影响：节省人力工时、收入提升、转化率提高
 - 学到了什么？（反思：如“数据清洗比模型选择更重要”）
@@ -107,12 +107,26 @@ A:
   - 降级：检索失败→兜底 ES 搜索，LLM 超时→返回热榜问题
 R:
   - 准确率从 v1 的 62% → v2 的 88%
-  - 查找耗时降低至 30s/问题
-  - 日活用户达到 80%
+  - 平均响应时间 1.8s
+  - 月活覆盖 80% 研发，节省 FAQ 人力约 20h/周
 ```
 
-**## 常见考点**
-1. **评估指标细节**：面试官会问 RAG 的准确率具体是怎么算的？（如：人工标注 100 条，还是用 LLM-as-a-Judge？准确率与召回率的权衡？）。
-2. **分块策略**：如何解决 Chunk 切割导致的语义丢失问题？（如：滑动窗口 overlap 多少合适？是否使用语义分块？）。
-3. **向量数据库选型**：为什么选 Milvus/Pinecone 而不是 ES？（对比检索性能、向量维度支持、标量过滤能力）。
-4. **Bad Case 分析**：面试官常追问“遇到过最难的 Bug 是什么？”，考察你如何排查幻觉、检索不相关等问题。
+**代码示例（Hybrid Search with LangChain）：**
+```python
+from langchain.retrievers import EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
+from langchain_community.vectorstores import FAISS
+
+# 1. 稀疏检索
+bm25_retriever = BM25Retriever.from_texts(splits)
+
+# 2. 密集检索
+vectorstore = FAISS.from_texts(splits, embedding)
+faiss_retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
+# 3. 加权融合
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[bm25_retriever, faiss_retriever], 
+    weights=[0.3, 0.7]  # 调优参数
+)
+```

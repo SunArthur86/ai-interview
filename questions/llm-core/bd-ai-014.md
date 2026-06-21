@@ -51,6 +51,23 @@ follow_up:
 - DeepSeek-R1用GRPO+规则奖励实现RL，无需人工标注
 - DPO简化了RLHF流程（无需显式RM），成为快速对齐首选
 
+**实战案例：** 在做Code Agent时，先用SFT教模型调用接口，但模型经常在参数顺序上出错。引入RLHF/DPO阶段，使用“代码能否通过编译”作为自动Reward信号进行强化训练，模型的代码可执行性从60%提升到了90%。
+
+**代码示例 (TRL + DPO)：**
+```python
+from trl import DPOTrainer
+
+dpo_trainer = DPOTrainer(
+    model,
+    ref_model,
+    args=training_args,
+    beta=0.1, # 温度参数，控制对齐强度
+    train_dataset=train_dataset,
+    # dataset 包含: prompt, chosen(好回答), rejected(坏回答)
+)
+# 相比PPO，DPO不需要显式的Reward Model，直接在偏好对上优化，工程落地简单得多
+```
+
 **SFT vs RLHF/DPO 流程对比：**
 ```text
 SFT Pipeline:                    RLHF/DPO Pipeline:

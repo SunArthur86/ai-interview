@@ -84,8 +84,40 @@ follow_up:
 - **Speculative Decoding** — 小模型草拟+大模型验证，加速 2-3×
 - **Medusa** — 多头并行预测多个 token
 
-## 常见考点
-1. **Top-K 与 Top-P 的区别与联系**：为什么要结合使用（通常 Top-P 更灵活，K 是硬截断）？
-2. **Beam Search 的缺点**：为什么在开放式生成（如对话）中效果不如采样（容易导致重复生硬）？
-3. **Temperature 为 0 时的数值稳定性**：在代码实现中如何避免除零错误（通常取极小值如 1e-5）？
-4. **Speculative Decoding 的加速原理**：它是如何保证输出结果与原模型一致性的（接受率机制）？
+### 实战案例
+在电商客服 RAG 场景中，使用 Top-P 采样偶尔会生成“亲、这边建议您...”等不符合公司风格的用语。**实战中**：我们结合 `Repetition Penalty=1.05` 和严格的 `stop_tokens`（如停用词“再见”），并强制输出 JSON 字段，避免了模型无休止的唠叨和格式错误。
+
+### 代码示例
+```python
+import torch
+
+def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')):
+    # Top-K 截断
+    if top_k > 0:
+        indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
+        logits[indices_to_remove] = filter_value
+    
+    # Top-P (Nucleus) 截断
+    if top_p > 0.0:
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
+        
+        # 移除累积概率超过 P 的 token
+        sorted_indices_to_remove = cumulative_probs > top_p
+        sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+        sorted_indices_to_remove[..., 0] = 0
+        
+        indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
+        logits[indices_to_remove] = filter_value
+    
+    return logits
+```
+
+### 对比表格
+| 策略 | 适用场景 | 缺点 | 对话推荐参数 |
+| :--- | :--- | :--- | :--- |
+| **Greedy Search** | 代码生成、数学解题 | 极易陷入死循环，语气机械 | T=0 (或 1e-5) |
+| **Beam Search** | 翻译、摘要任务 | 生成文本生硬，缺乏随机性 | Beam Size=4 (少用) |
+| **Top-K Sampling** | 创意写作 | K 较小时会切断有效低概率词 | K=40~50 |
+| **Top-P (Nucleus)** | 通用对话 (推荐) | 概率分布极平时可能截断过多 | P=0.9, T=0.7 |
+| **Contrastive Search** | 长文本生成 | 实现稍复杂，需调节 deg_penalty | penalty=0.5~1.0 |

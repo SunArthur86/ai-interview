@@ -59,6 +59,40 @@ follow_up:
 - 关键路径请求优先通过，非关键排队等
 - 主Agent的规划请求优先级 > 子Agent的搜索请求
 
+*   **实战案例**：在某多Agent数据分析系统中，未做优先级限流导致主控Agent查询子任务时子Agent还在并发做“数据清洗”，占用大量Token配额，导致核心查询429报错。修复后引入分级漏桶，主控请求强制优先，延迟降低40%。
+
+*   **代码示例**
+```python
+# Python: 简单的基于权重的令牌桶限流器
+class RateLimiter:
+    def __init__(self, rate, capacity):
+        self.rate = rate  # tokens per second
+        self.capacity = capacity
+        self.tokens = capacity
+        self.last_time = time.time()
+        self.lock = threading.Lock()
+
+    def consume(self, tokens_needed, priority=0):
+        with self.lock:
+            now = time.time()
+            # 补充令牌
+            self.tokens += (now - self.last_time) * self.rate
+            self.tokens = min(self.tokens, self.capacity)
+            self.last_time = now
+            
+            if self.tokens >= tokens_needed:
+                self.tokens -= tokens_needed
+                return True
+            return False
+```
+
+| 优化策略 | 核心技术 | 适用场景 | 缺点 |
+| :--- | :--- | :--- | :--- |
+| **混合路由** | 意图识别/大小模型协同 | 通用多任务系统 | 路由判断本身有开销；路由不准可能降级体验 |
+| **KV Cache** | PagedAttention/vLLM | 长文本生成/高并发 | 显存占用随长度线性增长，极大值受限于GPU显存 |
+| **量化** | AWQ/GPTQ/INT4 | 资源受限环境/边缘端 | 极低精度（INT4）可能丢失逻辑推理能力 |
+| **Continuous Batching** | 动态批处理/迭代调度 | 高吞吐在线服务 | 请求间长度差异过大时，短请求仍可能有轻微排队 |
+
 **架构与数据流图：**
 ```text
 用户请求
@@ -93,4 +127,4 @@ follow_up:
 1. **Continuous Batching 原理**：为什么要抛弃传统的Padding Batching？它如何解决“短序列等待长序列”的问题？
 2. **KV Cache 的显存瓶颈**：KV Cache 占比往往超过模型权重本身，如何优化（如 PagedAttention、KV Sharing）？
 3. **路由策略的冷启动**：如果缺乏历史数据，如何准确判断任务复杂度从而进行路由？
-4. **限流算法对比**：令牌桶 vs 漏桶，在突发流量处理上有何区别？
+4. **限流算法选择**：令牌桶 vs 漏桶，在应对突发流量（如Agent瞬间发起大量子任务）时有什么区别？

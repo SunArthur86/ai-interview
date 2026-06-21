@@ -30,6 +30,9 @@ follow_up:
 【场景分析】
 Chunking是RAG最关键的预处理环节——分块太大有信息稀释，太小丢失上下文，错位切分破坏语义完整性。
 
+【实战案例】
+在处理法律长文档时，若简单按512 Token切分，常将“合同条款”与“生效日期”切断在相邻两块。当用户查询“合同何时生效”时，仅检索到条款内容的Chunk无法回答。使用“父文档索引”策略：按自然段落/章节切分大块作为上下文，再细切小块用于精准召回，完美解决了上下文缺失问题。
+
 【分块策略矩阵】
 1. 固定窗口分块：
    - 按Token数切分（如500 tokens），滑窗重叠100 tokens
@@ -52,6 +55,35 @@ Chunking是RAG最关键的预处理环节——分块太大有信息稀释，太
    - 同时生成大chunk（1000t）和小chunk（200t）
    - 大chunk用于生成上下文，小chunk用于精准检索
    - 父子chunk关联：命中子chunk时召回父chunk
+
+【关键代码示例 (LlamaIndex)】
+```python
+from llama_index.core.node_parser import SemanticSplitterNodeParser
+
+# 基于语义相似度的动态分块
+splitter = SemanticSplitterNodeParser(
+    buffer_size=1, 
+    breakpoint_percentile_threshold=95, # 相似度低于阈值则切分
+    embed_model=embedding_model
+)
+
+# 递归分块（保持结构完整性）
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200,
+    length_function=len,
+    separators=["\n\n", "\n", "。", "！", "？", " ", ""]
+)
+```
+
+【分块策略对比】
+| 分块方式 | 切分依据 | 优点 | 缺点 | 推荐场景 |
+| :--- | :--- | :--- | :--- | :--- |
+| **固定窗口** | Token/字符数 | 实现简单，可控性强 | 易截断语义，上下文断裂 | 通用日志、流水账文本 |
+| **语义分块** | 句子/段落相似度 | 语义完整性好，召回相关性强 | 计算成本高（需额外推理） | 论文、技术文档、新闻 |
+| **父子索引** | 包含关系 | 兼顾精准召回与丰富上下文 | 架构复杂，需关联查询 | RAG首选，特别是长文档QA |
+| **递归分块** | 多级分隔符 | 优先保留结构，通用性强 | 对特定格式（如代码）仍需定制 | Markdown/HTML混合文档 |
 
 【Chunk元数据设计】
 - 必须携带：source_doc_id, page_num, section_title, chunk_type
@@ -85,4 +117,3 @@ Chunking是RAG最关键的预处理环节——分块太大有信息稀释，太
 1. **Chunk Size 对检索效果的影响**：为什么太大或太小都不好？（答：太小→语义不完整，向量指向性差；太大→噪声过多，Embedding稀释，且Token消耗大）。
 2. **滑动窗口的作用**：Overlap 是为了解决什么问题？（答：解决语义边界切断问题，确保关键信息（如实体名词）不被截断在两个chunk之间）。
 3. **父子索引的优缺点**：什么情况下必须用父子索引？（答：需要高精度检索（小chunk）但给LLM提供完整上下文（大chunk）时，或者为了减少向量化成本时）。
-

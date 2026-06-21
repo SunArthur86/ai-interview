@@ -49,38 +49,6 @@ follow_up:
    - 流式播放：边合成边播放
    - 打断处理：检测到用户说话 → 立即停止播放
 
-```text
-用户音频流 (PCM)
-    │
-    ▼
-┌───────────────┐
-│   VAD 检测    │ ◄─── [静音切除/语音段切分]
-└───────┬───────┘
-        │ (语音块 Chunk)
-        ▼
-┌───────────────┐
-│  流式 ASR     │ ──► Partial Text (中间结果)
-│ (Whisper/Para)│ ──► Final Text (最终结果)
-└───────┬───────┘
-        │ Text
-        ▼
-┌───────────────┐
-│   LLM 推理     │ ──► Streaming Text Tokens
-│ (vLLM流式)     │
-└───────┬───────┘
-        │ Text Tokens (流式)
-        ▼
-┌───────────────┐
-│  流式 TTS      │ ──► Audio Chunks
-│ (VITS/SoVITS)  │
-└───────┬───────┘
-        │ Audio Chunks
-        ▼
-┌───────────────┐
-│  客户端播放    │
-└───────────────┘
-```
-
 【延迟拆解】
 VAD判断 50ms + ASR转写 200ms + LLM首字 300ms + TTS首包 200ms + 网络传输 100ms = 总计约850ms
 
@@ -91,6 +59,40 @@ States: IDLE -> LISTENING -> THINKING -> SPEAKING -> IDLE
 - THINKING：ASR完成 → LLM流式生成
 - SPEAKING：TTS流式合成 + 播放
 - INTERRUPTED：用户打断 → 停止播放 → 回到LISTENING
+
+【实战案例】
+在车载场景下，背景噪音常导致VAD误判为“静默”。我们引入了**双阈值VAD + 能量检测**，并结合环境噪音采样动态调整灵敏度，将高速行驶下的误触率降低了40%。
+
+【关键代码】（VAD与状态流转控制）
+```python
+import torch
+
+# 加载Silero VAD模型
+model, utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad')
+(get_speech_timestamps, _, _, _, _) = utils
+
+def process_audio_chunk(chunk: np.ndarray, current_state: str):
+    # VAD检测
+    speech_probs = model(chunk, 16000).item()
+    
+    if current_state == 'SPEAKING':
+        if speech_probs > 0.5: 
+            return 'INTERRUPTED' # 检测到用户说话，触发打断
+    elif current_state == 'LISTENING':
+        if speech_probs > 0.8: 
+            return 'PROCESSING' # 确认说话结束，开始ASR
+        
+    return current_state
+```
+
+【TTS技术选型对比】
+| 指标 | Edge-TTS | VITS/GPT-SoVITS | CosyVoice (阿里) |
+| :--- | :--- | :--- | :--- |
+| **延迟** | 极低（<100ms） | 中（200-500ms） | 低（150-300ms） |
+| **音色自然度** | 机械感明显 | 极高（情感丰富） | 高（拟人度高） |
+| **推理资源** | CPU即可 | 需GPU加速 | 需GPU |
+| **流式支持** | 差 | 一般 | **优秀（专为流式优化）** |
+| **推荐场景** | 简单播报 | 沉浸式有声书 | **实时数字人助手** |
 
 ```text
        ┌─────────┐
@@ -114,33 +116,4 @@ States: IDLE -> LISTENING -> THINKING -> SPEAKING -> IDLE
             │ Finish / Interrupt     │
             ▼                         ▼
        ┌─────────┐              ┌──────────┐
-       │  IDLE   │              │INTERRUPTED│ (停止播放/取消推理)
-       └─────────┘              └─────┬────┘
-                                      │
-                                      ▼
-                                 ┌─────────┐
-                                 │LISTENING│
-                                 └─────────┘
-```
-
-【打断处理】
-1. 停止TTS播放
-2. 取消LLM推理（节省Token）
-3. 保留已播放内容到上下文
-4. 开始处理新的用户输入
-
-【端云协同方案】
-- 端侧：VAD + 轻量ASR（快速响应）
-- 云端：大模型推理 + TTS
-- 混合：简单指令端侧处理，复杂对话云端处理
-
-## 常见考点
-1. **如何进一步降低端到端延迟？**
-   - **并行处理**：在LLM生成完整句子之前，只要生成了一个完整的短语或从句，就立即推送给TTS合成，不需要等LLM生成EOS标记。
-   - **音频压缩**：使用Opus编码代替PCM，大幅降低网络传输带宽和延迟。
-   - **预加载**：在VAD检测到语音开始的同时，预先启动LLM的Prefill阶段（如果使用Partial Text作为输入，虽然会有错误但能抢时间）。
-2. **回声消除（AEC）与打断的冲突如何解决？**
-   - 如果不消除回声，机器听到自己的声音会误判为用户在说话。必须在前端或服务端部署AEC（声学回声消除）模块，消除播放声音对麦克风的干扰，确保VAD只检测到用户的声音。
-3. **半双工 vs 全双工 的区别？**
-   - **半双工（当前方案）**：必须等用户说完（VAD检测静音）才开始处理。缺点是自然度稍差，但实现稳定。
-   - **全双工（GPT-4o模式）**：用户说话的同时机器也在听和处理，可以随时插话。这要求ASR和LLM具备极高的流式处理能力和更强的“抗干扰”能力。
+       │  IDLE   │              │INTERRUPTED│ (停止

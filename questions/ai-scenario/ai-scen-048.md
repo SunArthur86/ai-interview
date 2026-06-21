@@ -89,5 +89,27 @@ AI金融风控系统：实时交易反欺诈、信用评分、反洗钱（AML）
 【## 常见考点】
 1. **特征实时性保证**：如何保证实时特征（如“最近5分钟交易额”）的准确性和低延迟更新（Flink/Spark Streaming）。
 2. **冷启动处理**：新用户或新设备缺乏历史数据时，如何利用规则或通用画像进行风控。
-3. **模型在线推理优化**：XGBoost/LightGBM模型如何在生产环境中达到<50ms的推理延迟（如模型压缩、Tree flattening）。
-4. **样本不平衡**：欺诈样本极少（如1:10000），如何进行采样和训练（SMOTE、异常检测算法）。
+3. **模型在线推理优化**：XGBoost/LightGB
+
+【实战深化】
+- **实战案例**：在双11大促期间，因流量突增导致实时特征计算窗口出现数据倾斜，部分高频用户特征延迟高达500ms。通过引入Flink的「预聚合」策略和本地缓存，将P99延迟稳定控制在20ms以内，避免了风控漏网。
+
+- **代码示例**（Python：规则与模型评分融合）：
+```python
+def decide_transaction(user_features):
+    score = xgboost_model.predict(user_features)
+    # 硬规则：黑名单直接拦截，不看模型分数
+    if user_features['device_id'] in blacklist:
+        return 'BLOCK', 'Blacklisted Device'
+    # 模型与规则融合：高分用户可以豁免部分规则
+    if score < 0.3 and user_features['amount'] < 10000:
+        return 'PASS', f'Low Risk Score: {score}'
+    return 'REVIEW', f'High Risk Score: {score}'
+```
+
+- **技术选型对比**（实时计算引擎）：
+| 引擎 | 延迟 | 吞吐量 | 状态管理 | 适用场景 |
+| :--- | :--- | :--- | :--- | :--- |
+| **Spark Streaming** | 秒级 (高) | 高 | 基于微批，有 Checkpoint | 离线风控，T+1报表 |
+| **Flink** | 毫秒级 (低) | 极高 | 原生支持 StateBackend | 实时反欺诈，复杂CEP |
+| **Kafka Streams** | 毫秒级 | 中 | 轻量级，依赖 Kafka | 简单流式ETL，日志清洗 |

@@ -36,6 +36,22 @@ Self-Attention 的计算公式为 $Attention(Q, K, V) = softmax(\frac{QK^T}{\sqr
 KV Cache Size (Bytes) = $2 \cdot (n_{layers}) \cdot (seq\_len) \cdot (n_{heads} \cdot d_{head}) \cdot (n_{bytes}) \cdot (2 \text{ for K and V})$。
 注意：KV Cache 不包含梯度信息，因此比模型权重占用的显存通常小，但随着序列长度线性增长，是长文本推理的主要瓶颈。
 
+**实战案例：**
+在部署LLaMA-2-70B进行对话时，若显存刚好够加载模型权重（约140GB FP16），但Batch Size一加大就OOM，通常是因为 **KV Cache显存** 随上下文长度和并发线性增长。vLLM通过PagedAttention技术将其类比OS虚拟内存，解决了显存碎片问题，使得吞吐量提升2-4倍。
+
+**代码示例 (伪代码 - KV Cache 更新)：**
+```python
+# prev_k: [batch, seq_len, heads, head_dim]
+# new_k:  [batch, 1, heads, head_dim]
+
+# 拼接操作 (实际推理中通常预分配内存然后填入)
+updated_kv_cache = {
+    "k": torch.cat([cache_k, new_k], dim=1),
+    "v": torch.cat([cache_v, new_v], dim=1)
+}
+# Attention 计算: q_new @ updated_kv_cache["k"].transpose(...)
+```
+
 - **加速效果:**
 - 无缓存:O(n²) 次矩阵乘法 (针对生成长度为n的整个过程，或单步复杂度描述)
 - 有缓存:O(n) 次矩阵乘法
@@ -73,10 +89,3 @@ Step 3: Input "!" (Need attention on "Hello World")
   Q3 (计算)            │
   K3, V3 (计算) ───────┼──► [ Concat: K1+K2+K3, ... ]
                       │       │
-                      └───────┘  ...
-```
-
-## 常见考点
-1. **Prefill vs Decode 阶段**：KV Cache 在哪个阶段生效？（仅在 Decode/自回归生成阶段，Prefill 阶段是并行计算全部 KV）。
-2. **显存瓶颈**：KV Cache 占用的显存主要受哪些参数影响？（层数、Head数、Head维度、序列长度、数据类型）。
-3. **Multi-Query 注意力**：MQA/GQA 如何缓解 KV Cache 问题？（减少 KV Head 数量，直接线性降低 Cache 大小）。

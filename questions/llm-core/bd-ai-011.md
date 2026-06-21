@@ -42,6 +42,20 @@ follow_up:
 
 **实际项目组合使用：** RAG提供事实背景 + Function Calling获取实时数据 + Structured Output约束格式 + Prompt声明不知道就说不知道。单靠一个方法很难彻底解决幻觉。
 
+**实战案例：** 在电商客服RAG中，模型常把旧款产品的参数安在新款上。解决方案是引入“引用溯源”，强制模型在回答后标注文档ID，若ID缺失或置信度低则触发兜底话术“建议咨询人工”，有效投诉降低了40%。
+
+**代码示例 (Pydantic + LangChain)：**
+```python
+from pydantic import BaseModel, Field
+
+class ProductAnswer(BaseModel):
+    answer: str = Field(..., description="基于上下文的回答，不要编造")
+    source_id: str = Field(..., description="引用的文档片段ID")
+    confidence: float = Field(..., ge=0, le=1, description="置信度")
+
+# 强制结构化输出，若无法满足字段要求（如找不到source_id），模型会报错而非瞎编
+```
+
 **幻觉来源与抑制机制图示：**
 ```text
 ┌─────────────────────────────────────────────────────┐

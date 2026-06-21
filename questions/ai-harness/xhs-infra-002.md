@@ -25,7 +25,7 @@ follow_up:
 
 # Speculative Decoding（投机解码）的原理是什么？在高batch场景下如何加速推理？
 
-投机解码通过小模型（draft model）并行生成多个token，大模型验证+修正，实现无损加速。
+投机解码通过小模型并行生成多个token，大模型验证+修正，实现无损加速。
 
 ## 核心流程
 1. **Draft阶段**：小模型（如7B）快速生成k个候选token
@@ -45,3 +45,44 @@ follow_up:
 ## 高batch场景优势
 - GPU利用率更高（验证阶段计算密集）
 - 与PagedAttention组合效果好
+
+### 实战案例
+- **Draft Model 选型**：在 Llama-3-70B 的服务中，我们尝试用 Llama-3-8B 作为 Draft Model。实测发现，虽然小模型推理快，但由于 8B 和 70B 的分布差异，Accept Rate（接受率）仅为 45%。后来微调了 8B 模型以对齐 70B 的输出分布，接受率提升至 75%，整体吞吐量提升了 1.8 倍。
+- **延迟波动**：投机解码在 Draft 阶段是串行的，如果 Draft Model 意外变慢，会增加首字延迟（TTFT）。我们在高并发 Batch 下限制了 Spec Length（投机长度）动态调整策略，避免长序列 Draft 占用过多时间。
+
+### 代码示例 (伪代码 - 投机解码逻辑)
+```python
+# 伪代码展示投机解码核心逻辑
+def speculative_decode(prompt, draft_model, target_model, max_spec_steps=5):
+    # 1. Draft 阶段：小模型快速生成 k 个 token
+    draft_tokens = []
+    for _ in range(max_spec_steps):
+        next_token = draft_model.generate(prompt + draft_tokens)
+        draft_tokens.append(next_token)
+
+    # 2. Verify 阶段：大模型并行验证所有候选 token
+    # 将 prompt + 所有 draft_tokens 作为一个 batch 输入
+    full_sequence = prompt + draft_tokens
+    logits = target_model.forward(full_sequence)
+    
+    # 3. 并行校验采样
+    verified_tokens = []
+    for i, token in enumerate(draft_tokens):
+        if verify_token(logits[i], token):
+            verified_tokens.append(token)
+        else:
+            # 拒绝：从第 i 个位置重新采样，并丢弃后续 draft
+            new_token = sample(logits[i])
+            verified_tokens.append(new_token)
+            break
+            
+    return verified_tokens
+```
+
+### 投机解码变体对比
+| 算法/策略 | Draft 来源 | 接受率特点 | 优势 | 劣势 |
+| :--- | :--- | :--- | :--- | :--- |
+| **标准 Speculative Decoding** | 独立小模型 | 中等 (50-70%) | 实现简单，易于替换模型 | 需维护两个模型，内存开销大 |
+| **Medusa** | 主模型附加 Heads | 较高 (结构化) | 显存占用低（共享基础层） | 需训练多组 Head，训练成本高 |
+| **Lookahead Decoding** | n-gram 匹配 | 高（简单文本） | 无需额外模型，推理级训练 | 复杂语义场景效果差 |
+| **EAGLE (based Logits)** | 浅层网络特征 | 高 (80%+) | 极高的接受率和速度 | 依赖特定特征的提取，实现复杂 |

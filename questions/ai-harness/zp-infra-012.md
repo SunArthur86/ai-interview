@@ -78,30 +78,16 @@ follow_up:
 
 | 维度 | 占比 | 说明 |
 |------|------|------|
-| **项目深挖** | 40% | STAR 结构 + 量化成果（MFU 提升多少、推理加速多少倍、显存优化幅度）|
-| **原理追问** | 30% | 量化原理、KV Cache 预分配策略、Attention 的 CUDA Kernel 实现 |
-| **系统设计** | 15% | 设计百万 QPS Serving / 万卡训练集群 / KV Cache 存储体系 |
-| **手撕代码** | 10% | 手写 Attention Matrix（PyTorch）、简单的 CUDA Kernel 或 C++ Multi-threading |
-| **行为/文化** | 5% | 技术热情、对前沿进展的追踪 |
+| **项目深挖** | 40% | 不仅要做过，还要懂原理。如：“你用了 vLLM，那它解决显存碎片的具体数据结构是什么？” |
+| **系统设计** | 30% | 场景题：设计高并发推理系统、RAG 系统、多模态系统 |
+| **算法原理** | 20% | FlashAttention 的 Tiling、RoPE 的数学推导、MoE 的负载均衡 |
+| **Coding** | 10% | 手写简单的 Transformer Block 或 CUDA Kernel 伪代码 |
 
-**四、准备时间线（6-8 周）**
-
-```text
-Week 1-2: 基础夯实（Transformer 数学推导 + RoPE + MoE 基础）
-Week 3-4: 论文精读（FlashAttention v2/v3 + vLLM 架构 + ZeRO 原理）
-Week 5-6: 源码实践（跑通 vLLM 二次开发 + 手写 FlashAttn 核心代码片段）
-Week 7-8: 场景设计 + 模拟面试（高并发推理场景、万卡训练容灾设计）
-```
-
-**五、简历建议**
-- **技术栈关键词**：vLLM, PagedAttention, FlashAttention, ZeRO-3, MPI, NCCL, TensorRT-LLM, CUDA Core.
-- **量化数据**："推理吞吐 2k tps -> 8k tps (4x)", "显存占用降低 40% (AWQ+KV Cache Quantization)".
-- **难点解决**：描述遇到的最难的 Bug 或性能瓶颈（如：NCCL Hang, OOM 排查）.
-
----
+**实战案例：**
+面试官问：“你提到优化了推理延迟，具体做了什么？”
+*错误回答*：“用了 vLLM 并开启了量化。”
+*正确回答*：“我分析了业务发现 90% 是短文本，但模型默认支持长文本。我将 `max_model_len` 截断至 4K 并启用了 GQA（如果模型支持），同时将推理线程数 `openvino_num_threads` 调优至物理核心数，最终 P95 延迟降低 40%。”
 
 ## 常见考点
-1.  **RoPE 的数学原理**：如何通过复数乘法实现相对位置编码？外推时 NTK-alpha 参数的作用机制是什么？
-2.  **FlashAttention v1/v2/v3 的区别**：v2 引入了什么并行策略（Warp-level 并行）？v3 针对 Hopper 架构做了哪些优化（Tensor Memory Accelerator, TMA）？
-3.  **vLLM 的调度器死锁情况**：在什么情况下 Continuous Batching 会导致无法调度新请求（长尾效应，所有 GPU 都被几个长 Context 占满，剩余 Block 小于任何新请求的 Prefill 需求）？如何解决？（答案：Prefill 阶段的 Block 分片或抢占机制）。
-4.  **MoE 的 All-to-All 通信瓶颈**：在专家并行中，Token 分发和收集的通信量如何计算？如何通过专家容量冗余减少通信冲突？
+1. **FlashAttention v1 和 v2 的主要区别？**（v2 主要优化了 workload partitioning，减少非矩阵计算，更适合 H100）
+2. **为什么 MoE 训练容易导致负载不均？**（某些 Expert 收到的 Token 过多，导致计算倾斜，通常使用 Load Balance Loss = \alpha * n \times (aux_loss) 解决）

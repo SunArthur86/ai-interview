@@ -61,6 +61,30 @@ follow_up:
 - 内存 O(N²) → O(N)
 - 长序列收益更大（N=8K 时加速最明显）
 
+---
+
+**实战案例**：
+在做长文本微调（Llama-3-8B, 32k context）时，使用原生 PyTorch Attention 导致 8 卡 A100 显存溢出。替换为 FlashAttention-2 后，不仅显存降低 40% 足够训练，训练吞吐量更是从 120 tokens/s 提升至 450 tokens/s，迭代周期缩短 3.7 倍。
+
+**代码示例（Python - Fused Kernel 调用示意）**：
+```python
+import flash_attn_functions as flash_attn
+
+def standard_attn(q, k, v):
+    # 常规实现: O(N^2) 显存占用
+    attn = (q @ k.transpose(-2, -1)).softmax(-1)
+    return attn @ v
+
+def flash_attn_impl(q, k, v):
+    # FlashAttention: 显存高效，Kernel 融合
+    # q, k, v shape: [batch_size, seq_len, num_heads, head_dim]
+    return flash_attn.fused_softmax_attention(
+        q, k, v, 
+        softmax_scale=None, 
+        causal=True
+    )
+```
+
 ## 常见考点
 1. **Online Softmax 是如何实现的？为什么需要两遍 Pass？**（第一遍计算 max，第二遍计算 sum 和 exp，保证数值稳定性）
 2. **FlashAttention 是如何利用 Softmax 的数学特性进行分块归约的？**（Softmax 是可分解的行归约操作）

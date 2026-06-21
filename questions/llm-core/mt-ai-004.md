@@ -79,3 +79,30 @@ follow_up:
 1. **推理吞吐提升**：MLA 如何提升 Batch Size？（答：KV Cache 变小，同样的显存可以塞更多的 Batch 请求，极大提升并发）。
 2. **LoRA 兼容性**：使用了 MLA 的模型做 LoRA 微调时，需要注意什么？（答：通常 LoRA 是加在 Q/V 的投影层，MLA 结构改变后，LoRA 挂载位置需要适配压缩/解压层）。
 3. **Prefill vs Decode 阶段**：MLA 在 Prefill（首字生成）阶段由于需要计算压缩向量，计算量反而可能增加？（答：是的，MLA 是典型的“显存换计算”，在 Decode 阶段收益巨大）。
+
+**实战案例**：
+在处理 128K 长文本的 RAG 检索增强场景中，GQA 模型随着 Context 增加，吞吐量呈断崖式下跌（受限于显存带宽）。使用 DeepSeek-MLA 模型后，虽然 Prefill 阶段耗时略增（多了一次投影计算），但在长文本生成阶段，由于 KV Cache 极小，**每秒生成的 Token 数 (TPS)** 在长上下文下反超 GQA 模型 40% 以上。
+
+**代码示例 (Python - 模拟 MLA 矩阵吸收)**：
+```python
+import torch
+
+class MLA_Compute:
+    def __init__(self, head_dim, kv_lora_dim):
+        self.head_dim = head_dim
+        self.kv_lora_dim = kv_lora_dim
+        # 模拟上投影矩阵
+        self.W_up_k = torch.randn(head_dim, kv_lora_dim)
+
+    def forward_with_absorb(self, q, compressed_kv):
+        # 标准 MLA 需要先恢复 K: k_recovered = compressed_kv @ W_up_k.T
+        # 计算 QK^T = q @ (compressed_kv @ W_up_k.T).T
+        #         = q @ W_up_k @ compressed_kv.T
+        # 我们可以预先计算 q_absorbed = q @ W_up_k
+        
+        q_absorbed = torch.matmul(q, self.W_up_k) # 矩阵吸收，离线算
+        
+        # 只需要计算吸收后的 Q 与 压缩 KV 的乘积
+        scores = torch.matmul(q_absorbed, compressed_kv.transpose(-2, -1))
+        return scores
+```
