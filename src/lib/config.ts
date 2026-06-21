@@ -9,7 +9,7 @@ export interface CategoryConfig {
 export const APP_CONFIG = {
   appName: 'AI 面试题库',
   appNameShort: 'AI面试题',
-  appIcon: '🧠',
+  appIcon: '🤖',
   appVersion: '4.0',
   storagePrefix: 'ai-interview',
   githubUrl: 'https://sunarthur86.github.io/ai-interview/',
@@ -22,7 +22,7 @@ export const APP_CONFIG = {
     'ai-harness': { label: 'AI Harness', icon: '🏗️', color: '#5856d6' },
     'fde': { label: 'FDE', icon: '🚀', color: '#00c7be' },
     'eng-practice': { label: '工程化实战', icon: '⚙️', color: '#ff9500' },
-    'ai-basics': { label: 'AI 基础', icon: '🧠', color: '#34c759' },
+    'ai-basics': { label: 'AI 基础', icon: '💡', color: '#34c759' },
     'ai-scenario': { label: 'AI 场景设计', icon: '🎯', color: '#e74c3c' },
   } as Record<string, CategoryConfig>,
   subcatGroups: {
