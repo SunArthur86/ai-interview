@@ -1,7 +1,7 @@
 # Formula Audit Report — AI Interview Question Bank
 
 **Audit Date:** 2025-06-17  
-**Scope:** All 35 JSON data files in `/opt/data/projects/ai-interview/data/`  
+**Scope:** All 35 JSON data files in `/opt/data/projects/interview-ai/data/`  
 **Context:** Frontend uses a lightweight markdown renderer with NO MathJax/KaTeX. Formulas must be plain Unicode text.
 
 ---
@@ -123,7 +123,7 @@ The frontend renders `^T` and `^2` as literal characters. Should use Unicode sup
 
 ## Appendix: Files Reviewed
 
-All 35 JSON files in `/opt/data/projects/ai-interview/data/` were searched and reviewed:
+All 35 JSON files in `/opt/data/projects/interview-ai/data/` were searched and reviewed:
 
 | File | Has Formulas? | Issues Found |
 |---|---|---|

@@ -4,7 +4,7 @@
 >
 > 对标 **阿里 P7 / 字节 2-2 / 腾讯 T9 / 小红书**
 
-🌐 **在线访问**：[https://sunarthur86.github.io/ai-interview/](https://sunarthur86.github.io/ai-interview/)
+🌐 **在线访问**：[https://sunarthur86.github.io/interview-ai/](https://sunarthur86.github.io/interview-ai/)
 
 ## ✨ 核心功能
 
@@ -80,7 +80,7 @@
 ## 🏗️ 架构
 
 ```
-ai-interview/
+interview-ai/
 ├── config.js                # 项目配置（分类映射、子分类组、品牌信息）
 ├── data/                    # 35 个 JSON 题库文件（862 题）
 ├── images/                  # 159 张技术配图（公式图/架构图/SVG概念图）

@@ -1,7 +1,7 @@
 // Minimal static-asset service worker for offline support.
 // Caches the app shell on install, serves cache-first with network fallback.
-const CACHE = 'ai-interview-v4';
-const BASE = '/ai-interview';
+const CACHE = 'interview-ai-v4';
+const BASE = '/interview-ai';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

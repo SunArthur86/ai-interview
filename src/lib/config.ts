@@ -11,9 +11,9 @@ export const APP_CONFIG = {
   appNameShort: 'AI面试题',
   appIcon: '🤖',
   appVersion: '4.0',
-  storagePrefix: 'ai-interview',
-  githubUrl: 'https://sunarthur86.github.io/ai-interview/',
-  repoUrl: 'https://github.com/SunArthur86/ai-interview',
+  storagePrefix: 'interview-ai',
+  githubUrl: 'https://sunarthur86.github.io/interview-ai/',
+  repoUrl: 'https://github.com/SunArthur86/interview-ai',
   themeColor: '#0071e3',
   categories: {
     'all': { label: '全部', icon: '📚', color: '#0071e3' },

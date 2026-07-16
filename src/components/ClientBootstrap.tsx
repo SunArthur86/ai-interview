@@ -25,7 +25,7 @@ export default function ClientBootstrap({ children }: { children: React.ReactNod
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (process.env.NODE_ENV !== 'production') return;
-    const basePath = '/ai-interview';
+    const basePath = '/interview-ai';
     navigator.serviceWorker?.register(`${basePath}/sw.js`).catch(() => {});
   }, []);
 

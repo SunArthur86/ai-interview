@@ -22,7 +22,7 @@ export default function QuestionModal({ q, index, total, onPrev, onNext, onClose
   const toggleFavorite = useStore((s) => s.toggleFavorite);
   const markViewed = useStore((s) => s.markViewed);
   const isFav = favorites.includes(q.id);
-  const basePath = process.env.NODE_ENV === 'production' ? '/ai-interview' : '';
+  const basePath = process.env.NODE_ENV === 'production' ? '/interview-ai' : '';
 
   useEffect(() => {
     markViewed(q.id);

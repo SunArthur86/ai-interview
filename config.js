@@ -17,11 +17,11 @@ const APP_CONFIG = {
   keywords: 'AI面试题,大模型面试,Agent面试,RAG,LLM,人工智能,深度学习,Transformer,LoRA,DPO,PPO,DeepSeek,vLLM,FlashAttention',
 
   // ===== Storage =====
-  storagePrefix: 'ai-interview',
+  storagePrefix: 'interview-ai',
 
   // ===== URLs =====
-  githubUrl: 'https://sunarthur86.github.io/ai-interview/',
-  repoUrl: 'https://github.com/SunArthur86/ai-interview',
+  githubUrl: 'https://sunarthur86.github.io/interview-ai/',
+  repoUrl: 'https://github.com/SunArthur86/interview-ai',
 
   // ===== Theme =====
   themeColor: '#0071e3',
