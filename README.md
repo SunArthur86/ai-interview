@@ -1,6 +1,6 @@
 # 🧠 AI 面试题库
 
-> **862 道精选面试题** · 含50道AI场景设计题 · 费曼学习法+第一性原理 · 遗忘曲线智能复习系统 · 三大间隔重复算法 · 22张SVG概念图
+> **1069 道精选面试题** · 含50道AI场景设计题 · 费曼学习法+第一性原理 · 遗忘曲线智能复习系统 · 三大间隔重复算法 · 22张SVG概念图
 >
 > 对标 **阿里 P7 / 字节 2-2 / 腾讯 T9 / 小红书**
 
@@ -9,8 +9,8 @@
 ## ✨ 核心功能
 
 ### 📚 题库系统
-- **862 道题目**：覆盖 LLM核心、AI Agent、AI Harness、AI场景设计、工程化实战、AI基础七大方向
-- **35 个数据文件**：数据展示分离架构，JSON 可独立编辑
+- **1069 道题目**：覆盖 LLM核心、AI Agent、AI Harness、AI场景设计、工程化实战、AI基础七大方向
+- **数据**：每题一个 markdown，构建期从 `questions/` 目录读取（gray-matter 解析 frontmatter）
 - **来源**：小林coding、JavaGuide、卡码笔记、牛客、小红书/B站/掘金面经等
 - **费曼学习法**：每题含 🎯本质→🧒类比→📊要点，用大白话讲懂复杂概念
 - **第一性原理**：每题含问题分解→公理推导→从零重建，训练深度思维
@@ -71,7 +71,7 @@
 ### 🎨 UI/UX
 - **Apple 风格设计**：衬线标题、磨砂导航栏、圆角卡片
 - **深色模式**：一键切换，localStorage 持久化
-- **PWA**：可安装到手机桌面，全量离线缓存（35个数据文件），stale-while-revalidate 策略
+- **PWA**：可安装到手机桌面，离线缓存，stale-while-revalidate 策略
 - **响应式**：桌面/平板/手机全适配
 - **移动端优化**：安全区（刘海屏/Home Indicator）适配、44px 触控目标、模态框滑动关闭手势、点击反馈动画
 - **SEO/分享**：Open Graph + Twitter Card meta、深度链接 `#q=id`、动态 meta 更新、富文本分享卡片
@@ -81,24 +81,17 @@
 
 ```
 interview-ai/
-├── config.js                # 项目配置（分类映射、子分类组、品牌信息）
-├── data/                    # 35 个 JSON 题库文件（862 题）
-├── images/                  # 159 张技术配图（公式图/架构图/SVG概念图）
-├── js/
-│   ├── app.js               # 主逻辑：渲染/搜索/筛选/模态/收藏/费曼/第一性原理
-│   ├── study.js             # 刷题模式：Flashcard/自评/仪表盘
-│   └── forgetting.js        # 🔁 遗忘曲线引擎（SM-2/Leitner/Ebbinghaus）
-├── css/
-│   ├── style.css            # 主样式（Apple 风格 + 深色模式）
-│   ├── study.css            # 刷题模式样式
-│   └── forgetting.css       # 复习系统样式
+├── questions/               # 每题一个 markdown（1069 题）
+├── public/                  # PWA 静态资源（sw.js, manifest.json, icons/）
+├── src/
+│   ├── app/                 # Next.js App Router (layout, page, question/[id])
+│   ├── components/          # React 组件（HomeClient, QuestionCard, StudyMode 等）
+│   └── lib/                 # questions.ts（构建期读取 md）, store.ts（zustand）, config.ts
 ├── scripts/
 │   ├── gen_feynman_fp.py    # 费曼+第一性原理批量生成器
-│   └── sync.sh              # interview-framework 同步脚本
+│   └── gen_feynman_fp.py    # 费曼+第一性原理批量生成器
 ├── docs/                    # 项目文档
-├── index.html               # 展示层
-├── manifest.json            # PWA manifest
-├── sw.js                    # Service Worker (v14)
+├── next.config.ts           # Next.js 配置（静态导出 + basePath）
 └── .github/workflows/       # GitHub Pages 自动部署
 ```
 
@@ -120,7 +113,7 @@ interview-ai/
 ## 📊 数据统计
 
 - **7 大分类**：LLM核心 / AI Agent / AI Harness / AI场景设计 / FDE / 工程化实战 / AI基础
-- **862 道题目**，35 个数据文件
+- **1069 道题目**
 - **5 个难度等级**（L1 入门 ~ L5 专家）
 - **100% 费曼学习法 + 第一性原理覆盖**
 - **159 张技术配图**
