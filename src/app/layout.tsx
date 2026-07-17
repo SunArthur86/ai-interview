@@ -5,7 +5,7 @@ import type { Metadata, Viewport } from 'next';
 export const metadata: Metadata = {
   title: 'AI 面试题库',
   description: '精选 AI / 大模型 / Agent 高频面试题，含费曼快学、第一性原理、遗忘曲线智能复习。',
-  manifest: '/manifest.json',
+  manifest: '/interview-ai/manifest.json',
 };
 
 export const viewport: Viewport = {
