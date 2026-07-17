@@ -94,3 +94,26 @@ state = phone_extraction.run("Call me at 13812345678.")
 - 结构化输出：SGLang原生支持Regex/JSON约束解码，vLLM通常需后处理
 - 场景选择：通用单轮选vLLM，多轮/长前缀/结构化输出选SGLang
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** PagedAttention解决显存碎片，RadixAttention解决计算冗余——打个比方，vLLM像高效图书馆管理员管理书架，SGLang像聪明的读书会自动识别共读章节
+
+**展开框架：**
+1. **vLLM核心** — PagedAttention分页管理KV，解决显存碎片，生态成熟适合通用推理
+2. **SGLang核心** — RadixAttention树状结构，自动共享前缀，适合多轮对话与Agent
+3. **结构化输出** — SGLang原生支持Regex/JSON约束解码，vLLM通常需后处理
+
+**收尾：** 以上三点都能配合实战聊。我可以展开任一要点，比如「RadixAttention 和 PagedAttention 能一起用吗？—— 可以，SGLang 底层也用分页管理」这类追问您感兴趣吗？
+
+## 视频脚本
+
+> 预计时长：3 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡 | "【智谱Infra面经】vLLM 和 SGLang 有什么区别，30 秒讲清楚。" | 开场钩子 |
+| 0:36 | 概念定义动画 | "一句话：PagedAttention解决显存碎片，RadixAttention解决计算冗余" | 核心定义 |
+| 1:12 | vLLM核心图解 | "PagedAttention分页管理KV，解决显存碎片，生态成熟适合通用推理" | vLLM核心 |
+| 1:48 | SGLang核心图解 | "RadixAttention树状结构，自动共享前缀，适合多轮对话与Agent" | SGLang核心 |
+| 2:24 | 总结卡 | "记好这几条，面试不慌。下期见。" | 收尾 |

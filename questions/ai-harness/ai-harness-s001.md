@@ -95,3 +95,26 @@ outputs = llm.generate(["Hello, my name is", "The future of AI is"], sampling_pa
 - 关键配置：Block Size 通常设 16，Prefix Caching 可复用 System Prompt KV。
 - 适用场景：高并发在线服务首选，单任务微调场景优势不明显。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** PagedAttention管理显存碎片，Continuous Batching动态调度计算。——打个比方，像把仓库格子化管理货物，且送货员走完一单立刻接下一单，不空跑。
+
+**展开框架：**
+1. **PagedAtt** — PagedAttention：KV Cache 分块管理，消除显存碎片，利用率从 60% 提至 96%。
+2. **Continuo** — Continuous Batching：请求动态进出 Batch，无需等最长请求结束，吞吐大幅提升。
+3. **核心优势** — 结合两者，比 HuggingFace 快 14-24 倍，显存利用率接近极致。
+
+**收尾：** 以上三点都能配合实战聊。您想深入聊哪一块？
+
+## 视频脚本
+
+> 预计时长：3 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡 | "vLLM的核心优化技术有哪些，30 秒讲清楚。" | 开场钩子 |
+| 0:36 | 概念定义动画 | "一句话：PagedAttention管理显存碎片，Continuous Batching动态调度计算。" | 核心定义 |
+| 1:12 | 要点图解 | "PagedAttention：KV Cache 分块管理，消除显存碎片，利用率从 60% 提至 96%。" | 要点 |
+| 1:48 | 要点图解 | "Continuous Batching：请求动态进出 Batch，无需等最长请求结束，吞吐大幅提升。" | 要点 |
+| 2:24 | 总结卡 | "记好这几条，面试不慌。下期见。" | 收尾 |

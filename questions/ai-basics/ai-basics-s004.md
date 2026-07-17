@@ -108,3 +108,27 @@ output_ln = ln(x)
 - 核心区别：BN固定每层特征分布，LN固定单个样本的向量范数。
 - 实战：小Batch Size（如2）下BN失效，Transformer必须用LN。
 
+## 结构化回答
+
+**30 秒电梯演讲：** BatchNorm 沿 batch 维度统计适合 CNN，LayerNorm 沿特征维度统计适合 NLP。像全班成绩归一化（BN）vs 你自己各科成绩归一化（LN）。Transformer 选 LN 是因为它不依赖 batch size——LLM 训练常用 Micro-Batch 甚至 1，BN 会失效；而且 NLP 句子长度不一，LN 对每个 token 独立归一化天然支持变长。
+
+**展开框架：**
+1. **BatchNorm** — 沿 Batch+空间维度统计，对每个 Channel 算均值方差，适合 CNN；但强依赖 batch size（BS=1 失效），训练推理不一致（推理用 running mean）。
+2. **LayerNorm** — 沿特征维度统计，对单个样本所有特征算均值方差，不依赖 batch size，训练推理一致，适合 Transformer/RNN。
+3. **为什么 Transformer 用 LN** — NLP 句子长度差异大 BN 难对齐；LLM 梯度累积用 Micro-Batch BN 失效；token 的所有特征构成语义，特征维度归一化更稳。
+
+**收尾：** 衍生技术 RMSNorm 是 LN 的简化版，去掉减均值只除 RMS，计算更快性能相当，LLaMA 等大模型常用。您想深入聊 RMSNorm 和 LN 的区别，还是 BN 推理时怎么处理？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡：BN vs LN | "归一化怎么选？BN 适合 CV，LN 适合 NLP，统计维度不同。" | 开场钩子 |
+| 0:15 | 全班成绩 vs 各科成绩类比 | "BN 是全班同学成绩归一化，LN 是你自己各科成绩归一化。" | 核心类比 |
+| 0:40 | 两种归一化维度示意图 | "BN 沿 batch 维度统计依赖 BS，LN 沿特征维度统计不依赖 BS。" | 统计维度 |
+| 1:10 | BN vs LN 对比表 | "BN 适合 CNN 但训练推理不一致，LN 适合 Transformer 训练推理一致。" | 核心对比 |
+| 1:35 | Transformer 为啥用 LN | "NLP 句子变长 + LLM Micro-Batch，BN 失效，LN 对每 token 独立归一化。" | 选型原因 |
+| 1:55 | RMSNorm 简化版示意 | "衍生：RMSNorm 去掉减均值只除 RMS，计算更快，LLaMA 常用。" | 衍生技术 |
+

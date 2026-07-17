@@ -89,3 +89,27 @@ result = crew.kickoff()
 - 支持 Sequential 顺序流和 Hierarchical 层级管理。
 - Task 输出自动作为下个 Task 输入，实现上下文传递。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** Crew 抽象把"角色分工+任务依赖+执行顺序"从散乱 Prompt 工程中抽离成一等公民，像把口头分工变成可视化组织架构图。降低写一大坨 system prompt 的心智负担，让协作结构可见可复用。支持 Sequential 顺序流和 Hierarchical 层级管理，Task 输出自动作为下个 Task 输入。缺点是权限边界需自己把控，复杂分支编排能力弱于 LangGraph。
+
+**展开框架：**
+1. **核心抽象** — Agent（角色）、Task（任务）、Crew（管理器）三件套；Task 可指定 description、expected_output、agent，通过 Context 机制自动传递上下文。
+2. **两种 Process** — Sequential 线性执行强依赖顺序适合简单流水线；Hierarchical 有 Manager Agent 动态分发任务适合复杂分解。
+3. **局限与避坑** — 工具权限挂 Agent 实例上 Crew 不提供沙箱；任务链长时中间输出格式偏差会卡死下游，需加 Python 校验回调钩子。
+
+**收尾：** 做自动研报生成时踩过坑——研究员、数据分析师、写手组 Crew，任务链长时中间 Task JSON 缺字段下游直接卡死，加了格式校验回调钩子清洗数据后解决。您想聊哪块，Sequential vs Hierarchical 选型还是上下文传递机制？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡：CrewAI 的 Crew 抽象 | "像把口头分工变成了可视化的组织架构图。" | 类比开场 |
+| 0:15 | 三件套抽象图 | "Agent 角色、Task 任务、Crew 管理器，三件套组合。" | 核心抽象 |
+| 0:45 | 两种 Process 对比 | "Sequential 线性适合流水线，Hierarchical 层级适合复杂分解。" | 流程模式 |
+| 1:10 | 上下文自动传递 | "Task 输出自动作为下个 Task 输入，Context 机制传递。" | 上下文机制 |
+| 1:35 | 格式偏差卡死案例 | "实战：任务链长中间 JSON 缺字段卡死，加校验钩子解决。" | 实战教训 |
+| 1:50 | 总结卡 | "记住：角色+任务+Crew 三件套，注意权限边界。下期讲 MetaGPT。" | 收尾 |

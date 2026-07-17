@@ -93,3 +93,27 @@ app = workflow.compile(checkpointer=memory)
 - AutoGen 状态隐式难恢复，LangGraph 显式 Checkpoint 支持断点续传。
 - AutoGen 适合脑暴探索，LangGraph 适合长链路生产任务。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** AutoGen 像聊天群组重对话社交，LangGraph 像工作流引擎重状态机确定性。AutoGen 状态隐式在对话历史中难恢复，适合脑暴探索；LangGraph 显式 Checkpoint 支持断点续传和时间旅行，适合长链路生产任务。选型看场景：探索用 AutoGen，生产用 LangGraph。两者可混用——LangGraph 节点内嵌 AutoGen 会话处理角色对话，统一 trace id 和成本核算。
+
+**展开框架：**
+1. **核心气质差异** — AutoGen 偏对话式多角色社交（回合制消息传递），LangGraph 偏确定性状态机（图结构节点边代码化）。
+2. **状态与容错** — AutoGen 状态隐式难恢复依赖长上下文；LangGraph 显式 TypedDict + Checkpointer（Redis/Postgres/S3）支持断点续传时间旅行。
+3. **选型与混用** — AutoGen 适合脑暴谈判代码辅助，LangGraph 适合复杂业务流长链路 SOP；混用时 LangGraph 节点嵌 AutoGen 会话统一 trace。
+
+**收尾：** 做长周期数据分析时 LangGraph 救过急——SQL 工具超时崩溃后能从断点恢复无需重跑昂贵 LLM 推理，早期用 AutoGen 连接中断整个上下文丢失只能手动重置。您想聊哪块，Checkpointer 持久化方案还是混用的 trace 统一？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡：AutoGen vs LangGraph | "AutoGen 像聊天群组，LangGraph 像工作流引擎。" | 类比开场 |
+| 0:15 | 核心气质差异 | "AutoGen 重对话社交，LangGraph 重状态机确定性。" | 核心区别 |
+| 0:45 | 状态管理对比 | "AutoGen 状态隐式难恢复，LangGraph 显式 Checkpoint 可续传。" | 容错能力 |
+| 1:10 | 选型决策表 | "探索用 AutoGen，生产用 LangGraph，看场景选。" | 选型建议 |
+| 1:35 | SQL 超时案例 | "实战：LangGraph 断点恢复免重跑，AutoGen 中断全丢。" | 实战对比 |
+| 1:50 | 总结卡 | "记住：AutoGen 重对话，LangGraph 重状态。下期讲混用。" | 收尾 |

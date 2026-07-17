@@ -128,3 +128,26 @@ print(result.to_pandas())
 - Context Recall：标准答案信息是否在Context中找到，防漏检。
 - 评估流程：RAG输出 -> LLM-as-a-Judge -> 打分。无需人工标注但需注意评估模型偏见。
 
+## 结构化回答
+
+**30 秒电梯演讲：** Ragas 用 LLM 当裁判，自动量化 RAG 的检索和生成质量。四个核心指标：Context Precision 查准、Context Recall 查全、Faithfulness 忠实度（防幻觉）、Answer Relevancy 相关性。流程是 RAG 输出交给 LLM-as-a-Judge 打分，无需人工标注，但要注意评估模型自身的偏见。
+
+**展开框架：**
+1. **检索侧指标** — Context Precision 衡量召回的上下文里有多少真正相关（查准）；Context Recall 衡量标准答案所需信息是否都在召回的上下文里（查全，防漏检）。
+2. **生成侧指标** — Faithfulness 检查答案的每条陈述是否被上下文支持，防止幻觉；Answer Relevancy 衡量答案是否切题、没有跑偏。
+3. **评估流程与注意点** — RAG 输出 → LLM-as-a-Judge → 自动打分，无需人工标注标准答案；但要注意评估模型自身有偏见，关键场景仍需抽检校准。
+
+**收尾：** 一句话，Ragas 让 RAG 评估从"拍脑袋"变成"可量化"。您想深入聊聊怎么减少 RAG 幻觉，还是 Faithfulness 具体怎么自动计算？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题《Ragas 评估》+ 老师批改作业漫画 | Ragas 像老师批改作业，不只看答案对不对，还要检查是不是抄的书、有没有跑题，用 LLM 当裁判自动打分。 | 类比开场 |
+| 0:25 | 检索侧两指标：Precision / Recall | 检索侧看两个指标：Context Precision 查准，看召回里有多少相关；Context Recall 查全，看标准答案信息是不是都在上下文里。 | 检索指标 |
+| 0:55 | 生成侧两指标：Faithfulness / Relevancy | 生成侧看两个：Faithfulness 看答案陈述是否被上下文支持，防幻觉；Answer Relevancy 看答案是否切题。 | 生成指标 |
+| 1:25 | 评估流程图：RAG 输出 → LLM-as-a-Judge → 打分 | 流程是 RAG 输出交给 LLM-as-a-Judge 自动打分，不需要人工标注标准答案。 | 评估流程 |
+| 1:50 | 注意点提示：评估模型偏见 | 注意评估模型自身也有偏见，关键场景还是要抽样人工校准一下。 | 注意事项 |
+

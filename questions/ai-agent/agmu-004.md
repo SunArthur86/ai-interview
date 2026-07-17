@@ -101,3 +101,27 @@ nclass BossAgent:
 - 并行度：Pipeline 受限于最慢阶段（短板），Boss-Worker 易于水平扩展。
 - 避坑指南：简单线性任务用 Pipeline 更快，Boss-Worker 有调度开销。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** Pipeline 是固定阶段顺序执行，像工厂流水线强依赖（Stage A→B→C）；Boss-Worker 是动态任务分发，像项目经理排期弱依赖（Boss 派活 Workers 干完汇总）。并行度差异：Pipeline 受限于最慢阶段短板，Boss-Worker 易水平扩展。简单线性任务用 Pipeline 更快，Boss-Worker 有调度开销；两者常混合用，Boss 定阶段内部跑 Pipeline。
+
+**展开框架：**
+1. **本质差异** — Pipeline 固定阶段顺序与数据形态转换（文本→AST→代码）；Boss-Worker 动态任务图，Boss 分解分发聚合，Workers 无状态执行。
+2. **并行度与适用** — Pipeline 受限于最长 Stage 短板效应，适合 ETL 标准化审核；Boss-Worker 高度并行水平扩展，适合分布式爬虫弹性任务。
+3. **边界与混合** — Pipeline 阻塞效应（Stage A 慢导致积压）、Boss 单点瓶颈（调度延迟）；混合模式 Boss 定阶段内部跑 Pipeline 很常见。
+
+**收尾：** 做文档生成系统时踩过坑——Pipeline 模式提取失败后续全挂，改 Boss 模式按文档类型分发给专精 Worker，某 Worker 挂了只影响那类文档，整体可用性提升。您想聊哪块，Boss 单点瓶颈还是并行写入数据竞争？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡：Boss-Worker vs Pipeline | "Pipeline 是固定传送带，Boss-Worker 是灵活派单中心。" | 类比开场 |
+| 0:15 | 本质差异对比图 | "Pipeline 固定阶段强依赖，Boss-Worker 动态分发弱依赖。" | 核心区别 |
+| 0:45 | 并行度对比 | "Pipeline 受最慢阶段限制，Boss-Worker 易水平扩展。" | 并行能力 |
+| 1:10 | 混合模式 | "常见混合：Boss 定阶段，阶段内部跑 Pipeline。" | 混合实践 |
+| 1:35 | 文档生成案例 | "实战：Pipeline 提取失败全挂，改 Boss 按类型分发提升可用性。" | 实战教训 |
+| 1:50 | 总结卡 | "记住：线性任务用 Pipeline，弹性任务用 Boss。下期讲背压。" | 收尾 |

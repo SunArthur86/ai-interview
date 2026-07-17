@@ -93,3 +93,26 @@ llm = LLM(
 - Ring Attention：支持1M+超长上下文，通过Ring All-Pass通信传递KV
 - 实战：长文本下调大vLLM的block_size至256可减少元数据开销
 
+## 结构化回答
+
+**30 秒电梯演讲：** 长上下文的瓶颈是 Attention 的 O(n²) 计算和 KV Cache 的显存爆炸。优化分两条线：KV Cache 侧做量化（INT4/8）、PagedAttention 分块、Prefix Caching 共享；Attention 架构侧用 Ring Attention 跨机环形计算支持 1M+ 上下文，用 StreamingLLM 的滑动窗口加 Attention Sink 支持无限流式输入。
+
+**展开框架：**
+1. **KV Cache 优化** — 量化（INT4/INT8）压显存、PagedAttention 分块存储消除碎片、Prefix Caching 共享公共前缀，三招组合大幅降显存。
+2. **Attention 架构** — Ring Attention 跨机环形传递 KV，支持 1M+ 超长上下文；StreamingLLM 用滑动窗口加 Attention Sink，支持无限流式输入。
+3. **实战调参** — 长文本场景下调大 vLLM 的 block_size 到 256，可以减少元数据管理开销，提升吞吐。
+
+**收尾：** 一句话，长上下文是"显存 + 计算"双线作战。您想深入聊聊 Attention Sink 是什么以及 StreamingLLM 为什么需要它，还是 YaRN 长度外推的原理？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题《长上下文优化》+ 厚书变薄笔记漫画 | 看超长文本就像看厚书，只记重点笔记，遇到需要时再翻详细章节，这就是长上下文优化的思路。 | 类比开场 |
+| 0:25 | KV Cache 优化三件套：量化/分块/共享 | 第一条线是优化 KV Cache：INT4 或 INT8 量化压显存，PagedAttention 分块消除碎片，Prefix Caching 共享前缀。 | KV Cache 优化 |
+| 0:55 | Ring Attention 多机环形通信图 | 第二条线是 Attention 架构：Ring Attention 跨机环形传递 KV，能支持 1M 以上的超长上下文。 | Ring Attention |
+| 1:25 | StreamingLLM 示意：滑动窗口 + Attention Sink | StreamingLLM 用滑动窗口加 Attention Sink，支持无限流式输入，适合对话场景。 | StreamingLLM |
+| 1:50 | vLLM block_size 调参示意 | 实战小技巧：长文本下调大 vLLM 的 block_size 到 256，可以减少元数据开销。 | 实战调参 |
+

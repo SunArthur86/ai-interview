@@ -122,3 +122,27 @@ __global__ void good_add(float4* x, float4* y, float4* out, int n) {
 - Compute Bound：算力瓶颈，优化方向是Tensor Core利用、指令流水线、减少逻辑判断
 - 工具定位：Nsight Compute看Stall原因，Nsight Systems看计算与通信重叠情况
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** 利用Roofline模型和Nsight工具定位Kernel瓶颈——打个比方，像体检看心率（计算）和供血（内存），哪边慢治哪边
+
+**展开框架：**
+1. **计算公式** — 算术强度AI = FLOPs / Bytes，对比转折点判断Bound类型
+2. **Memory B** — Memory Bound：带宽瓶颈，优化方向是合并访问、Shared Memory分块、向量化读写
+3. **Compute** — Compute Bound：算力瓶颈，优化方向是Tensor Core利用、指令流水线、减少逻辑判断
+
+**收尾：** 以上三点都能配合实战聊。我可以展开任一要点，比如「Occupancy 是越高越好吗？—— 不一定，高 occupancy 可能意味着低 per-thread 资源」这类追问您感兴趣吗？
+
+## 视频脚本
+
+> 预计时长：4 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡 | "【智谱Infra面经】如何评估一个 CUDA Kernel 的优化空间，30 秒讲清楚。" | 开场钩子 |
+| 0:40 | 概念定义动画 | "一句话：利用Roofline模型和Nsight工具定位Kernel瓶颈" | 核心定义 |
+| 1:20 | 计算公式图解 | "算术强度AI = FLOPs / Bytes，对比转折点判断Bound类型" | 计算公式 |
+| 2:00 | Memory Bound图解 | "带宽瓶颈，优化方向是合并访问、Shared Memory分块、向量化读写" | Memory Bound |
+| 2:40 | 要点图解 | "Compute Bound：算力瓶颈，优化方向是Tensor Core利用、指令流水线、减少逻辑判断" | 要点 |
+| 3:20 | 总结卡 | "记好这几条，面试不慌。下期见。" | 收尾 |

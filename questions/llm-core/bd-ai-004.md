@@ -131,3 +131,27 @@ def build_context(query: str, session_id: str):
 - 差异：Claude Code无缝但细节丢失，Hermes精确检索适合回溯，OpenClaw适合审计。
 - 策略：长任务需注意上下文窗口限制，利用Resume或Profile隔离管理会话。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** Claude Code重集成易用，Hermes重技能封装，OpenClaw重可定制审计。——打个比方，像办公软件：Claude是Mac（生态好开箱用），Hermes是瑞士军刀（功能全），OpenClaw是工作站（可折腾）。
+
+**展开框架：**
+1. **记忆** — Claude Code自动摘要压缩，Hermes结构化JSON记忆，OpenClaw事件溯源。
+2. **工具** — Claude Code MCP集成最深，Hermes Skill编排最强，OpenClaw Plugin最灵活。
+3. **上下文** — Claude Code自动去重压缩，Hermes检索注入，OpenClaw全量日志。
+
+**收尾：** 以上三点都能配合实战聊。我可以展开任一要点，比如「Agent的上下文压缩会丢失信息，怎么缓解？—— 用结构化记忆（如Hermes的memories/）保存关键事实，不依赖对话窗口」这类追问您感兴趣吗？
+
+## 视频脚本
+
+> 预计时长：4 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡 | "【字节面经】对比OpenClaw/Hermes/Claude Code等Agen，30 秒讲清楚。" | 开场钩子 |
+| 0:40 | 概念定义动画 | "一句话：Claude Code重集成易用，Hermes重技能封装，OpenClaw重可定制审计。" | 核心定义 |
+| 1:20 | 记忆图解 | "Claude Code自动摘要压缩，Hermes结构化JSON记忆，OpenClaw事件溯源。" | 记忆 |
+| 2:00 | 工具图解 | "Claude Code MCP集成最深，Hermes Skill编排最强，OpenClaw Plugin最灵活。" | 工具 |
+| 2:40 | 上下文图解 | "Claude Code自动去重压缩，Hermes检索注入，OpenClaw全量日志。" | 上下文 |
+| 3:20 | 总结卡 | "记好这几条，面试不慌。下期见。" | 收尾 |

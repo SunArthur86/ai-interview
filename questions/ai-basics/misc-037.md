@@ -99,3 +99,26 @@ optimized_qa = teleprompter.compile(QA(), trainset=train_data)
 - 对比：传统靠人工调参，DSPy靠Teacher LLM生成示例和Metric反馈自动调优
 - 局限：Metric设计难主观，依赖Teacher模型能力上限，易过拟合训练集
 
+## 结构化回答
+
+**30 秒电梯演讲：** DSPy 把 Prompt Engineering 变成编程问题，像写代码定义接口让编译器自动优化，而不是手写汇编。四大组件：Signature 定义输入输出、Module 是处理单元、Teleprompter 是优化器、Metric 做评估。流程是定义 Signature 后让优化器自动搜索最佳 Prompt 和示例，靠 Teacher LLM 和 Metric 反馈自动调优。
+
+**展开框架：**
+1. **核心思想** — 声明式编程替代手写 Prompt，把 Prompt 工程从"人工调字眼"变成"参数化优化"，可复现、可规模化。
+2. **四大组件** — Signature 声明输入输出接口；Module 是可组合的处理单元（如 ChainOfThought）；Teleprompter 是优化器，自动搜索最佳示例和指令；Metric 定义评估标准。
+3. **流程与局限** — 定义 Signature → 优化器搜索最佳 Prompt/示例 → 编译运行；局限是 Metric 设计主观且难、依赖 Teacher 模型能力上限、容易过拟合训练集。
+
+**收尾：** 一句话，DSPy 让 Prompt 从"手艺活"变成"工程活"。您想深入聊聊 BootstrapFewShot 怎么选示例，还是 DSPy 和 LangChain 的本质区别？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题《DSPy 程序化 Prompt》+ 写接口 vs 手写汇编漫画 | DSPy 像写代码定义接口，让编译器自动优化底层实现，而不是手写汇编逐字调 Prompt。 | 类比开场 |
+| 0:25 | 四大组件图：Signature/Module/Teleprompter/Metric | 四大组件：Signature 定义输入输出，Module 是处理单元，Teleprompter 是优化器，Metric 做评估。 | 四大组件 |
+| 0:55 | 优化流程：Signature → 优化器搜索 → 编译 | 流程是定义 Signature，让优化器自动搜索最佳 Prompt 和示例，然后编译运行。 | 优化流程 |
+| 1:25 | 对比：人工调参 vs Teacher LLM + Metric 自动调优 | 传统靠人工调参，DSPy 靠 Teacher LLM 生成示例、用 Metric 反馈自动调优。 | 对比传统 |
+| 1:50 | 局限提示：Metric 难设计 / 依赖 Teacher / 易过拟合 | 局限是 Metric 设计主观且难，依赖 Teacher 模型能力上限，容易过拟合训练集。 | 局限性 |
+

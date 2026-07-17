@@ -137,3 +137,27 @@ __global__ void wmma_gemm(half *A, half *B, float *C, int M, int N, int K) {
 - 流水线：Double Buffering 异步加载，隐藏内存延迟，掩盖数据传输时间。
 - 性能分析：用 Roofline 模型判断是 Memory Bound 还是 Compute Bound，对症下药。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** 利用Shared Memory分块和Tensor Core硬件加速矩阵乘法。——打个比方，像搬砖一样，先把砖（数据）搬到脚手架，再快速砌墙，减少来回跑。
+
+**展开框架：**
+1. **内存优化** — Coalescing 合并访问，Shared Memory Tiling 分块复用，Padding 消除 Bank Conflict。
+2. **Tensor C** — Tensor Core：使用 WMMA API，要求 FP16/BF16 输入和 FP32 累加，数据布局需对齐。
+3. **流水线** — Double Buffering 异步加载，隐藏内存延迟，掩盖数据传输时间。
+
+**收尾：** 以上三点都能配合实战聊。我可以展开任一要点，比如「如何判断一个Kernel是memory-bound还是compute-bound」这类追问您感兴趣吗？
+
+## 视频脚本
+
+> 预计时长：4 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡 | "CUDA Kernel优化：如何写一个高效的GEMM（矩阵乘法），30 秒讲清楚。" | 开场钩子 |
+| 0:40 | 概念定义动画 | "一句话：利用Shared Memory分块和Tensor Core硬件加速矩阵乘法。" | 核心定义 |
+| 1:20 | 内存优化图解 | "Coalescing 合并访问，Shared Memory Tiling 分块复用" | 内存优化 |
+| 2:00 | Tensor Core图解 | "使用 WMMA API，要求 FP16/BF16 输入和 FP32 累加，数据布局需对齐。" | Tensor Core |
+| 2:40 | 流水线图解 | "Double Buffering 异步加载，隐藏内存延迟，掩盖数据传输时间。" | 流水线 |
+| 3:20 | 总结卡 | "记好这几条，面试不慌。下期见。" | 收尾 |

@@ -112,3 +112,26 @@ docs = [doc for _, doc in sorted(zip(scores, docs), key=lambda x: x[0], reverse=
 - 流程：Bi-Encoder召回Top-50 -> Cross-Encoder精排Top-5。
 - 代价：Cross-Encoder无法缓存向量，计算开销大，仅处理少量候选。
 
+## 结构化回答
+
+**30 秒电梯演讲：** 向量检索召回快但精度有限，Reranker 在召回后做精排，弥补语义理解不足。关键区别：Bi-Encoder 把 query 和 doc 各自独立编码，速度快、可缓存，用于海量召回；Cross-Encoder 把两者拼接后交互，精度高但无法缓存、计算贵，只用于少量精排。经典流程是 Bi-Encoder 召回 Top-50，Cross-Encoder 精排到 Top-5。
+
+**展开框架：**
+1. **为什么需要 Reranker** — 向量检索（Bi-Encoder）独立编码、用余弦相似度匹配，快但语义交互不充分，Top-K 里常混入表面相似但实际不相关的文档，需要精排过滤。
+2. **Bi-Encoder vs Cross-Encoder** — Bi-Encoder 独立编码、可预计算缓存、速度快，用于召回；Cross-Encoder 把 query 和 doc 拼接后做深层 Attention 交互，精度高但每个 pair 都要算一次、无法缓存。
+3. **经典流程与代价** — Bi-Encoder 召回 Top-50，Cross-Encoder 精排取 Top-5；代价是 Cross-Encoder 计算开销大，只处理少量候选，所以放在最后一步。
+
+**收尾：** 一句话，先粗筛再精排，用计算换精度。您想深入聊聊 Cross-Encoder 为什么精度更高，还是怎么训练自定义 Reranker？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题《Reranker 精排》+ 图书馆选书漫画 | Reranker 像先在图书馆电脑搜到一批书，再把书拿在手里细读目录决定要哪几本，先粗筛再精排。 | 类比开场 |
+| 0:25 | Bi-Encoder 示意：query/doc 独立编码 + 缓存 | Bi-Encoder 把 query 和 doc 各自独立编码，可以预计算缓存，速度快，用于海量召回。 | Bi-Encoder |
+| 0:55 | Cross-Encoder 示意：拼接 + 深层交互 | Cross-Encoder 把 query 和 doc 拼一起做深层 Attention 交互，精度高，但每个 pair 都要算，无法缓存。 | Cross-Encoder |
+| 1:25 | 经典流程图：召回 Top-50 → 精排 Top-5 | 经典流程：Bi-Encoder 召回 Top-50，Cross-Encoder 精排到 Top-5，兼顾速度和精度。 | 经典流程 |
+| 1:50 | 代价提示：计算开销大，仅处理少量候选 | 代价是 Cross-Encoder 计算开销大，只能处理少量候选，所以放在流程最后一步。 | 代价与边界 |
+

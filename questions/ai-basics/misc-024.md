@@ -102,3 +102,26 @@ output = model.generate(
 - Nucleus Sampling (Top-p) 随机采样，多样性高，适合创意写作，但可能产生幻觉。
 - 决策口诀：事实问答用Contrastive，创意对话用Nucleus，机器翻译用Beam。
 
+## 结构化回答
+
+**30 秒电梯演讲：** 解码策略是在模型置信度和生成多样性之间找平衡。Greedy 最快但易重复；Beam Search 稳但易生成平庸废话，适合翻译摘要；Contrastive Search 结合概率和退化惩罚，专治重复，适合长文本和 RAG；Nucleus Sampling 多样性高，适合创意写作但有幻觉风险。口诀：事实用 Contrastive，创意用 Nucleus，翻译用 Beam。
+
+**展开框架：**
+1. **Greedy 与 Beam Search** — Greedy 每步取最大概率，快但易陷入重复；Beam Search 保留多条路径，质量稳但倾向生成平庸、安全的废话，适合翻译、摘要等结构化任务。
+2. **Contrastive Search** — 结合模型概率与退化惩罚项，惩罚与已生成内容相似的 token，解决重复问题，参数 alpha 通常取 0.5 到 0.7，适合长文本和 RAG。
+3. **Nucleus Sampling 与决策口诀** — Top-p 随机采样多样性高，适合创意写作但可能产生幻觉；决策口诀：事实问答用 Contrastive，创意对话用 Nucleus，机器翻译用 Beam。
+
+**收尾：** 一句话，解码策略按任务类型选，没有万能解。您想深入聊聊 Beam Search 为什么在开放对话里效果不好，还是 do_sample 真假的区别？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题《解码策略选型》+ 写作文漫画：通顺又不重复 | 解码策略就像写作文，既要写得通顺、听老师的话，又不能一直重复同一句、要有新词。 | 类比开场 |
+| 0:25 | Greedy vs Beam Search 路径图 | Greedy 每步取最大概率，快但易重复；Beam Search 保留多条路径，稳但容易生成平庸废话，适合翻译摘要。 | Greedy/Beam |
+| 0:55 | Contrastive Search：概率 + 退化惩罚 | Contrastive Search 结合概率和退化惩罚，惩罚和已生成内容相似的 token，专治重复，适合长文本和 RAG，alpha 通常 0.5 到 0.7。 | Contrastive |
+| 1:25 | Nucleus Sampling 随机采样动画 | Nucleus Sampling 即 Top-p 随机采样，多样性高，适合创意写作，但可能产生幻觉。 | Nucleus |
+| 1:50 | 决策口诀三栏表：事实/创意/翻译 | 决策口诀：事实问答用 Contrastive，创意对话用 Nucleus，机器翻译用 Beam。 | 决策口诀 |
+

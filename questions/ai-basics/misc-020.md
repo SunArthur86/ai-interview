@@ -112,3 +112,26 @@ def init_llm_engine():
 - Prefix Caching：复用System Prompt等前缀计算，降低首字延迟
 - 效果：相比HuggingFace吞吐量提升10倍（50 vs 5 tok/s）
 
+## 结构化回答
+
+**30 秒电梯演讲：** vLLM 之所以快，靠三件套：PagedAttention 借操作系统的分页管理，把 KV Cache 分块存储，消除显存碎片，利用率升到 96%；Continuous Batching 像餐厅动态拼桌，随时移除完成的请求、插入新任务；再加上 Prefix Caching 复用系统提示词等前缀计算，整体相比 HuggingFace 吞吐量提升 10 倍。
+
+**展开框架：**
+1. **PagedAttention** — 借鉴操作系统分页管理，把 KV Cache 按固定大小的 Block 分块存储，消除显存碎片，显存利用率从约 60% 升到 96%，支持变长序列。
+2. **Continuous Batching** — 动态批处理，请求一完成或等待就立刻移出，新请求动态插入，避免传统 Static Batching 里的"等最慢请求"问题。
+3. **Prefix Caching 与效果** — 复用 System Prompt 等公共前缀的 KV 计算，降低首字延迟；整体相比 HuggingFace 吞吐量提升约 10 倍（50 vs 5 tok/s）。
+
+**收尾：** 一句话，vLLM 用系统工程把推理吞吐拉满。您想深入聊聊 PagedAttention 怎么处理变长序列，还是 Prefix Caching 在什么场景效果最好？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题《vLLM 为何这么快》+ 餐厅动态拼桌漫画 | vLLM 快，靠的是三件套。先想象一个餐厅，服务员根据客人用餐节奏动态拼桌，不让空座位浪费。 | 类比开场 |
+| 0:25 | PagedAttention 分块图：KV Cache 按 Block 存储 | 第一件是 PagedAttention，借操作系统的分页管理，把 KV Cache 分块存储，消除显存碎片，利用率升到 96%。 | PagedAttention |
+| 0:55 | Continuous Batching 动画：请求动态进出 | 第二件是 Continuous Batching，动态调度请求，谁完成或等待就移出，新请求立刻插进来，不浪费算力。 | 连续批处理 |
+| 1:25 | Prefix Caching 示意：System Prompt 复用 | 第三件是 Prefix Caching，复用 System Prompt 等公共前缀的计算结果，降低首字延迟。 | 前缀缓存 |
+| 1:50 | 吞吐对比柱状图：50 vs 5 tok/s | 三件套合起来，相比 HuggingFace 吞吐量提升约 10 倍，从 5 涨到 50 个 token 每秒。 | 效果数据 |
+

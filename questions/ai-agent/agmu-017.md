@@ -115,3 +115,27 @@ def run_with_timeout_and_loop_check(step_func: Callable, max_steps: int = 20) ->
 - 配合 LLM-as-a-judge 和 Golden Set，防偏见。
 - Tracing 可视化全链路，定位 Token 消耗与中间状态。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** 多 Agent 评估必须分层进行，单看最终结果难定位问题。三层：单元测单 Agent 输入输出（Function Call 正确率）、集成测两两交互（消息解析成功率）、E2E 测任务成功率（整体 Goal 完成率）。辅助手段是 LLM-as-Judge（GPT-4 当裁判）但要防偏见配黄金集与人审。必须用 Tracing（LangSmith、Arize）可视化全链路定位 Token 消耗和中间状态。
+
+**展开框架：**
+1. **三层评估** — 单元测单 Agent I/O（Function Call 正确率）、集成测 Agent 交互对（消息解析成功率）、E2E 测完整工作流（任务完成率总耗时）。
+2. **辅助手段** — LLM-as-Judge 用 GPT-4 打分但要防偏见配 Golden Set；Hallucination Rate 专门检测虚构工具或参数；Cost-aware 评估路径是否最经济。
+3. **Tracing 与避坑** — 分布式追踪（LangSmith、Arize）可视化每步 Token 消耗；评估集别只覆盖 happy path 要引对抗样本测鲁棒性。
+
+**收尾：** 做客服 Agent 时踩过坑——最终回复准确率 95% 但 Trace 发现意图识别 Agent 把退款误判为咨询导致多轮反问，优化 Agent A 单元指标后交互轮次从 5.2 降到 3.1。您想聊哪块，Golden Set 构建还是 Tracing 工具选型？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡：多 Agent 评估怎么做 | "像考核员工，既要考试（单元），也要看项目成果（端到端）。" | 类比开场 |
+| 0:15 | 三层评估图 | "单元测单 Agent，集成测交互，E2E 测任务成功率。" | 分层评估 |
+| 0:45 | LLM-as-Judge 警示 | "GPT-4 当裁判要防偏见，配黄金集和人审校准。" | 辅助手段 |
+| 1:10 | Tracing 可视化 | "LangSmith、Arize 可视化全链路，定位 Token 消耗。" | 工具支持 |
+| 1:35 | 意图误判案例 | "实战：准确率 95% 但意图误判导致多轮，Trace 定位优化。" | 实战教训 |
+| 1:50 | 总结卡 | "记住：分层评估 + LLM 裁判 + Tracing。下期讲人机在环。" | 收尾 |

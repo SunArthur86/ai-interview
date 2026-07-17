@@ -98,3 +98,27 @@ frontend_data = UserSchema(**mock_api_resp).model_dump(by_alias=False) # Standar
 - 引入 OpenAPI/Schema 作为唯一真理，QA Agent 强校验。
 - 采用 Schema First 或 Reflexion 模式自我修正。
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** 多 Agent 会降低一致性，因为不同 Agent 独立上下文和 Prompt 容易产生接口对不上、字段命名不一致。解法是单一契约源——引入 OpenAPI 或 JSON Schema 作为唯一 Truth Source，所有 Agent 必须引用而非臆造。配合契约测试 Agent（QA Agent 比对前后端实现）和 Schema First 或 Reflexion 模式自我修正。坑是 Schema 漂移需架构师 Agent 维护生命周期，巨大 OpenAPI 塞 Prompt 要用 RAG 只注入相关接口。
+
+**展开框架：**
+1. **问题根源** — 多 Agent 独立上下文和 Prompt 导致接口对不上、字段命名不一致（userId vs user_id 驼峰蛇形冲突）。
+2. **单一契约源** — OpenAPI 或 JSON Schema 作为唯一 Truth Source；QA Agent 比对前后端实现是否符合契约；Schema First 生成即准确。
+3. **Reflexion 与避坑** — QA Agent 发现不一致反馈具体错误让 Agent 自我修正；Schema 漂移需架构师 Agent 维护变更通知；巨大 OpenAPI 用 RAG 只注入相关接口。
+
+**收尾：** 做电商重构时踩过坑——后端 Agent 改 userId 为 user_id 但前端坚持驼峰，引入 Schema 强制校验 QA Agent 自动拦截联调失败避免 400 报错。您想聊哪块，Schema 版本控制还是 Reflexion 反馈设计？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡：多 Agent 会降低一致性吗 | "多人协作装修必须按同一张图纸施工。" | 类比开场 |
+| 0:15 | 问题根源图 | "不同 Agent 独立上下文导致接口对不上、字段命名不一致。" | 问题根源 |
+| 0:45 | 单一契约源 | "OpenAPI 或 JSON Schema 作为唯一 Truth Source，强制引用。" | 核心解法 |
+| 1:10 | Schema 漂移警示 | "坑：Schema 生成一次不永久有效，要架构师 Agent 维护。" | 关键坑 |
+| 1:35 | userId 命名冲突案例 | "实战：后端蛇形前端驼峰，Schema 强校验拦截联调失败。" | 实战教训 |
+| 1:50 | 总结卡 | "记住：单一契约源 + QA Agent + Reflexion。下期讲评估。" | 收尾 |

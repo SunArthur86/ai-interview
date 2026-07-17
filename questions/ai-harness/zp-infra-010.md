@@ -112,3 +112,26 @@ model.layer[-1].register_forward_hook(check_nan)
 - Hang诊断：开启NCCL_DEBUG看通信死锁，CUDA_LAUNCH_BLOCKING同步定位错误，py-spy查堆栈
 - 显存公式：总显存=权重+梯度+优化器+激活+KV，优化器状态占比最大
 
+
+## 结构化回答
+
+**30 秒电梯演讲：** 定位MFU低效、OOM根源和死锁点以恢复训练——打个比方，像修车，看转速（MFU）、油箱（OOM）和塞车（Hang）分别修
+
+**展开框架：**
+1. **低MFU诊断** — 用Profiler看Kernel耗时，Nsight看通信重叠，常见瓶颈是通信未Overlap或数据加载慢
+2. **OOM解决** — ZeRO-3分片参数、Checkpointing换激活显存、CPU Offload卸载冷数据
+3. **Hang诊断** — 开启NCCL_DEBUG看通信死锁，CUDA_LAUNCH_BLOCKING同步定位错误，py-spy查堆栈
+
+**收尾：** 以上三点都能配合实战聊。我可以展开任一要点，比如「MFU 怎么计算？ — — 实际 tokens/s × 每 token FLOPs(6N) / GPU 峰值 FLOPS」这类追问您感兴趣吗？
+
+## 视频脚本
+
+> 预计时长：3 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题卡 | "【智谱Infra面经】大模型训练低 MFU / OOM / hang 如何诊断，30 秒讲清楚。" | 开场钩子 |
+| 0:36 | 概念定义动画 | "一句话：定位MFU低效、OOM根源和死锁点以恢复训练" | 核心定义 |
+| 1:12 | 低MFU诊断图解 | "用Profiler看Kernel耗时，Nsight看通信重叠，常见瓶颈是通信未Overlap或数据加载慢" | 低MFU诊断 |
+| 1:48 | OOM解决图解 | "ZeRO-3分片参数、Checkpointing换激活显存、CPU Offload卸载冷数据" | OOM解决 |
+| 2:24 | 总结卡 | "记好这几条，面试不慌。下期见。" | 收尾 |

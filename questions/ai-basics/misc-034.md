@@ -127,3 +127,26 @@ def robust_json_parse(text: str):
 - 后处理鲁棒性：正则提取JSON块，用json5容错解析，Pydantic校验
 - Few-shot作用：复杂结构给示例比单纯描述Schema更有效
 
+## 结构化回答
+
+**30 秒电梯演讲：** 让 LLM 稳定输出 JSON，像填表一样给它空格子并告诉它别在格子外写字。优先用 Function Calling 或原生 JSON Mode；通用法是 Prompt 加 Schema 三要素：XML 标签分隔、提供 Schema、明确只输出 JSON。参数上温度设 0、max_tokens 留够防截断，再用正则加 json5 加 Pydantic 做后处理兜底。
+
+**展开框架：**
+1. **方法选型** — 优先用 Function Calling 或原生 JSON Mode（模型层面约束，最稳）；通用场景用 Prompt + Schema 组合，兼容性最好。
+2. **Prompt 三要素与参数** — XML 标签分隔用户内容与指令、提供清晰的 JSON Schema、明确声明"只输出 JSON"；温度设为 0 降低随机性，max_tokens 预留充足防止结构截断。
+3. **后处理与 Few-shot** — 用正则提取 JSON 块、json5 容错解析、Pydantic 做字段校验，保证鲁棒；复杂嵌套结构给 Few-shot 示例比单纯描述 Schema 更有效。
+
+**收尾：** 一句话，稳定 JSON = 模型约束 + Prompt 约束 + 后处理兜底。您想深入聊聊 Function Calling 和 JSON Mode 的区别，还是怎么处理模型输出不合法 JSON？
+
+## 视频脚本
+
+> 预计时长：2 分钟 | 由浅入深
+
+| 时间 | 画面/字幕 | 口播台词 | 讲解要点 |
+|------|----------|----------|----------|
+| 0:00 | 标题《让 LLM 输出 JSON》+ 填表漫画 | 让模型稳定输出 JSON，像填表一样给它空格子，并告诉它别在格子外写字。 | 类比开场 |
+| 0:25 | 方法优先级：Function Calling / JSON Mode / Prompt+Schema | 方法选型有优先级：首选 Function Calling 或原生 JSON Mode，模型层面约束最稳；通用场景用 Prompt 加 Schema。 | 方法选型 |
+| 0:55 | Prompt 三要素：XML 分隔 + Schema + 明确声明 | Prompt 三要素：用 XML 标签分隔、提供清晰 Schema、明确声明只输出 JSON。 | Prompt 三要素 |
+| 1:25 | 参数设置：温度=0 + max_tokens 留够 | 参数上温度设为 0 降低随机性，max_tokens 一定要留够，防止 JSON 结构被截断。 | 参数设置 |
+| 1:50 | 后处理链路：正则 → json5 → Pydantic | 后处理用正则提取 JSON 块、json5 容错解析、Pydantic 校验字段，复杂结构再配 Few-shot 示例。 | 后处理兜底 |
+
